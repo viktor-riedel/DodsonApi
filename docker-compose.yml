@@ -1,0 +1,72 @@
+version: '3.8'
+
+networks:
+    laravel:
+
+services:
+    dodson-api:
+        build:
+            dockerfile: nginx.dockerfile
+            args:
+                - UID=${UID:-1000}
+                - GID=${GID:-1000}
+        ports:
+            - "6080:80"
+        volumes:
+            - ./:/var/www/html:delegated
+        depends_on:
+            - php
+            - redis
+            - mailhog
+        networks:
+            - laravel
+    php:
+        build:
+            dockerfile: php.dockerfile
+            args:
+                - UID=${UID:-1000}
+                - GID=${GID:-1000}
+        #ports:
+        #    - "9000:9000"
+        volumes:
+            - ./:/var/www/html:delegated
+        networks:
+            - laravel
+    redis:
+        image: redis:alpine
+        restart: unless-stopped
+        ports:
+            - "65379:6379"
+        networks:
+            - laravel
+    composer:
+        build:
+            dockerfile: php.dockerfile
+            args:
+                - UID=${UID:-1000}
+                - GID=${GID:-1000}
+        volumes:
+            - ./:/var/www/html
+        depends_on:
+            - php
+        entrypoint: ['composer', '--ignore-platform-reqs']
+        networks:
+            - laravel
+    artisan:
+        build:
+            dockerfile: php.dockerfile
+            args:
+                - UID=${UID:-1000}
+                - GID=${GID:-1000}
+        volumes:
+            - ./:/var/www/html
+        entrypoint: ['php', '/var/www/html/artisan']
+        networks:
+            - laravel
+    mailhog:
+        image: mailhog/mailhog:latest
+        ports:
+            - "9125:1025"
+            - "9025:8025"
+        networks:
+            - laravel
