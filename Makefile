@@ -10,3 +10,5 @@ npm-install:
 	docker-compose run --rm npm install
 migrate:
 	docker-compose run --rm artisan migrate
+composer:
+	docker-compose run --rm composer require laravel/sanctum
