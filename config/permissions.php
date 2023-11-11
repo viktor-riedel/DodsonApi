@@ -1,4 +1,5 @@
 <?php
+
 return [
     //*********DASHBOARD***********
     [
@@ -18,6 +19,18 @@ return [
     //*********PARTS************
     [
         'name' => 'view-parts',
+        'description' => '',
+    ],
+    [
+        'name' => 'add-parts',
+        'description' => '',
+    ],
+    [
+        'name' => 'quick-offer-parts',
+        'description' => '',
+    ],
+    [
+        'name' => 'import-parts-from-pinnacle',
         'description' => '',
     ],
     //*********SETTINGS************
