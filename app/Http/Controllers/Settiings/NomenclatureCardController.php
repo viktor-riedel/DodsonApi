@@ -48,6 +48,9 @@ class NomenclatureCardController extends Controller
             'ic_number' => $request->input('ic_number'),
             'oem_number' => $request->input('oem_number'),
             'inner_number' => $request->input('inner_number'),
+            'color' => $request->input('color'),
+            'weight' => $request->input('weight'),
+            'extra' => $request->input('extra'),
             'created_by' => 1, //temp
             'deleted_by' => null,
         ]);

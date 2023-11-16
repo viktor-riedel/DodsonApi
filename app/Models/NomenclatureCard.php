@@ -33,6 +33,9 @@ class NomenclatureCard extends Model
         'ic_number',
         'oem_number',
         'inner_number',
+        'color',
+        'weight',
+        'extra',
         'created_by',
         'deleted_by',
     ];

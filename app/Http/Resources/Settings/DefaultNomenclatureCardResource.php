@@ -34,6 +34,9 @@ class DefaultNomenclatureCardResource extends JsonResource
             'ic_number' => $this->ic_number,
             'oem_number' => $this->oem_number,
             'inner_number' => $this->inner_number,
+            'color' => $this->color,
+            'weight' => $this->weight,
+            'extra' => $this->extra,
         ];
     }
 }
