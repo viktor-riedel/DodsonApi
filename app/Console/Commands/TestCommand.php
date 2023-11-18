@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\ExternalApiHelpers\CapartsApiHelper;
+use App\Http\ExternalApiHelpers\FindCarsInOneC;
 use Illuminate\Console\Command;
 
 class TestCommand extends Command
@@ -13,8 +14,11 @@ class TestCommand extends Command
 
     public function handle(): void
     {
-        $helper = new CapartsApiHelper();
-        $result = $helper->fundCarByStockNumber('BZ0058');
-        dd($result);
+        $helper = new FindCarsInOneC();
+        $result = $helper->findCarByStockNumber('KI0923');
+        if ($result['car']) {
+            dd($result['car']);
+        }
+        $this->info('nothing');
     }
 }

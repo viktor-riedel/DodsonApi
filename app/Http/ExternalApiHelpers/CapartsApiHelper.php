@@ -8,15 +8,11 @@ class CapartsApiHelper
 {
 
     private const ACCEPT_TYPE = 'application/json';
+    private const CACHE_ACCESS_TOKEN = 'access_token';
 
     public function fundCarByStockNumber(string $stock_number)
     {
-        if (!cache()->has('token')) {
-            $token = $this->authorize_client();
-            cache()->put('token', $token, now()->addHours(24));
-        } else {
-            $token = cache()->get('token');
-        }
+        $token = $this->authorize_client();
         $response = Http::withToken($token)
             ->accept(self::ACCEPT_TYPE)
             ->withHeaders(
@@ -35,20 +31,26 @@ class CapartsApiHelper
 
     private function authorize_client(): string
     {
+        if (cache()->has(self::CACHE_ACCESS_TOKEN)) {
+            return cache()->get(self::CACHE_ACCESS_TOKEN);
+        }
+
         $body = [
             'email' => config('api_helpers.login'),
             'password' => config('api_helpers.password'),
             'company_name' => config('api_helpers.caparts_company_name')
         ];
         $response = Http::
-            withHeaders(
-                [
-                    'X-COMPANY-NAME' => config('api_helpers.caparts_company_name'),
-                    'X-CSRF-TOKEN' => '',
-                ]
-            )->post((config('api_helpers.caparts_api_url') . '/ease-login'), $body);
+        withHeaders(
+            [
+                'X-COMPANY-NAME' => config('api_helpers.caparts_company_name'),
+                'X-CSRF-TOKEN' => '',
+            ]
+        )->post((config('api_helpers.caparts_api_url') . '/ease-login'), $body);
         if ($response->ok()) {
-            return $response->json()['access_token'];
+            $token = $response->json()['access_token'];
+            cache()->put(self::CACHE_ACCESS_TOKEN, $token, now()->addHours(24));
+            return $token;
         }
         return '';
     }

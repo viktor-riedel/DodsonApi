@@ -8,6 +8,7 @@ class CatalogApiHelper
 {
 
     private const ACCEPT_TYPE = 'application/json';
+    private const CACHE_TOKEN = 'catalog_token';
 
     public function loadMakes()
     {
@@ -98,13 +99,19 @@ class CatalogApiHelper
 
     private function authorize_client(): string
     {
+        if (cache()->has(self::CACHE_TOKEN)) {
+            return cache()->get(self::CACHE_TOKEN);
+        }
+
         $body = [
             'email' => config('api_helpers.login'),
             'password' => config('api_helpers.password'),
         ];
         $response = Http::post(config('api_helpers.catalog_api_url') . '/login', $body);
         if ($response->ok()) {
-            return $response->json()['data']['token'];
+            $token = $response->json()['data']['token'];
+            cache()->put(self::CACHE_TOKEN, $token, now()->addHours(24));
+            return $token;
         }
         return '';
     }
