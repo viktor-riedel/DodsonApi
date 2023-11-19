@@ -12,7 +12,8 @@ class NomenclatureBaseItemPdrCard extends Model
     
     protected $fillable = [
         'nomenclature_base_item_pdr_id',
-        'name',
+        'name_eng',
+        'name_ru',
         'default_price',
         'default_retail_price',
         'default_wholesale_price',

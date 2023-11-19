@@ -25,4 +25,17 @@ class BaseItemController extends Controller
         return response()->json(['base item created' =>  true], 201);
     }
 
+
+    public function edit(NomenclatureBaseItem $baseItem): BaseItemResource
+    {
+        $baseItem->load(['baseItemPDR' , 'baseItemPDR.nomenclatureBaseItemPdrCard']);
+        return new BaseItemResource($baseItem);
+    }
+
+    public function baseItemUpdate(Request $request, NomenclatureBaseItem $baseItem): BaseItemResource
+    {
+        $baseItem->update($request->except('chassis', 'item_pdr', 'id', 'start_stop_dates'));
+        $baseItem->load(['baseItemPDR' , 'baseItemPDR.nomenclatureBaseItemPdrCard']);
+        return new BaseItemResource($baseItem);
+    }
 }

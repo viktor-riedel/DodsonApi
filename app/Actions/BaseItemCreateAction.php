@@ -55,7 +55,8 @@ class BaseItemCreateAction
             ]);
 
             $baseItemPdr->nomenclatureBaseItemPdrCard()->create([
-                'name' => $card->name,
+                'name_eng' => $element['item_name_eng'],
+                'name_ru' => $element['item_name_ru'],
                 'default_price' => $card->default_price,
                 'default_retail_price' => $card->default_retail_price,
                 'default_wholesale_price' => $card->default_wholesale_price,

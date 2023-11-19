@@ -25,7 +25,8 @@ class NomenclatureCardController extends Controller
         $card?->update(['deleted_by' => 1]);
         $card?->delete();
         $card = NomenclatureCard::create([
-            'name' => $request->input('name'),
+            'name_eng' => $request->input('name_eng'),
+            'name_ru' => $request->input('name_ru'),
             'default_price' => $request->input('default_price'),
             'default_wholesale_price' => $request->input('default_wholesale_price'),
             'default_retail_price' => $request->input('default_retail_price'),

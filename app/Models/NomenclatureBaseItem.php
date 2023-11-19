@@ -37,6 +37,15 @@ class NomenclatureBaseItem extends Model
 
     protected $hidden = ['created_at', 'updated_at', 'created_by', 'deleted_by'];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'created_by' => 'datetime',
+        'deleted_by' => 'datetime',
+        'restyle' => 'boolean',
+        'not_restyle' => 'boolean',
+    ];
+
     public function baseItemPDR(): HasMany
     {
         return $this->hasMany(NomenclatureBaseItemPdr::class);

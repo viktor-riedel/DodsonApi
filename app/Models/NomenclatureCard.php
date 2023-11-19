@@ -10,7 +10,8 @@ class NomenclatureCard extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'name',
+        'name_eng',
+        'name_ru',
         'default_price',
         'default_wholesale_price',
         'default_retail_price',

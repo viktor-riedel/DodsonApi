@@ -11,7 +11,8 @@ class DefaultNomenclatureCardResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'name_eng' => $this->name_eng,
+            'name_ru' => $this->name_ru,
             'default_price' => $this->default_price,
             'default_wholesale_price' => $this->default_wholesale_price,
             'default_retail_price' => $this->default_retail_price,
