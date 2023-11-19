@@ -85,11 +85,35 @@ class CatalogApiHelper
         return response()->json([]);
     }
 
+    public function loadPdr(int $mvr_id)
+    {
+        $token = $this->authorize_client();
+        $response = Http::withToken($token)
+            ->get(config('api_helpers.catalog_api_url') . "/catalog/mvr-pdr/" . $mvr_id);
+        if ($response->ok()) {
+            return $response->json();
+        }
+
+        return response()->json([]);
+    }
+
     public function loadModelMvr(int $model_id, int $mvr_id)
     {
         $token = $this->authorize_client();
         $response = Http::withToken($token)
             ->get(config('api_helpers.catalog_api_url') . "/catalog/model/$model_id/mvr/$mvr_id");
+        if ($response->ok()) {
+            return $response->json()['data'];
+        }
+
+        return response()->json([]);
+    }
+
+    public function loadMvrHeaders(int $make_id, int $model_id)
+    {
+        $token = $this->authorize_client();
+        $response = Http::withToken($token)
+            ->get(config('api_helpers.catalog_api_url') . "/catalog/mvr-headers/$make_id/$model_id");
         if ($response->ok()) {
             return $response->json()['data'];
         }
