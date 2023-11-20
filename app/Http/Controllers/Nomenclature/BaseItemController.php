@@ -13,16 +13,28 @@ class BaseItemController extends Controller
 
     public function index(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $baseItems = NomenclatureBaseItem::with(['baseItemPDR' , 'baseItemPDR.nomenclatureBaseItemPdrCard'])
-            ->paginate(10);
-
+        $query = NomenclatureBaseItem::query()->with(['baseItemPDR' , 'baseItemPDR.nomenclatureBaseItemPdrCard']);
+        if ($request->query('search')) {
+            $search = $request->query('search');
+            $words = explode(' ', $search);
+            foreach($words as $condition) {
+                $query->where('make', 'like', $condition);
+            }
+            foreach($words as $condition) {
+                $query->orWhere('model', 'like', $condition);
+            }
+            foreach($words as $condition) {
+                $query->orWhere('header', 'like', $condition);
+            }
+        }
+        $baseItems = $query->paginate(10);
         return BaseItemResource::collection($baseItems);
     }
 
     public function save(Request $request): \Illuminate\Http\JsonResponse
     {
-        app()->make(BaseItemCreateAction::class)->handle($request);
-        return response()->json(['base item created' =>  true], 201);
+        $newBaseItemId = app()->make(BaseItemCreateAction::class)->handle($request);
+        return response()->json(['id' =>  $newBaseItemId], 201);
     }
 
 
@@ -37,5 +49,15 @@ class BaseItemController extends Controller
         $baseItem->update($request->except('chassis', 'item_pdr', 'id', 'start_stop_dates'));
         $baseItem->load(['baseItemPDR' , 'baseItemPDR.nomenclatureBaseItemPdrCard']);
         return new BaseItemResource($baseItem);
+    }
+
+    public function baseItemDelete(NomenclatureBaseItem $baseItem): \Illuminate\Http\JsonResponse
+    {
+        $baseItem->load(['baseItemPDR' , 'baseItemPDR.nomenclatureBaseItemPdrCard']);
+        $baseItem->baseItemPDR()->update(['deleted_by' => null]);
+        $baseItem->update(['deleted_by' => null]);
+        $baseItem->baseItemPDR()->delete();
+        $baseItem->delete();
+        return response()->json([], 202);
     }
 }

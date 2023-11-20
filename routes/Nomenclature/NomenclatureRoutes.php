@@ -18,6 +18,7 @@ Route::prefix('nomenclature')->group(function() {
        Route::get('/find/{baseItem}', [BaseItemController::class, 'edit']);
        Route::post('/save-base-item', [BaseItemController::class, 'save']);
        Route::patch('/update-base-item/{baseItem}', [BaseItemController::class, 'baseItemUpdate']);
+       Route::delete('/delete-base-item/{baseItem}', [BaseItemController::class, 'baseItemDelete']);
     });
 
     Route::prefix('base-item-pdr')->group(function() {
