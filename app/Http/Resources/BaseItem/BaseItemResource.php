@@ -42,6 +42,7 @@ class BaseItemResource extends JsonResource
 
     private function buildPdrTree($itemPDR): array
     {
+        $itemPDR->load('nomenclatureBaseItemPdrPositions');
         return $this->recursivePDRTree($itemPDR->toArray());
     }
 
@@ -54,6 +55,7 @@ class BaseItemResource extends JsonResource
                 if ($children) {
                     $el['children'] = $children;
                 }
+                $el['positions_count'] = count($el['nomenclature_base_item_pdr_positions']);
                 $branch[] = $el;
             }
         }

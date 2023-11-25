@@ -11,7 +11,7 @@ class NomenclatureBaseItemPdrCard extends Model
     use SoftDeletes;
     
     protected $fillable = [
-        'nomenclature_base_item_pdr_id',
+        'nomenclature_base_item_pdr_position_id',
         'name_eng',
         'name_ru',
         'default_price',
@@ -45,8 +45,8 @@ class NomenclatureBaseItemPdrCard extends Model
 
     protected $hidden = ['created_at', 'updated_at', 'created_by', 'deleted_by'];
 
-    public function nomenclatureBaseItemPdr(): BelongsTo
+    public function nomenclatureBaseItemPdrPosition(): BelongsTo
     {
-        return $this->belongsTo(NomenclatureBaseItemPdr::class);
+        return $this->belongsTo(NomenclatureBaseItemPdrPosition::class);
     }
 }

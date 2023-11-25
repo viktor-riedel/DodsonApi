@@ -13,7 +13,7 @@ class BaseItemController extends Controller
 
     public function index(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $query = NomenclatureBaseItem::query()->with(['baseItemPDR' , 'baseItemPDR.nomenclatureBaseItemPdrCard']);
+        $query = NomenclatureBaseItem::query()->with(['baseItemPDR']);
         if ($request->query('search')) {
             $search = $request->query('search');
             $words = explode(' ', $search);
@@ -38,9 +38,9 @@ class BaseItemController extends Controller
     }
 
 
-    public function edit(NomenclatureBaseItem $baseItem): BaseItemResource
+    public function edit(NomenclatureBaseItem $baseItem)//: BaseItemResource
     {
-        $baseItem->load(['baseItemPDR' , 'baseItemPDR.nomenclatureBaseItemPdrCard']);
+        $baseItem->load(['baseItemPDR']);
         return new BaseItemResource($baseItem);
     }
 

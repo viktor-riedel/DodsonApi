@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -24,13 +25,13 @@ class NomenclatureBaseItemPdr extends Model
 
     protected $hidden = ['created_at', 'updated_at', 'created_by', 'deleted_by'];
 
-    public function nomenclatureBaseItemPdrCard(): HasOne
-    {
-        return $this->hasOne(NomenclatureBaseItemPdrCard::class);
-    }
-
     public function nomenclatureBaseItem(): BelongsTo
     {
         return $this->belongsTo(NomenclatureBaseItem::class);
+    }
+
+    public function nomenclatureBaseItemPdrPositions(): HasMany
+    {
+        return $this->hasMany(NomenclatureBaseItemPdrPosition::class);
     }
 }
