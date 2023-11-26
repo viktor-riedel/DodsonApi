@@ -13,8 +13,16 @@ class BaseItemPdrPositionController extends Controller
 {
     public function list(NomenclatureBaseItemPdr $baseItemPdr): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $positions = $baseItemPdr->nomenclatureBaseItemPdrPositions->load('nomenclatureBaseItemPdrCard');
+        $positions = $baseItemPdr->nomenclatureBaseItemPdrPositions
+            ->load('nomenclatureBaseItemPdrCard')
+            ->load('photos');
         return BaseItemPdrPositionResource::collection($positions);
+    }
+
+    public function loadItemPosition(NomenclatureBaseItemPdrPosition $itemPosition): BaseItemPdrPositionResource
+    {
+        $itemPosition->with('nomenclatureBaseItemPdrCard', 'photos');
+        return new BaseItemPdrPositionResource($itemPosition);
     }
 
     public function create(Request $request, NomenclatureBaseItemPdr $baseItemPdr): BaseItemPdrPositionResource
@@ -68,6 +76,11 @@ class BaseItemPdrPositionController extends Controller
         $baseItemPdrPosition->nomenclatureBaseItemPdr()->update([
             'item_name_eng' => $request->input('name_eng'),
             'item_name_ru' => $request->input('name_ru'),
+        ]);
+        $baseItemPdrPosition->update([
+            'ic_number' => $request->input('ic_number'),
+            'oem_number' => $request->input('oem_number'),
+            'ic_description' => $request->input('description'),
         ]);
         return response()->json([], 202);
     }

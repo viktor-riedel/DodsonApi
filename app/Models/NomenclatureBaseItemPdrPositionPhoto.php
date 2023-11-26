@@ -10,8 +10,10 @@ class NomenclatureBaseItemPdrPositionPhoto extends Model
     use SoftDeletes;
 
     protected $fillable = [
+        'nomenclature_base_item_pdr_position_id',
         'folder_name',
         'file_name',
+        'original_file_name',
         'photo_url',
         'mime',
         'main_photo',

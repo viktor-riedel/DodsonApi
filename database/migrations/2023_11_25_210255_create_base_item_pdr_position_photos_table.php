@@ -12,6 +12,7 @@ return new class extends Migration {
             $table->foreignIdFor(\App\Models\NomenclatureBaseItemPdrPosition::class);
             $table->string('folder_name')->nullable();
             $table->string('file_name')->nullable();
+            $table->string('original_file_name')->nullable();
             $table->string('photo_url')->nullable();
             $table->string('mime')->nullable();
             $table->boolean('main_photo')->default(false);
@@ -24,6 +25,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('base_item_pdr_position_photos');
+        Schema::dropIfExists('nomenclature_base_item_pdr_position_photos');
     }
 };

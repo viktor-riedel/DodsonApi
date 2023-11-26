@@ -18,7 +18,9 @@ class BaseItemPdrPositionResource extends JsonResource
             'ic_description' => $this->ic_description,
             'card' => $this->whenLoaded('nomenclatureBaseItemPdrCard',
                     new BaseItemPdrPositionCardResource($this->nomenclatureBaseItemPdrCard),
-                    null)
+                    null),
+            'photos' => $this->whenLoaded('photos',
+                BaseItemPositionPhotosResource::collection($this->photos), []),
         ];
     }
 }

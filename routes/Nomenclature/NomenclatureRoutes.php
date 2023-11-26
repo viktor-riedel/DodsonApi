@@ -3,6 +3,7 @@
 use App\Http\Controllers\Nomenclature\BaseItemController;
 use App\Http\Controllers\Nomenclature\BaseItemPdrController;
 use App\Http\Controllers\Nomenclature\BaseItemPdrPositionController;
+use App\Http\Controllers\Nomenclature\FileUploadsController;
 use App\Http\Controllers\Nomenclature\NomenclatureController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,9 +29,15 @@ Route::prefix('nomenclature')->group(function() {
 
     Route::prefix('base-item-pdr-position')->group(function() {
         Route::get('/positions/{baseItemPdr}', [BaseItemPdrPositionController::class, 'list']);
+        Route::get('/item-position/{itemPosition}', [BaseItemPdrPositionController::class, 'loadItemPosition']);
         Route::post('/add-position/{baseItemPdr}', [BaseItemPdrPositionController::class, 'create']);
         Route::delete('/delete-position/{baseItemPdrPosition}', [BaseItemPdrPositionController::class, 'delete']);
         Route::patch('/update-position-card/{baseItemPdrPosition}', [BaseItemPdrPositionController::class, 'update']);
         Route::patch('/update-position/{baseItemPdrPosition}', [BaseItemPdrPositionController::class, 'updatePosition']);
+    });
+
+    Route::prefix('nomenclature-uploads')->group(function() {
+        Route::post('/upload-photo/{baseItemPdrPosition}', [FileUploadsController::class, 'addPhotoToBaseItemPosition']);
+        Route::delete('/delete-photo/{baseItemPdrPositionPhoto}', [FileUploadsController::class, 'deleteBaseItemPosition']);
     });
 });
