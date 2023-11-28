@@ -29,6 +29,25 @@ class CapartsApiHelper
         return null;
     }
 
+    public function importUnsoldCars()
+    {
+        $token = $this->authorize_client();
+        $response = Http::withToken($token)
+            ->accept(self::ACCEPT_TYPE)
+            ->withHeaders(
+                [
+                    'X-COMPANY-NAME' => config('api_helpers.caparts_company_name'),
+                    'X-CSRF-TOKEN' => '',
+                ]
+            )
+            ->get(config('api_helpers.caparts_api_url') . '/cars/export-latest-unsold-cars');
+        if ($response->ok()) {
+            return $response->json()['data'];
+        }
+
+        return null;
+    }
+
     private function authorize_client(): string
     {
         if (cache()->has(self::CACHE_ACCESS_TOKEN)) {

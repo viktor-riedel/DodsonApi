@@ -53,8 +53,6 @@ class BaseItemController extends Controller
 
     public function baseItemDelete(NomenclatureBaseItem $baseItem): \Illuminate\Http\JsonResponse
     {
-        $baseItem->load(['baseItemPDR' , 'baseItemPDR.nomenclatureBaseItemPdrCard']);
-        $baseItem->baseItemPDR()->update(['deleted_by' => null]);
         $baseItem->update(['deleted_by' => null]);
         $baseItem->baseItemPDR()->delete();
         $baseItem->delete();
