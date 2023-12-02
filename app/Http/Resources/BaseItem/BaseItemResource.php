@@ -10,7 +10,7 @@ class BaseItemResource extends JsonResource
     public function toArray(Request $request): array
     {
         $year_month_start = $this->month_start . '.' . $this->year_start;
-        $year_month_end = $this->month_stop . '.' . ($this->year_start ?? 'now');
+        $year_month_end = $this->month_stop . '.' . ($this->year_stop ?? 'now');
         return [
             'id' => $this->id,
             'make' => $this->make,

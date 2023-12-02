@@ -15,13 +15,14 @@ class BaseItemPdrPositionController extends Controller
     {
         $positions = $baseItemPdr->nomenclatureBaseItemPdrPositions
             ->load('nomenclatureBaseItemPdrCard')
-            ->load('photos');
+            ->load('photos')
+            ->load('markets');
         return BaseItemPdrPositionResource::collection($positions);
     }
 
     public function loadItemPosition(NomenclatureBaseItemPdrPosition $itemPosition): BaseItemPdrPositionResource
     {
-        $itemPosition->with('nomenclatureBaseItemPdrCard', 'photos');
+        $itemPosition->with('nomenclatureBaseItemPdrCard', 'photos', 'markets');
         return new BaseItemPdrPositionResource($itemPosition);
     }
 

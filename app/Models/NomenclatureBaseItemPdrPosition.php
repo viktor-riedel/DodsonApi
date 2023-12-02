@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -34,5 +35,14 @@ class NomenclatureBaseItemPdrPosition extends Model
     public function photos(): HasMany
     {
         return $this->hasMany(NomenclatureBaseItemPdrPositionPhoto::class);
+    }
+
+    public function markets(): BelongsToMany
+    {
+        return $this->belongsToMany(Market::class,
+            'nomenclature_base_item_pdr_positions_markets',
+            'nomenclature_base_item_pdr_positions_id',
+            'markets_id'
+        );
     }
 }

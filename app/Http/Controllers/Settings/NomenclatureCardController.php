@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Settiings;
+namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Settings\DefaultNomenclatureCardResource;

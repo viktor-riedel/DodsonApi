@@ -21,6 +21,7 @@ class BaseItemPdrPositionResource extends JsonResource
                     null),
             'photos' => $this->whenLoaded('photos',
                 BaseItemPositionPhotosResource::collection($this->photos), []),
+            'markets' => $this->whenLoaded('markets'),
         ];
     }
 }
