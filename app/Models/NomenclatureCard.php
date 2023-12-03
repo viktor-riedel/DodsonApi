@@ -36,6 +36,8 @@ class NomenclatureCard extends Model
         'inner_number',
         'color',
         'weight',
+        'volume',
+        'mileage',
         'extra',
         'created_by',
         'deleted_by',

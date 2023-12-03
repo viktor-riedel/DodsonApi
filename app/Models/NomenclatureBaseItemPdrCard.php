@@ -45,6 +45,8 @@ class NomenclatureBaseItemPdrCard extends Model
 
     protected $hidden = ['created_at', 'updated_at', 'created_by', 'deleted_by'];
 
+    protected $casts = ['is_new' => 'boolean', 'is_scrap' => 'boolean'];
+
     public function nomenclatureBaseItemPdrPosition(): BelongsTo
     {
         return $this->belongsTo(NomenclatureBaseItemPdrPosition::class);

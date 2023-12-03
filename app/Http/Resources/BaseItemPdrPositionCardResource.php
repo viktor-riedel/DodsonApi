@@ -38,6 +38,8 @@ class BaseItemPdrPositionCardResource extends JsonResource
             'inner_number' => $this->inner_number,
             'color' => $this->color,
             'weight' => $this->weight,
+            'volume' => $this->volume,
+            'mileage' => $this->mileage,
             'extra' => $this->extra,
         ];
     }

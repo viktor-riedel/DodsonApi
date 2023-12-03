@@ -18,9 +18,12 @@ class NomenclatureBaseItemPdrPosition extends Model
         'ic_number',
         'oem_number',
         'ic_description',
+        'is_virtual',
     ];
 
     protected $hidden = ['created_at', 'updated_at'];
+
+    protected $casts = ['is_virtual' => 'boolean'];
 
     public function nomenclatureBaseItemPdr(): BelongsTo
     {

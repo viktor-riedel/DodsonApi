@@ -40,7 +40,12 @@ class BaseItemController extends Controller
 
     public function edit(NomenclatureBaseItem $baseItem)//: BaseItemResource
     {
-        $baseItem->load(['baseItemPDR']);
+        $baseItem->load([
+            'baseItemPDR',
+            'baseItemPDR.nomenclatureBaseItemVirtualPosition.nomenclatureBaseItemPdrCard',
+            'baseItemPDR.nomenclatureBaseItemVirtualPosition.nomenclatureBaseItemPdrCard.nomenclatureBaseItemPdrPosition',
+            'baseItemPDR.nomenclatureBaseItemVirtualPosition.nomenclatureBaseItemPdrCard.nomenclatureBaseItemPdrPosition.photos'
+        ]);
         return new BaseItemResource($baseItem);
     }
 

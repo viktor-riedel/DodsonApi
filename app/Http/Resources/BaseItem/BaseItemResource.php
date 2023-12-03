@@ -55,6 +55,10 @@ class BaseItemResource extends JsonResource
                 if ($children) {
                     $el['children'] = $children;
                 }
+//                if (isset($el['is_folder'])) {
+//                    $el['card'] =
+//                        $el['nomenclature_base_item_virtual_position']['nomenclature_base_item_pdr_card'] ?? null;
+//                }
                 $el['positions_count'] = count($el['nomenclature_base_item_pdr_positions']);
                 $branch[] = $el;
             }

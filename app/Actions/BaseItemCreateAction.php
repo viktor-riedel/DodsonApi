@@ -49,13 +49,13 @@ class BaseItemCreateAction
         ]);
 
         //create pdr and cards
-        $defaultCard = NomenclatureCard::firstOrCreate([]);
-        $this->handleRecursiveCreation($request->input('pdr'), $defaultCard, $nomenclatureBaseItem);
+        $this->handleRecursiveCreation($request->input('pdr'), $nomenclatureBaseItem);
         return $nomenclatureBaseItem->id;
     }
 
-    private function handleRecursiveCreation(array $elements, NomenclatureCard $card, NomenclatureBaseItem $baseItem, int $parentId = 0): void
+    private function handleRecursiveCreation(array $elements, NomenclatureBaseItem $baseItem, int $parentId = 0): void
     {
+        // for folders we create a virtual base item and card for it
         foreach ($elements as $element) {
             $baseItemPdr = $baseItem->baseItemPDR()->create([
                 'parent_id' => $parentId,
@@ -67,8 +67,24 @@ class BaseItemCreateAction
                 'deleted_by' => null,
             ]);
 
+            if (isset($element['is_folder']) && $element['is_folder']) {
+                $basePosition = $baseItemPdr->nomenclatureBaseItemVirtualPosition()->create(
+                    [
+                        'nomenclature_base_item_pdr_id' => $baseItemPdr->id,
+                        'ic_number' => 'virtual',
+                        'oem_number' => 'virtual',
+                        'ic_description' => 'virtual',
+                        'is_virtual' => true,
+                    ]
+                );
+
+                $baseItemPdr->update(['nomenclature_base_item_pdr_position_id' => $basePosition->id]);
+
+                $basePosition->nomenclatureBaseItemPdrCard()->create([]);
+            }
+
             if (isset($element['children'])) {
-                $this->handleRecursiveCreation($element['children'], $card, $baseItem, $baseItemPdr->id);
+                $this->handleRecursiveCreation($element['children'], $baseItem, $baseItemPdr->id);
             }
         }
     }

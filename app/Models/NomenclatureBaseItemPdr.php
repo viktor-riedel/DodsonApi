@@ -14,6 +14,8 @@ class NomenclatureBaseItemPdr extends Model
 
     protected $fillable = [
         'nomenclature_base_item_id',
+        'nomenclature_base_item_pdr_card_id',
+        'nomenclature_base_item_pdr_position_id',
         'parent_id',
         'item_name_eng',
         'item_name_ru',
@@ -33,5 +35,15 @@ class NomenclatureBaseItemPdr extends Model
     public function nomenclatureBaseItemPdrPositions(): HasMany
     {
         return $this->hasMany(NomenclatureBaseItemPdrPosition::class);
+    }
+
+    public function nomenclatureBaseItemCard(): HasOne
+    {
+        return $this->hasOne(NomenclatureBaseItemPdrCard::class);
+    }
+
+    public function nomenclatureBaseItemVirtualPosition(): HasOne
+    {
+        return $this->hasOne(NomenclatureBaseItemPdrPosition::class, 'id', 'nomenclature_base_item_pdr_position_id');
     }
 }
