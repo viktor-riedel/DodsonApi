@@ -53,12 +53,12 @@ class BaseItemResource extends JsonResource
             if ($el['parent_id'] === $parent_id) {
                 $children = $this->recursivePDRTree($elements, $el['id']);
                 if ($children) {
+                    $el['icon'] = 'pi pi-pw pi-folder';
                     $el['children'] = $children;
+                } else {
+                    $el['icon'] = 'pi pi-fw pi-cog';
                 }
-//                if (isset($el['is_folder'])) {
-//                    $el['card'] =
-//                        $el['nomenclature_base_item_virtual_position']['nomenclature_base_item_pdr_card'] ?? null;
-//                }
+                $el['key'] = $el['parent_id'] . '-'. $el['id'];
                 $el['positions_count'] = count($el['nomenclature_base_item_pdr_positions']);
                 $branch[] = $el;
             }
