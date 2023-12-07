@@ -52,7 +52,7 @@ class BaseItemResource extends JsonResource
         foreach ($elements as $el) {
             if ($el['parent_id'] === $parent_id) {
                 $children = $this->recursivePDRTree($elements, $el['id']);
-                if ($children) {
+                if (count($children)) {
                     $el['icon'] = 'pi pi-pw pi-folder';
                     $el['children'] = $children;
                 } else {

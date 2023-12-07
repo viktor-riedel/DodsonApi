@@ -5,6 +5,7 @@ use App\Http\Controllers\Nomenclature\BaseItemPdrController;
 use App\Http\Controllers\Nomenclature\BaseItemPdrPositionController;
 use App\Http\Controllers\Nomenclature\FileUploadsController;
 use App\Http\Controllers\Nomenclature\NomenclatureController;
+use App\Http\Controllers\Nomenclature\PartsListController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('nomenclature')->group(function() {
@@ -39,5 +40,9 @@ Route::prefix('nomenclature')->group(function() {
     Route::prefix('nomenclature-uploads')->group(function() {
         Route::post('/upload-photo/{baseItemPdrPosition}', [FileUploadsController::class, 'addPhotoToBaseItemPosition']);
         Route::delete('/delete-photo/{baseItemPdrPositionPhoto}', [FileUploadsController::class, 'deleteBaseItemPosition']);
+    });
+
+    Route::prefix('parts-list')->group(function() {
+        Route::get('/', [PartsListController::class, 'getDefaultPartsList']);
     });
 });
