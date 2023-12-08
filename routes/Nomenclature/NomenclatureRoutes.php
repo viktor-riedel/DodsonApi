@@ -44,5 +44,9 @@ Route::prefix('nomenclature')->group(function() {
 
     Route::prefix('parts-list')->group(function() {
         Route::get('/', [PartsListController::class, 'getDefaultPartsList']);
+        Route::patch('/update/{partList}', [PartsListController::class, 'updatePart']);
+        Route::post('/create', [PartsListController::class, 'createPart']);
+        Route::delete('/delete/{partList}', [PartsListController::class, 'deletePart']);
+        Route::post('/add-item/{partList}', [PartsListController::class, 'addPart']);
     });
 });
