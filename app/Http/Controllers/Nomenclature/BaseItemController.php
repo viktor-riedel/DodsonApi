@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers\Nomenclature;
 
-use App\Actions\BaseItemCreateAction;
+use App\Actions\BaseItem\BaseItemCreateAction;
+use App\Actions\BaseItem\BaseItemUpdatePartsList;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BaseItem\BaseItemResource;
 use App\Models\NomenclatureBaseItem;
@@ -38,13 +39,11 @@ class BaseItemController extends Controller
     }
 
 
-    public function edit(NomenclatureBaseItem $baseItem)//: BaseItemResource
+    public function edit(NomenclatureBaseItem $baseItem): BaseItemResource
     {
         $baseItem->load([
             'baseItemPDR',
-            'baseItemPDR.nomenclatureBaseItemVirtualPosition.nomenclatureBaseItemPdrCard',
-            'baseItemPDR.nomenclatureBaseItemVirtualPosition.nomenclatureBaseItemPdrCard.nomenclatureBaseItemPdrPosition',
-            'baseItemPDR.nomenclatureBaseItemVirtualPosition.nomenclatureBaseItemPdrCard.nomenclatureBaseItemPdrPosition.photos'
+            'baseItemPDR.nomenclatureBaseItemVirtualPosition.photos'
         ]);
         return new BaseItemResource($baseItem);
     }
@@ -61,6 +60,12 @@ class BaseItemController extends Controller
         $baseItem->update(['deleted_by' => null]);
         $baseItem->baseItemPDR()->delete();
         $baseItem->delete();
+        return response()->json([], 202);
+    }
+
+    public function saveItemPdr(Request $request, NomenclatureBaseItem $baseItem): \Illuminate\Http\JsonResponse
+    {
+        app()->make(BaseItemUpdatePartsList::class)->handle($request->toArray(), $baseItem);
         return response()->json([], 202);
     }
 }

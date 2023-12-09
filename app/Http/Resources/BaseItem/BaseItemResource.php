@@ -53,8 +53,11 @@ class BaseItemResource extends JsonResource
             if ($el['parent_id'] === $parent_id) {
                 $children = $this->recursivePDRTree($elements, $el['id']);
                 if (count($children)) {
-                    $el['icon'] = 'pi pi-pw pi-folder';
                     $el['children'] = $children;
+                }
+                if ($el['is_folder']) {
+                    $el['icon'] = 'pi pi-pw pi-folder';
+                    $el['photos'] = $this->getPhotos([$el]);
                 } else {
                     $el['icon'] = 'pi pi-fw pi-cog';
                 }
@@ -65,5 +68,21 @@ class BaseItemResource extends JsonResource
         }
 
         return $branch;
+    }
+
+    private function getPhotos(array $elements, &$photos = []): array
+    {
+        foreach ($elements as $el) {
+            if (isset($el['children']) && count($el['children'])) {
+                $photos = $this->getPhotos($el['children'], $photos);
+            }
+            if (isset($el['nomenclature_base_item_virtual_position'])) {
+                if (count($el['nomenclature_base_item_virtual_position']['photos'])) {
+                    $photos = $el['nomenclature_base_item_virtual_position']['photos'];
+                }
+            }
+        }
+
+        return $photos;
     }
 }

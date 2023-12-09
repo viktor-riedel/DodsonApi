@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Http\ExternalApiHelpers\CapartsApiHelper;
 use App\Http\ExternalApiHelpers\FindCarsInOneC;
 use Illuminate\Console\Command;
 
@@ -14,11 +13,11 @@ class TestCommand extends Command
 
     public function handle(): void
     {
-        $helper = new FindCarsInOneC();
-        $result = $helper->findCarByStockNumber('KI0923');
-        if ($result['car']) {
-            dd($result['car']);
-        }
-        $this->info('nothing');
+        $item = \App\Models\NomenclatureBaseItem::find(50);
+        $item->load('baseItemPDR');
+        $pos = $item->baseItemPDR()->where('is_folder', true)
+            ->with(['nomenclatureBaseItemVirtualPosition', 'nomenclatureBaseItemVirtualPosition.photos'])
+            ->get();
+        dd($pos);
     }
 }

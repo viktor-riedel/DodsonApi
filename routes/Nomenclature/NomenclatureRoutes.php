@@ -20,6 +20,7 @@ Route::prefix('nomenclature')->group(function() {
        Route::get('/list', [BaseItemController::class, 'index']);
        Route::get('/find/{baseItem}', [BaseItemController::class, 'edit']);
        Route::post('/save-base-item', [BaseItemController::class, 'save']);
+       Route::post('/save-base-item-pdr/{baseItem}', [BaseItemController::class, 'saveItemPdr']);
        Route::patch('/update-base-item/{baseItem}', [BaseItemController::class, 'baseItemUpdate']);
        Route::delete('/delete-base-item/{baseItem}', [BaseItemController::class, 'baseItemDelete']);
     });

@@ -20,6 +20,7 @@ class NomenclatureBaseItemPdr extends Model
         'item_name_eng',
         'item_name_ru',
         'is_folder',
+        'parts_list_id',
         'is_deleted',
         'created_by',
         'deleted_by',
