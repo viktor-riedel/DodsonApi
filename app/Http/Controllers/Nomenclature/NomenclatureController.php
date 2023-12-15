@@ -33,6 +33,12 @@ class NomenclatureController extends Controller
         return response()->json($data);
     }
 
+    public function getCatalogGenerations(int $model)
+    {
+        $data = $this->apiHelper->loadGenerations($model);
+        return response()->json($data);
+    }
+
     public function getCatalogMvrsHeaders(int $make, int $model)
     {
         $data = $this->apiHelper->loadMvrHeaders($make, $model);

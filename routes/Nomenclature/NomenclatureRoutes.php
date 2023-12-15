@@ -12,6 +12,7 @@ Route::prefix('nomenclature')->group(function() {
     Route::prefix('catalog')->group(function() {
        Route::get('/get-catalog-makes', [NomenclatureController::class, 'getCatalogMakes']);
        Route::get('/get-catalog-models/{make}', [NomenclatureController::class, 'getCatalogModels']);
+       Route::get('/get-catalog-generations/{model}', [NomenclatureController::class, 'getCatalogGenerations']);
        Route::get('/get-catalog-headers/{make}/{model}', [NomenclatureController::class, 'getCatalogMvrsHeaders']);
        Route::get('/get-catalog-pdr/{mvrId}', [NomenclatureController::class, 'getCatalogPdr']);
     });
