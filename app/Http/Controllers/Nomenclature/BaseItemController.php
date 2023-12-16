@@ -15,18 +15,17 @@ class BaseItemController extends Controller
     public function index(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $query = NomenclatureBaseItem::query()->with(['baseItemPDR']);
-        if ($request->query('search')) {
-            $search = $request->query('search');
-            $words = explode(' ', $search);
-            foreach($words as $condition) {
-                $query->where('make', 'like', $condition);
-            }
-            foreach($words as $condition) {
-                $query->orWhere('model', 'like', $condition);
-            }
-            foreach($words as $condition) {
-                $query->orWhere('header', 'like', $condition);
-            }
+        if ($request->query('make')) {
+            $query->where('make', $request->query('make'));
+        }
+        if ($request->query('model')) {
+            $query->where('model', $request->query('model'));
+        }
+        if ($request->query('generation')) {
+            $query->where('generation', $request->query('generation'));
+        }
+        if ($request->query('header')) {
+            $query->where('header', $request->query('header'));
         }
         $baseItems = $query->paginate(10);
         return BaseItemResource::collection($baseItems);

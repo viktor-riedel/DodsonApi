@@ -16,6 +16,7 @@ class NomenclatureBaseItem extends Model
         'model',
         'header',
         'generation',
+        'generation_number',
         'year_start',
         'year_stop',
         'month_start',

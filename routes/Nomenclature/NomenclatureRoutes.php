@@ -3,6 +3,7 @@
 use App\Http\Controllers\Nomenclature\BaseItemController;
 use App\Http\Controllers\Nomenclature\BaseItemPdrController;
 use App\Http\Controllers\Nomenclature\BaseItemPdrPositionController;
+use App\Http\Controllers\Nomenclature\BaseItemsSearchController;
 use App\Http\Controllers\Nomenclature\FileUploadsController;
 use App\Http\Controllers\Nomenclature\NomenclatureController;
 use App\Http\Controllers\Nomenclature\PartsListController;
@@ -24,6 +25,12 @@ Route::prefix('nomenclature')->group(function() {
        Route::post('/save-base-item-pdr/{baseItem}', [BaseItemController::class, 'saveItemPdr']);
        Route::patch('/update-base-item/{baseItem}', [BaseItemController::class, 'baseItemUpdate']);
        Route::delete('/delete-base-item/{baseItem}', [BaseItemController::class, 'baseItemDelete']);
+       Route::prefix('/search')->group(function() {
+          Route::get('/makes', [BaseItemsSearchController::class, 'makes']);
+          Route::get('/models/{make?}', [BaseItemsSearchController::class, 'models']);
+          Route::get('/generations/{make?}/{model?}', [BaseItemsSearchController::class, 'generations']);
+          Route::get('/headers/{make?}/{model?}/{generation?}', [BaseItemsSearchController::class, 'headers']);
+       });
     });
 
     Route::prefix('base-item-pdr')->group(function() {

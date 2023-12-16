@@ -27,6 +27,7 @@ class BaseItemCreateAction
             'model' => $request->input('model'),
             'header' => $request->input('header'),
             'generation' => $request->input('generation'),
+            'generation_number' => $request->input('generation_number'),
             'year_start' => $request->input('year_start'),
             'year_stop' => $request->input('year_stop'),
             'month_start' => $request->input('month_start'),
