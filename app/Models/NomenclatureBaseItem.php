@@ -15,10 +15,8 @@ class NomenclatureBaseItem extends Model
         'make',
         'model',
         'generation',
-        'generation_number',
         'preview_image',
         'restyle',
-        'not_restyle',
         'created_by',
         'deleted_by',
     ];
@@ -31,7 +29,6 @@ class NomenclatureBaseItem extends Model
         'created_by' => 'datetime',
         'deleted_by' => 'datetime',
         'restyle' => 'boolean',
-        'not_restyle' => 'boolean',
     ];
 
     public function baseItemPDR(): HasMany

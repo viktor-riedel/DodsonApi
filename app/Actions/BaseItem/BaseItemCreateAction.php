@@ -14,7 +14,6 @@ class BaseItemCreateAction
             'model' => $request->input('model'),
             'generation' => $request->input('generation'),
             'restyle' => $request->input('restyle') ? (bool) $request->input('restyle') : null,
-            'not_restyle' => $request->input('not_restyle') ? (bool) $request->input('not_restyle') : null,
         ])->first();
         abort_if($item !== null, 400, 'Item already exist');
 
