@@ -121,6 +121,18 @@ class CatalogApiHelper
         return response()->json([]);
     }
 
+    public function findMvrHeadersByMakeModelGeneration(string $make, string $model, string $generation)
+    {
+        $token = $this->authorize_client();
+        $response = Http::withToken($token)
+            ->get(config('api_helpers.catalog_api_url') . "/catalog/find-mvr-headers/$make/$model/$generation");
+        if ($response->ok()) {
+            return $response->json()['data'];
+        }
+
+        return response()->json([]);
+    }
+
     private function authorize_client(): string
     {
         if (cache()->has(self::CACHE_TOKEN)) {

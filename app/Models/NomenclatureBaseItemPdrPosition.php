@@ -48,4 +48,9 @@ class NomenclatureBaseItemPdrPosition extends Model
             'markets_id'
         );
     }
+
+    public function nomenclatureBaseItemModifications(): HasMany
+    {
+        return $this->hasMany(NomenclatureBaseItemModification::class);
+    }
 }

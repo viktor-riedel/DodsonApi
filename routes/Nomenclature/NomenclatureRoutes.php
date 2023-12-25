@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Nomenclature\BaseItemController;
+use App\Http\Controllers\Nomenclature\BaseItemModificationsController;
 use App\Http\Controllers\Nomenclature\BaseItemPdrController;
 use App\Http\Controllers\Nomenclature\BaseItemPdrPositionController;
 use App\Http\Controllers\Nomenclature\BaseItemsSearchController;
@@ -30,6 +31,10 @@ Route::prefix('nomenclature')->group(function() {
           Route::get('/models/{make?}', [BaseItemsSearchController::class, 'models']);
           Route::get('/generations/{make?}/{model?}', [BaseItemsSearchController::class, 'generations']);
           Route::get('/headers/{make?}/{model?}/{generation?}', [BaseItemsSearchController::class, 'headers']);
+       });
+       Route::prefix('modifications')->group(function() {
+           Route::get('/{nomenclatureBaseItem}', [BaseItemModificationsController::class, 'index']);
+           Route::post('/{nomenclatureBaseItem}/update', [BaseItemModificationsController::class, 'update']);
        });
     });
 
