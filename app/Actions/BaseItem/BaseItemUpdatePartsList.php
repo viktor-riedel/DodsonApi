@@ -15,6 +15,12 @@ class BaseItemUpdatePartsList
             //create new parts list
             $this->createNewPartsListRecursive($request, $baseItem);
         } else {
+            //if $request parts list empty -> remove all from current
+            if (!count($request)) {
+                NomenclatureBaseItemPdr::where(
+                    'nomenclature_base_item_id', $baseItem->id,
+                )->delete();
+            }
             //update current parts list
             $ids = $this->findPartsListRecursive($request);
             if (count($ids)) {
