@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Nomenclature;
 
+use App\Actions\BaseItem\BaseItemModificationsSyncAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BaseItem\BaseItemPdrPositionResource;
 use App\Models\NomenclatureBaseItemPdr;
@@ -62,6 +63,7 @@ class BaseItemPdrPositionController extends Controller
             'created_by' => null,
             'deleted_by' => null,
         ]);
+        app()->make(BaseItemModificationsSyncAction::class)->handle($baseItemPdr, $itemPosition);
         return new BaseItemPdrPositionResource($itemPosition->load('nomenclatureBaseItemPdrCard'));
     }
 
