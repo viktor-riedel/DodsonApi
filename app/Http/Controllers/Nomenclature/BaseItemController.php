@@ -7,6 +7,7 @@ use App\Actions\BaseItem\BaseItemUpdatePartsList;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BaseItem\BaseItemResource;
 use App\Models\NomenclatureBaseItem;
+use App\Models\NomenclatureBaseItemPdrPosition;
 use Illuminate\Http\Request;
 
 class BaseItemController extends Controller
@@ -45,6 +46,28 @@ class BaseItemController extends Controller
             'baseItemPDR.nomenclatureBaseItemVirtualPosition.photos'
         ]);
         return new BaseItemResource($baseItem);
+    }
+
+    public function findByIcNumber(Request $request)
+    {
+        if ($request->query('search')) {
+            $items = NomenclatureBaseItemPdrPosition::with('nomenclatureBaseItemPdr')
+                ->where('ic_number', 'like', $request->query('search') . '%')
+                ->where('is_virtual', false)
+                ->get();
+            $ids = $items->pluck('id')->toArray();
+            $reused = \DB::table('related_base_item_positions')
+                    ->select('related_id')
+                    ->whereIn('related_id', $ids)
+                    ->get()
+                    ->pluck('related_id')
+                    ->toArray();
+            $items = $items->filter(function($item) use ($reused) {
+               return !in_array($item->id, $reused, true);
+            });
+            return response()->json($items);
+        }
+        return response()->json([], 202);
     }
 
     public function baseItemUpdate(Request $request, NomenclatureBaseItem $baseItem): BaseItemResource

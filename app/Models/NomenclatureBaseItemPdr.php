@@ -26,7 +26,7 @@ class NomenclatureBaseItemPdr extends Model
         'deleted_by',
     ];
 
-    protected $hidden = ['created_at', 'updated_at', 'created_by', 'deleted_by'];
+    protected $hidden = ['created_at', 'updated_at', 'created_by', 'deleted_by', 'deleted_at'];
 
     public function nomenclatureBaseItem(): BelongsTo
     {

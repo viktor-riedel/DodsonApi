@@ -21,7 +21,7 @@ class NomenclatureBaseItemPdrPosition extends Model
         'is_virtual',
     ];
 
-    protected $hidden = ['created_at', 'updated_at'];
+    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
 
     protected $casts = ['is_virtual' => 'boolean'];
 
@@ -52,5 +52,11 @@ class NomenclatureBaseItemPdrPosition extends Model
     public function nomenclatureBaseItemModifications(): HasMany
     {
         return $this->hasMany(NomenclatureBaseItemModification::class);
+    }
+
+    public function relatedPositions(): BelongsToMany
+    {
+        return $this->belongsToMany(NomenclatureBaseItemPdrPosition::class, 'related_base_item_positions',
+                                    'nomenclature_base_item_pdr_position_id', 'related_id');
     }
 }

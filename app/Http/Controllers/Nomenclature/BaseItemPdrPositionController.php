@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Nomenclature;
 
 use App\Actions\BaseItem\BaseItemModificationsSyncAction;
+use App\Actions\BaseItemPosition\CreateBaseItemPositionAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BaseItem\BaseItemPdrPositionResource;
 use App\Models\NomenclatureBaseItemPdr;
@@ -29,46 +30,22 @@ class BaseItemPdrPositionController extends Controller
 
     public function create(Request $request, NomenclatureBaseItemPdr $baseItemPdr): BaseItemPdrPositionResource
     {
-        $itemPosition= $baseItemPdr->nomenclatureBaseItemPdrPositions()->create($request->toArray());
-        $itemPosition->load('nomenclatureBaseItemPdr');
-        $default_card = NomenclatureCard::firstOrCreate();
-        $itemPosition->nomenclatureBaseItemPdrCard()->create([
-            'name_eng' => $itemPosition->nomenclatureBaseItemPdr->item_name_eng,
-            'name_ru' => $itemPosition->nomenclatureBaseItemPdr->item_name_ru,
-            'default_price' => $default_card->default_price,
-            'default_retail_price' => $default_card->default_retail_price,
-            'default_wholesale_price' => $default_card->default_wholesale_price,
-            'default_special_price' => $default_card->default_special_price,
-            'wholesale_rus_price' => $default_card->wholesale_rus_price,
-            'wholesale_nz_price' => $default_card->wholesale_nz_price,
-            'retail_rus_price' => $default_card->retail_rus_price,
-            'retail_nz_price' => $default_card->retail_nz_price,
-            'special_rus_price' => $default_card->special_rus_price,
-            'special_nz_price' => $default_card->special_nz_price,
-            'comment' => $default_card->comment,
-            'description' => $itemPosition->ic_description,
-            'status' => $default_card->status,
-            'condition' => $default_card->condition,
-            'tag' => $default_card->tag,
-            'yard' => $default_card->yard,
-            'bin' => $default_card->bin,
-            'is_new' => $default_card->is_new,
-            'is_scrap' => $default_card->is_scrap,
-            'ic_number' => $itemPosition->ic_number,
-            'oem_number' => $itemPosition->oem_number,
-            'inner_number' => $default_card->inner_number,
-            'color' => $default_card->color,
-            'weight' => $default_card->weight,
-            'extra' => $default_card->extra,
-            'created_by' => null,
-            'deleted_by' => null,
-        ]);
-        app()->make(BaseItemModificationsSyncAction::class)->handle($baseItemPdr, $itemPosition);
-        return new BaseItemPdrPositionResource($itemPosition->load('nomenclatureBaseItemPdrCard'));
+        $position = app()->make(CreateBaseItemPositionAction::class)->handle($request, $baseItemPdr);
+        if ($position) {
+            app()->make(BaseItemModificationsSyncAction::class)->handle($baseItemPdr, $position);
+            return new BaseItemPdrPositionResource($position->load('nomenclatureBaseItemPdrCard'));
+        }
+        abort('Item has not been created');
     }
 
     public function delete(NomenclatureBaseItemPdrPosition $baseItemPdrPosition)
     {
+        $item = NomenclatureBaseItemPdrPosition::whereHas('relatedPositions', function($q) use ($baseItemPdrPosition) {
+            $q->where('related_id', $baseItemPdrPosition->id);
+        })->first();
+        if ($item) {
+            $item->relatedPositions()->detach($baseItemPdrPosition);
+        }
         $baseItemPdrPosition->delete();
         return response()->json([], 202);
     }
