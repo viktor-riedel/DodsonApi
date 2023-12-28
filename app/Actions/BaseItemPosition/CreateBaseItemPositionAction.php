@@ -59,9 +59,10 @@ class CreateBaseItemPositionAction
 
     public function createReusedPosition(NomenclatureBaseItemPdrPosition $itemPosition, int $reuse_id): void
     {
+        NomenclatureCard::firstOrCreate();
         $reusePosition = NomenclatureBaseItemPdrPosition::with('photos')->find($reuse_id);
         if ($reusePosition) {
-            $itemPosition->update([
+            $itemPosition->nomenclatureBaseItemPdrCard()->create([
                 'name_eng' => $reusePosition->item_name_eng,
                 'name_ru' => $reusePosition->item_name_ru,
                 'default_price' => $reusePosition->default_price,
@@ -81,10 +82,10 @@ class CreateBaseItemPositionAction
                 'tag' => $reusePosition->tag,
                 'yard' => $reusePosition->yard,
                 'bin' => $reusePosition->bin,
-                'is_new' => $reusePosition->is_new,
-                'is_scrap' => $reusePosition->is_scrap,
+                'is_new' => $reusePosition->is_new ?? false,
+                'is_scrap' => $reusePosition->is_scrap ?? false,
                 'ic_number' => $reusePosition->ic_number,
-                'oem_number' => $itemPosition->oem_number,
+                'oem_number' => $reusePosition->oem_number,
                 'inner_number' => $reusePosition->inner_number,
                 'color' => $reusePosition->color,
                 'weight' => $reusePosition->weight,
