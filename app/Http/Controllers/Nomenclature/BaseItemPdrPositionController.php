@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\BaseItem\BaseItemPdrPositionResource;
 use App\Models\NomenclatureBaseItemPdr;
 use App\Models\NomenclatureBaseItemPdrPosition;
-use App\Models\NomenclatureCard;
 use Illuminate\Http\Request;
 
 class BaseItemPdrPositionController extends Controller
@@ -38,34 +37,32 @@ class BaseItemPdrPositionController extends Controller
         abort('Item has not been created');
     }
 
-    public function delete(NomenclatureBaseItemPdrPosition $baseItemPdrPosition)
+    public function delete(NomenclatureBaseItemPdrPosition $baseItemPdrPosition): \Illuminate\Http\JsonResponse
     {
         $item = NomenclatureBaseItemPdrPosition::whereHas('relatedPositions', function($q) use ($baseItemPdrPosition) {
             $q->where('related_id', $baseItemPdrPosition->id);
         })->first();
-        if ($item) {
-            $item->relatedPositions()->detach($baseItemPdrPosition);
-        }
+        $item?->relatedPositions()->detach($baseItemPdrPosition);
         $baseItemPdrPosition->delete();
         return response()->json([], 202);
     }
 
-    public function update(Request $request, NomenclatureBaseItemPdrPosition $baseItemPdrPosition)
+    public function update(Request $request, NomenclatureBaseItemPdrPosition $baseItemPdrPosition): \Illuminate\Http\JsonResponse
     {
         $baseItemPdrPosition->nomenclatureBaseItemPdrCard()->update($request->except('id', 'nomenclature_base_item_pdr_position_id'));
         $baseItemPdrPosition->nomenclatureBaseItemPdr()->update([
-            'item_name_eng' => $request->input('name_eng'),
-            'item_name_ru' => $request->input('name_ru'),
+            'item_name_eng' => strtoupper($request->input('name_eng')),
+            'item_name_ru' => mb_strtoupper($request->input('name_ru')),
         ]);
         $baseItemPdrPosition->update([
-            'ic_number' => $request->input('ic_number'),
-            'oem_number' => $request->input('oem_number'),
+            'ic_number' => strtoupper($request->input('ic_number')),
+            'oem_number' => strtoupper($request->input('oem_number')),
             'ic_description' => $request->input('description'),
         ]);
         return response()->json([], 202);
     }
 
-    public function updatePosition(Request $request, NomenclatureBaseItemPdrPosition $baseItemPdrPosition)
+    public function updatePosition(Request $request, NomenclatureBaseItemPdrPosition $baseItemPdrPosition): \Illuminate\Http\JsonResponse
     {
         $baseItemPdrPosition->update($request->except('id', 'card'));
         return response()->json([], 202);

@@ -48,7 +48,7 @@ class BaseItemController extends Controller
         return new BaseItemResource($baseItem);
     }
 
-    public function findByIcNumber(Request $request)
+    public function findByIcNumber(Request $request): \Illuminate\Http\JsonResponse
     {
         if ($request->query('search')) {
             $items = NomenclatureBaseItemPdrPosition::with('nomenclatureBaseItemPdr')
