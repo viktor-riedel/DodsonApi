@@ -5,7 +5,7 @@ use App\Http\Controllers\Settings\NomenclatureCardController;
 use App\Http\Controllers\Settings\YardsController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('settings')->group(function() {
+Route::prefix('settings')->middleware('auth:sanctum')->group(function() {
     //card
     Route::get('/nomenclature-card', [NomenclatureCardController::class, 'index']);
     Route::put('/update-nomenclature-card', [NomenclatureCardController::class, 'update']);

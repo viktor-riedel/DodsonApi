@@ -10,7 +10,7 @@ use App\Http\Controllers\Nomenclature\NomenclatureController;
 use App\Http\Controllers\Nomenclature\PartsListController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('nomenclature')->group(function() {
+Route::prefix('nomenclature')->middleware('auth:sanctum')->group(function() {
     Route::prefix('catalog')->group(function() {
        Route::get('/get-catalog-makes', [NomenclatureController::class, 'getCatalogMakes']);
        Route::get('/get-catalog-models/{make}', [NomenclatureController::class, 'getCatalogModels']);
