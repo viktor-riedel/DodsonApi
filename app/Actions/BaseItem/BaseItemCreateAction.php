@@ -26,7 +26,7 @@ class BaseItemCreateAction
             'preview_image' => $request->input('preview_image'),
             'restyle' => $request->input('restyle') ? (bool) $request->input('restyle') : null,
             'not_restyle' => $request->input('not_restyle') ? (bool) $request->input('not_restyle') : null,
-            'created_by' => null,
+            'created_by' => $request->user()->id,
             'deleted_by' => null,
         ]);
         return $nomenclatureBaseItem->id;

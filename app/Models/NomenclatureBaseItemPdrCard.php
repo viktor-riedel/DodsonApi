@@ -14,38 +14,37 @@ class NomenclatureBaseItemPdrCard extends Model
         'nomenclature_base_item_pdr_position_id',
         'name_eng',
         'name_ru',
-        'default_price',
-        'default_retail_price',
-        'default_wholesale_price',
-        'default_special_price',
-        'wholesale_rus_price',
-        'wholesale_nz_price',
-        'retail_rus_price',
-        'retail_nz_price',
-        'special_rus_price',
-        'special_nz_price',
+        'price_nz_wholesale',
+        'price_nz_retail',
+        'price_ru_wholesale',
+        'price_ru_retail',
+        'price_jp_minimum_buy',
+        'price_jp_maximum_buy',
+        'volume',
+        'trademe',
+        'drom',
+        'avito',
+        'dodson',
+        'nova',
         'comment',
         'description',
-        'status',
-        'condition',
-        'tag',
-        'yard',
-        'bin',
-        'is_new',
-        'is_scrap',
         'ic_number',
         'oem_number',
-        'inner_number',
         'color',
         'weight',
-        'extra',
         'created_by',
         'deleted_by',
     ];
 
     protected $hidden = ['created_at', 'updated_at', 'created_by', 'deleted_by'];
 
-    protected $casts = ['is_new' => 'boolean', 'is_scrap' => 'boolean'];
+    protected $casts = [
+        'trademe' => 'boolean',
+        'drom' => 'boolean',
+        'avito' => 'boolean',
+        'dodson' => 'boolean',
+        'nova' => 'boolean',
+    ];
 
     public function nomenclatureBaseItemPdrPosition(): BelongsTo
     {

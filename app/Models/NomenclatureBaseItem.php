@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class NomenclatureBaseItem extends Model
@@ -26,13 +28,16 @@ class NomenclatureBaseItem extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'created_by' => 'datetime',
-        'deleted_by' => 'datetime',
         'restyle' => 'boolean',
     ];
 
     public function baseItemPDR(): HasMany
     {
         return $this->hasMany(NomenclatureBaseItemPdr::class);
+    }
+
+    public function createdByUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'id', 'created_by');
     }
 }
