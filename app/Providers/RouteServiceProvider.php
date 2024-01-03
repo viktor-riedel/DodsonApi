@@ -36,6 +36,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('/routes/Roles/UserPermissions.php'))
                 ->group(base_path('/routes/Nomenclature/NomenclatureRoutes.php'))
                 ->group(base_path('/routes/Cars/CarsRoutes.php'))
+                ->group(base_path('/routes/Cars/BaseCarsRoutes.php'))
                 ->group(base_path('/routes/SettingsRoutes/SettingsRoutes.php'))
                 ->group(base_path('/routes/public/auth.php'));
 
