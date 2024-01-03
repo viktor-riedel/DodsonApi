@@ -43,7 +43,7 @@ class BaseCarsController extends Controller
                 ->select(['model', 'generation', 'restyle'])
                 ->distinct()
                 ->where('make', $make)
-                ->orderBy('make')
+                ->orderBy('model')
                 ->get();
         $models = $models->transform(function($item) {
            return [
