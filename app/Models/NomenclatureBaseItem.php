@@ -40,4 +40,9 @@ class NomenclatureBaseItem extends Model
     {
         return $this->belongsTo(User::class, 'id', 'created_by');
     }
+
+    public function baseCars(): HasMany
+    {
+        return $this->hasMany(BaseCar::class);
+    }
 }

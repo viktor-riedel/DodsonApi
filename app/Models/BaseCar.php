@@ -12,15 +12,19 @@ class BaseCar extends Model
 
     protected $fillable = [
         'nomenclature_base_item_id',
-        'model_year',
-        'mileage',
-        'engine_type',
-        'engine_size',
-        'power',
-        'fuel',
-        'transmission',
-        'drivetrain',
-        'color',
+        'make',
+        'model',
+        'generation',
+        'generation_number',
+        'body_type',
+        'doors',
+        'month_start',
+        'month_stop',
+        'year_start',
+        'year_stop',
+        'restyle',
+        'not_restyle',
+        'header',
     ];
 
     protected $hidden = [

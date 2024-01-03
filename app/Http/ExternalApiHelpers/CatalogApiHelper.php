@@ -121,11 +121,16 @@ class CatalogApiHelper
         return response()->json([]);
     }
 
-    public function findMvrHeadersByMakeModelGeneration(string $make, string $model, string $generation)
+    public function findMvrHeadersByMakeModelGeneration(string $make, string $model, string $generation, $restyle = null)
     {
         $token = $this->authorize_client();
-        $response = Http::withToken($token)
-            ->get(config('api_helpers.catalog_api_url') . "/catalog/find-mvr-headers/$make/$model/$generation");
+        if ($restyle) {
+            $response = Http::withToken($token)
+                ->get(config('api_helpers.catalog_api_url') . "/catalog/find-mvr-headers/$make/$model/$generation?restyle=true");
+        } else {
+            $response = Http::withToken($token)
+                ->get(config('api_helpers.catalog_api_url') . "/catalog/find-mvr-headers/$make/$model/$generation");
+        }
         if ($response->ok()) {
             return $response->json()['data'];
         }

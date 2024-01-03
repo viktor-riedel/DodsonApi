@@ -12,15 +12,19 @@ return new class extends Migration {
             $table->foreignId('nomenclature_base_item_id')
                 ->constrained('nomenclature_base_items', 'id',
                 'nom_base_id');
-            $table->integer('model_year')->nullable();
-            $table->integer('mileage')->nullable();
-            $table->string('engine_type')->nullable();
-            $table->string('engine_size')->nullable();
-            $table->integer('power')->nullable();
-            $table->string('fuel')->nullable();
-            $table->string('transmission')->nullable();
-            $table->string('drivetrain')->nullable();
-            $table->string('color')->nullable();
+            $table->string('header')->nullable();
+            $table->string('make')->nullable();
+            $table->string('model')->nullable();
+            $table->string('generation')->nullable();
+            $table->string('generation_number')->nullable();
+            $table->string('body_type')->nullable();
+            $table->smallInteger('doors')->nullable();
+            $table->integer('month_start')->nullable();
+            $table->integer('month_stop')->nullable();
+            $table->integer('year_start')->nullable();
+            $table->integer('year_stop')->nullable();
+            $table->boolean('restyle')->nullable();
+            $table->boolean('not_restyle')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
