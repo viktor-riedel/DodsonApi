@@ -13,7 +13,8 @@ class BaseItemModificationsListAction
         $data = $apiHelper->findMvrHeadersByMakeModelGeneration(
             $nomenclatureBaseItem->make,
             $nomenclatureBaseItem->model,
-            $nomenclatureBaseItem->generation
+            $nomenclatureBaseItem->generation,
+            (bool) $nomenclatureBaseItem->restyle
         );
 
         $availableModifications = [];
@@ -39,6 +40,7 @@ class BaseItemModificationsListAction
                 'month_to' => $modification['month_stop'],
                 'year_from' => $modification['year_start'],
                 'year_to' => $modification['year_stop'],
+                'years_string' => $modification['years_string'],
             ];
         }
 

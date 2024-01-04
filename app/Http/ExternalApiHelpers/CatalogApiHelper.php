@@ -124,9 +124,9 @@ class CatalogApiHelper
     public function findMvrHeadersByMakeModelGeneration(string $make, string $model, string $generation, $restyle = null)
     {
         $token = $this->authorize_client();
-        if ($restyle) {
+        if (isset($restyle)) {
             $response = Http::withToken($token)
-                ->get(config('api_helpers.catalog_api_url') . "/catalog/find-mvr-headers/$make/$model/$generation?restyle=true");
+                ->get(config('api_helpers.catalog_api_url') . "/catalog/find-mvr-headers/$make/$model/$generation?restyle=" . $restyle);
         } else {
             $response = Http::withToken($token)
                 ->get(config('api_helpers.catalog_api_url') . "/catalog/find-mvr-headers/$make/$model/$generation");
