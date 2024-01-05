@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Nomenclature;
 use App\Actions\BaseItem\BaseItemCreateAction;
 use App\Actions\BaseItem\BaseItemUpdatePartsList;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\BaseItem\BaseItemModelResource;
 use App\Http\Resources\BaseItem\BaseItemResource;
 use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemPdrPosition;
@@ -13,23 +14,29 @@ use Illuminate\Http\Request;
 class BaseItemController extends Controller
 {
 
-    public function index(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function makes(): \Illuminate\Http\JsonResponse
     {
-        $query = NomenclatureBaseItem::query()->with(['baseItemPDR']);
-        if ($request->query('make')) {
-            $query->where('make', $request->query('make'));
-        }
-        if ($request->query('model')) {
-            $query->where('model', $request->query('model'));
-        }
-        if ($request->query('generation')) {
-            $query->where('generation', $request->query('generation'));
-        }
-        if ($request->query('header')) {
-            $query->where('header', $request->query('header'));
-        }
-        $baseItems = $query->paginate(10);
-        return BaseItemResource::collection($baseItems);
+         $result = collect();
+         $makes = array_unique(NomenclatureBaseItem::orderBy('make')
+             ->pluck('make')->toArray()
+         );
+         foreach($makes as $make) {
+             $models = NomenclatureBaseItem::where('make', $make)->get();
+             $result->push([
+                 'make' => $make,
+                 'models' => $models->count(),
+                 'preview_image' => $models->first()?->preview_image,
+             ]);
+         }
+         return response()->json($result);
+    }
+
+    public function models(string $make): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    {
+        $models = NomenclatureBaseItem::orderBy('model')
+            ->where('make', $make)
+            ->get();
+        return BaseItemModelResource::collection($models);
     }
 
     public function save(Request $request): \Illuminate\Http\JsonResponse

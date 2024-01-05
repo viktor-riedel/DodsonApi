@@ -110,6 +110,8 @@ class BaseItemUpdatePartsList
             $position = $baseItemPdr->nomenclatureBaseItemVirtualPosition()->create(
                 [
                     'nomenclature_base_item_pdr_id' => $baseItemPdr->id,
+                    'item_name_eng' => $part['item_name_eng'],
+                    'item_name_ru' => $part['item_name_ru'],
                     'ic_number' => 'virtual',
                     'oem_number' => 'virtual',
                     'ic_description' => 'virtual',

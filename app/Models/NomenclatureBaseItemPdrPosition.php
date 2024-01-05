@@ -15,6 +15,8 @@ class NomenclatureBaseItemPdrPosition extends Model
 
     protected $fillable = [
         'nomenclature_base_item_pdr_id',
+        'item_name_eng',
+        'item_name_ru',
         'ic_number',
         'oem_number',
         'ic_description',

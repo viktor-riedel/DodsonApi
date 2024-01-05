@@ -15,8 +15,9 @@ class BaseItemResource extends JsonResource
             'model' => $this->model,
             'generation' => $this->generation,
             'preview_image' => $this->preview_image,
+            'item_name_eng' => $this->item_name_eng,
+            'item_name_ru' => $this->item_name_ru,
             'item_pdr' => $this->buildPdrTree($this->baseItemPDR),
-            'restyle' => $this->restyle,
         ];
     }
 

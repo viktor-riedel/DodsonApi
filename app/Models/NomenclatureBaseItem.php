@@ -18,7 +18,6 @@ class NomenclatureBaseItem extends Model
         'model',
         'generation',
         'preview_image',
-        'restyle',
         'created_by',
         'deleted_by',
     ];
@@ -28,7 +27,6 @@ class NomenclatureBaseItem extends Model
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'restyle' => 'boolean',
     ];
 
     public function baseItemPDR(): HasMany

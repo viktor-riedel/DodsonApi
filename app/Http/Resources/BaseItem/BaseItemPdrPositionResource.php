@@ -12,6 +12,8 @@ class BaseItemPdrPositionResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'name_eng' => $this->item_name_eng,
+            'name_ru' => $this->item_name_ru,
             'nomenclature_base_item_pdr_id' => $this->nomenclature_base_item_pdr_id,
             'ic_number' => $this->ic_number,
             'oem_number' => $this->oem_number,

@@ -23,7 +23,10 @@ class BaseCarsController extends Controller
 
     public function find(BaseCar $baseCar): BaseCarFullResource
     {
-        $baseCar->load('nomenclatureBaseItem', 'nomenclatureBaseItem.baseItemPDR', 'nomenclatureBaseItem.baseItemPDR.nomenclatureBaseItemPdrPositions');
+        $baseCar->load(
+            'nomenclatureBaseItem',
+                     'nomenclatureBaseItem.baseItemPDR',
+                     'nomenclatureBaseItem.baseItemPDR.nomenclatureBaseItemPdrPositions');
         return new BaseCarFullResource($baseCar);
     }
 
