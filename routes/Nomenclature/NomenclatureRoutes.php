@@ -46,6 +46,7 @@ Route::prefix('nomenclature')->middleware('auth:sanctum')->group(function() {
 
     Route::prefix('base-item-pdr-position')->group(function() {
         Route::get('/positions/{baseItemPdr}', [BaseItemPdrPositionController::class, 'list']);
+        Route::get('/ic-list/{baseItemPdr}', [BaseItemPdrPositionController::class, 'icList']);
         Route::get('/item-position/{itemPosition}', [BaseItemPdrPositionController::class, 'loadItemPosition']);
         Route::post('/add-position/{baseItemPdr}', [BaseItemPdrPositionController::class, 'create']);
         Route::delete('/delete-position/{baseItemPdrPosition}', [BaseItemPdrPositionController::class, 'delete']);

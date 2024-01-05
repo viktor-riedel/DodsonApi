@@ -6,7 +6,9 @@ use App\Actions\BaseItem\BaseItemModificationsSyncAction;
 use App\Actions\BaseItemPosition\CreateBaseItemPositionAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BaseItem\BaseItemPdrPositionResource;
+use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemPdr;
+use App\Models\NomenclatureBaseItemPdrCard;
 use App\Models\NomenclatureBaseItemPdrPosition;
 use Illuminate\Http\Request;
 
@@ -19,6 +21,23 @@ class BaseItemPdrPositionController extends Controller
             ->load('photos')
             ->load('markets');
         return BaseItemPdrPositionResource::collection($positions);
+    }
+
+    public function icList(NomenclatureBaseItem $baseItemPdr): \Illuminate\Http\JsonResponse
+    {
+        $icList = collect();
+        $baseItemPdr->load('baseItemPDR.nomenclatureBaseItemPdrPositions');
+        if ($baseItemPdr->baseItemPDR) {
+            $icList = collect();
+            $baseItemPdr->baseItemPDR->each(function($position) use ($icList) {
+                $position->nomenclatureBaseItemPdrPositions->each(function($item) use ($icList) {
+                    if (!$item->is_virtual) {
+                        $icList->push($item->load('nomenclatureBaseItemPdrCard', 'photos'));
+                    }
+                });
+            });
+        }
+        return response()->json($icList);
     }
 
     public function loadItemPosition(NomenclatureBaseItemPdrPosition $itemPosition): BaseItemPdrPositionResource
