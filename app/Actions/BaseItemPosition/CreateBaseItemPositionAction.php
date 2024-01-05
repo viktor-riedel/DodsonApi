@@ -13,6 +13,10 @@ class CreateBaseItemPositionAction
 
     public function handle(Request $request, NomenclatureBaseItemPdr $baseItemPdr): NomenclatureBaseItemPdrPosition
     {
+        $exist = NomenclatureBaseItemPdrPosition::where('ic_number', $request->input('ic_number'))->first();
+        if ($exist && !$request->input('reuse_id')) {
+            abort(403, 'IC Number already exists');
+        }
         $this->user = $request->user();
         $itemPosition = $baseItemPdr->nomenclatureBaseItemPdrPositions()->create($request->toArray());
         $itemPosition->load('nomenclatureBaseItemPdr');

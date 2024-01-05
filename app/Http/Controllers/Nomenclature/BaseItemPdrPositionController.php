@@ -68,6 +68,12 @@ class BaseItemPdrPositionController extends Controller
 
     public function update(Request $request, NomenclatureBaseItemPdrPosition $baseItemPdrPosition): \Illuminate\Http\JsonResponse
     {
+        if ($baseItemPdrPosition->ic_number !== $request->input('ic_number')) {
+            $exist = NomenclatureBaseItemPdrPosition::where('ic_number', $request->input('ic_number'))->first();
+            if ($exist) {
+                abort(403, 'IC Number already exists');
+            }
+        }
         $baseItemPdrPosition->nomenclatureBaseItemPdrCard()->update($request->except('id', 'nomenclature_base_item_pdr_position_id'));
         $baseItemPdrPosition->nomenclatureBaseItemPdr()->update([
             'item_name_eng' => strtoupper($request->input('name_eng')),
@@ -83,6 +89,12 @@ class BaseItemPdrPositionController extends Controller
 
     public function updatePosition(Request $request, NomenclatureBaseItemPdrPosition $baseItemPdrPosition): \Illuminate\Http\JsonResponse
     {
+        if ($baseItemPdrPosition->ic_number !== $request->input('ic_number')) {
+            $exist = NomenclatureBaseItemPdrPosition::where('ic_number', $request->input('ic_number'))->first();
+            if ($exist) {
+                abort(403, 'IC Number already exists');
+            }
+        }
         $baseItemPdrPosition->update($request->except('id', 'card'));
         return response()->json([], 202);
     }
