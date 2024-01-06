@@ -22,10 +22,11 @@ class BaseItemController extends Controller
              ->pluck('make')->toArray()
          );
          foreach($makes as $make) {
-             $models = NomenclatureBaseItem::where('make', $make)->get();
+             $models = NomenclatureBaseItem::where('make', $make)
+                 ->get();
              $result->push([
                  'make' => $make,
-                 'models' => $models->count(),
+                 'models' => $models->groupBy('generation')->count(),
                  'preview_image' => $models->first()?->preview_image,
              ]);
          }
