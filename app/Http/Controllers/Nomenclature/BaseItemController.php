@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Nomenclature;
 use App\Actions\BaseItem\BaseItemCreateAction;
 use App\Actions\BaseItem\BaseItemUpdatePartsList;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\BaseItem\BaseItemGenerationResource;
 use App\Http\Resources\BaseItem\BaseItemModelResource;
 use App\Http\Resources\BaseItem\BaseItemResource;
 use App\Models\NomenclatureBaseItem;
@@ -31,10 +32,19 @@ class BaseItemController extends Controller
          return response()->json($result);
     }
 
-    public function models(string $make): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function generations(string $make): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    {
+        $generations = NomenclatureBaseItem::orderBy('generation')
+            ->where('make', $make)
+            ->groupBy('generation', 'preview_image')
+            ->get(['generation', 'preview_image']);
+        return BaseItemGenerationResource::collection($generations);
+    }
+
+    public function models(string $make, string $generation): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $models = NomenclatureBaseItem::orderBy('model')
-            ->where('make', $make)
+            ->where(['make' => $make, 'generation' => $generation])
             ->get();
         return BaseItemModelResource::collection($models);
     }
