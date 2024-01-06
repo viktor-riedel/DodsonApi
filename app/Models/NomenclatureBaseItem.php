@@ -43,4 +43,15 @@ class NomenclatureBaseItem extends Model
     {
         return $this->hasMany(BaseCar::class);
     }
+
+    public function nomenclaturePositions(): HasManyThrough
+    {
+        return $this->hasManyThrough(NomenclatureBaseItemPdrPosition::class, NomenclatureBaseItemPdr::class,);
+    }
+
+    public function scopeNomenclaturePositionsNotVirtual($builder): HasManyThrough
+    {
+        return $this->hasManyThrough(NomenclatureBaseItemPdrPosition::class, NomenclatureBaseItemPdr::class,)
+            ->where('is_virtual', false);
+    }
 }
