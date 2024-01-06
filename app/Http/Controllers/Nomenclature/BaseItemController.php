@@ -33,19 +33,19 @@ class BaseItemController extends Controller
          return response()->json($result);
     }
 
-    public function generations(string $make): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function generations(string $make, string $model): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $generations = NomenclatureBaseItem::orderBy('generation')
-            ->where('make', $make)
-            ->groupBy('generation', 'preview_image')
-            ->get(['generation', 'preview_image']);
+            ->where(['make' => $make, 'model' => $model])
+            ->groupBy('id', 'generation', 'preview_image')
+            ->get(['id', 'generation', 'preview_image']);
         return BaseItemGenerationResource::collection($generations);
     }
 
-    public function models(string $make, string $generation): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function models(string $make): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $models = NomenclatureBaseItem::orderBy('model')
-            ->where(['make' => $make, 'generation' => $generation])
+            ->where(['make' => $make])
             ->get();
         return BaseItemModelResource::collection($models);
     }

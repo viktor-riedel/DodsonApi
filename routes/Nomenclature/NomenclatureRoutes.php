@@ -21,8 +21,8 @@ Route::prefix('nomenclature')->middleware('auth:sanctum')->group(function() {
 
     Route::prefix('base-item')->group(function() {
        Route::get('/makes', [BaseItemController::class, 'makes']);
-       Route::get('/generations/{make}', [BaseItemController::class, 'generations']);
-       Route::get('/models/{make}/{generation}', [BaseItemController::class, 'models']);
+       Route::get('/models/{make}', [BaseItemController::class, 'models']);
+       Route::get('/generations/{make}/{model}', [BaseItemController::class, 'generations']);
        Route::get('/find/{baseItem}', [BaseItemController::class, 'edit']);
        Route::get('/find-by-ic', [BaseItemController::class, 'findByIcNumber']);
        Route::post('/save-base-item', [BaseItemController::class, 'save']);
