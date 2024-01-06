@@ -26,7 +26,7 @@ class BaseItemController extends Controller
                  ->get();
              $result->push([
                  'make' => $make,
-                 'models' => $models->groupBy('generation')->count(),
+                 'models' => $models->groupBy('generation')->get('model')->count(),
                  'preview_image' => $models->first()?->preview_image,
              ]);
          }
