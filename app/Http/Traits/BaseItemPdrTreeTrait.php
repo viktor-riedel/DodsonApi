@@ -79,7 +79,7 @@ trait BaseItemPdrTreeTrait
                     continue;
                 }
 
-                if (!isset($el['children']) && !$el['is_folder'] && $el['positions_count'] === 0 && count($el['children']) === 0) {
+                if (!isset($el['children']) && !$el['is_folder'] && $el['positions_count'] === 0) {
                     continue;
                 }
 
