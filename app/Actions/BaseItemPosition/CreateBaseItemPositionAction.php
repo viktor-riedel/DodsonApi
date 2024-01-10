@@ -13,12 +13,20 @@ class CreateBaseItemPositionAction
 
     public function handle(Request $request, NomenclatureBaseItemPdr $baseItemPdr): NomenclatureBaseItemPdrPosition
     {
-        $exist = NomenclatureBaseItemPdrPosition::where('ic_number', $request->input('ic_number'))->first();
+        $exist = NomenclatureBaseItemPdrPosition::whereHas('nomenclatureBaseItemPdr', function($q) use ($baseItemPdr) {
+           $q->where('item_name_eng', $baseItemPdr->item_name_eng);
+        })->where('ic_number', $request->input('ic_number'))->first();
         if ($exist && !$request->input('reuse_id')) {
-            abort(403, 'IC Number already exists');
+            abort(403, 'IC Number: ' . $request->input('ic_number') . ' already exists');
         }
         $this->user = $request->user();
-        $itemPosition = $baseItemPdr->nomenclatureBaseItemPdrPositions()->create($request->toArray());
+        $itemPosition = $baseItemPdr->nomenclatureBaseItemPdrPositions()->create(
+            [
+                'ic_number' => strtoupper($request->input('ic_number')),
+                'oem_number' => strtoupper($request->input('oem_number')),
+                'ic_description' => $request->input('ic_description'),
+            ]
+        );
         $itemPosition->load('nomenclatureBaseItemPdr');
         if (!$request->input('reuse_id')) {
             $this->createCleanPosition($itemPosition);
@@ -31,11 +39,11 @@ class CreateBaseItemPositionAction
     public function createCleanPosition(NomenclatureBaseItemPdrPosition $itemPosition): void
     {
         $itemPosition->nomenclatureBaseItemPdrCard()->create([
-            'name_eng' => $itemPosition->nomenclatureBaseItemPdr->item_name_eng,
-            'name_ru' => $itemPosition->nomenclatureBaseItemPdr->item_name_ru,
+            'name_eng' => strtoupper($itemPosition->nomenclatureBaseItemPdr->item_name_eng),
+            'name_ru' => mb_strtoupper($itemPosition->nomenclatureBaseItemPdr->item_name_ru),
             'description' => $itemPosition->ic_description,
-            'ic_number' => $itemPosition->ic_number,
-            'oem_number' => $itemPosition->oem_number,
+            'ic_number' => strtoupper($itemPosition->ic_number),
+            'oem_number' => strtoupper($itemPosition->oem_number),
             'created_by' => $this->user->id,
             'deleted_by' => null,
         ]);

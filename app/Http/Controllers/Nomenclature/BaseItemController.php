@@ -69,7 +69,13 @@ class BaseItemController extends Controller
     public function findByIcNumber(Request $request): \Illuminate\Http\JsonResponse
     {
         if ($request->query('search')) {
+            $partName = $request->get('partName');
             $items = NomenclatureBaseItemPdrPosition::with('nomenclatureBaseItemPdr')
+                ->when($partName, function($q) use ($partName) {
+                    $q->whereHas('nomenclatureBaseItemPdr', function($query) use ($partName) {
+                        $query->where('item_name_eng', $partName);
+                    });
+                })
                 ->where('ic_number', 'like', $request->query('search') . '%')
                 ->where('is_virtual', false)
                 ->get();
@@ -82,7 +88,7 @@ class BaseItemController extends Controller
                     ->toArray();
             $items = $items->filter(function($item) use ($reused) {
                return !in_array($item->id, $reused, true);
-            });
+            })->values();
             return response()->json($items);
         }
         return response()->json([], 202);
