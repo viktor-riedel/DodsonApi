@@ -36,7 +36,8 @@ Route::prefix('nomenclature')->middleware('auth:sanctum')->group(function() {
           Route::get('/headers/{make?}/{model?}/{generation?}', [BaseItemsSearchController::class, 'headers']);
        });
        Route::prefix('modifications')->group(function() {
-           Route::get('/{nomenclatureBaseItem}', [BaseItemModificationsController::class, 'index']);
+           Route::get('/{nomenclatureBaseItem}/list', [BaseItemModificationsController::class, 'index']);
+           Route::get('/{nomenclatureBaseItemPdrPosition}/modifications', [BaseItemModificationsController::class, 'modifications']);
            Route::post('/{nomenclatureBaseItem}/update', [BaseItemModificationsController::class, 'update']);
        });
     });

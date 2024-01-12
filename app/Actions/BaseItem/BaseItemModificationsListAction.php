@@ -14,7 +14,7 @@ class BaseItemModificationsListAction
             $nomenclatureBaseItem->make,
             $nomenclatureBaseItem->model,
             $nomenclatureBaseItem->generation,
-            (bool) $nomenclatureBaseItem->restyle
+            false
         );
 
         $availableModifications = [];
