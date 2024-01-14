@@ -38,6 +38,10 @@ Route::prefix('nomenclature')->middleware('auth:sanctum')->group(function() {
        Route::prefix('modifications')->group(function() {
            Route::get('/{nomenclatureBaseItemPdrPosition}/modifications', [BaseItemModificationsController::class, 'modifications']);
            Route::post('/{nomenclatureBaseItemPosition}/update', [BaseItemModificationsController::class, 'update']);
+           Route::prefix('global')->group(function() {
+               Route::get('/{nomenclatureBaseItem}/ic-list', [BaseItemModificationsController::class, 'icList']);
+               Route::post('/{nomenclatureBaseItem}/ic-list', [BaseItemModificationsController::class, 'updateModifications']);
+           });
        });
     });
 
