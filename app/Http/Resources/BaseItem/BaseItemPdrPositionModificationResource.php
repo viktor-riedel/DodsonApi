@@ -9,6 +9,16 @@ class BaseItemPdrPositionModificationResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+
+        $year_from_str = str_pad($this->month_from,2,0,STR_PAD_LEFT) . '.'.
+            $this->year_from;
+        if ($this->month_to && $this->year_to) {
+            $year_end_str = str_pad($this->month_to,2,0,STR_PAD_LEFT) . '.'.
+                $this->year_to;
+        } else {
+            $year_end_str = 'now';
+        }
+
         return [
             'id' => $this->id,
             'header' => $this->header,
@@ -30,6 +40,7 @@ class BaseItemPdrPositionModificationResource extends JsonResource
             'month_to' => $this->month_to,
             'year_from' => $this->year_from,
             'year_to' => $this->year_to,
+            'years_string' => $year_from_str . '-' . $year_end_str,
         ];
     }
 }

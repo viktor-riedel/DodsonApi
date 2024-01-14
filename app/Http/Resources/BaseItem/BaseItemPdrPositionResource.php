@@ -24,6 +24,7 @@ class BaseItemPdrPositionResource extends JsonResource
             'photos' => $this->whenLoaded('photos',
                 BaseItemPositionPhotosResource::collection($this->photos), []),
             'markets' => $this->whenLoaded('markets'),
+            'modifications' => BaseItemPdrPositionModificationResource::collection($this->nomenclatureBaseItemModifications),
             'is_virtual' => $this->is_virtual,
         ];
     }
