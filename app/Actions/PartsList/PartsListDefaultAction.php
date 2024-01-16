@@ -14,6 +14,13 @@ class PartsListDefaultAction
           'is_folder' => 1,
           'children' => [
               [
+                  'parent_id' => 0,
+                  'item_name_eng' => 'ENGINE',
+                  'item_name_ru' => '',
+                  'is_folder' => 0,
+                  'children' => [],
+              ],
+              [
                 'parent_id' => 0,
                 'item_name_eng' => 'THROTTLE BODY',
                 'item_name_ru' => '',
