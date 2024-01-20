@@ -47,7 +47,15 @@ class BaseItemController extends Controller
         $models = NomenclatureBaseItem::orderBy('model')
             ->where(['make' => $make])
             ->get();
-        return BaseItemModelResource::collection($models);
+        $filtered = collect(array_unique($models->pluck('model')->toArray()))
+            ->transform(function($model) use ($models) {
+                return [
+                   'model' => $model,
+                   'preview_image' => $models->where('model', $model)->first()->preview_image,
+                   'generations' => $models->where('model', $model)->count(),
+                ];
+            });
+        return BaseItemModelResource::collection($filtered);
     }
 
     public function save(Request $request): \Illuminate\Http\JsonResponse

@@ -10,11 +10,9 @@ class BaseItemModelResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'make' => $this->make,
-            'model' => $this->model,
-            'generation' => $this->generation,
-            'preview_image' => $this->preview_image,
+            'model' => $this['model'],
+            'preview_image' => $this['preview_image'],
+            'generations' => $this['generations'],
         ];
     }
 }
