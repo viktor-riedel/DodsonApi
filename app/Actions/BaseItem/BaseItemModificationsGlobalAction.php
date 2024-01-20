@@ -19,10 +19,10 @@ class BaseItemModificationsGlobalAction
 
         $iclist = $nomenclatureBaseItem->nomenclaturePositions()->where('is_virtual', false)->get();
         foreach($iclist as $listItem) {
-            $listItem->item_name_ru = $listItem->nomenclatureBaseItemPdr->item_name_ru;
-            $listItem->item_name_eng = $listItem->nomenclatureBaseItemPdr->item_name_eng;
-            $listItem->ic_description = $listItem->nomenclatureBaseItemPdrCard->ic_decription;
-            $listItem->oem_number = $listItem->nomenclatureBaseItemPdrCard->oem_number;
+            $listItem->item_name_ru = $listItem->nomenclatureBaseItemPdr?->item_name_ru;
+            $listItem->item_name_eng = $listItem->nomenclatureBaseItemPdr?->item_name_eng;
+            $listItem->ic_description = $listItem->nomenclatureBaseItemPdrCard?->ic_decription;
+            $listItem->oem_number = $listItem->nomenclatureBaseItemPdrCard?->oem_number;
             $listItem->count_modifications = $listItem->nomenclatureBaseItemModifications->count();
         }
 
