@@ -30,7 +30,7 @@ class BaseItemModificationsListAction
                     (int) $modification['doors'] === $setModification->doors &&
                     $modification['transmission'] === $setModification->transmission &&
                     $modification['drive_train'] === $setModification->drive_train &&
-                    $modification['chassis'] === $setModification->chassis &&
+                    (string) $modification['chassis'] === (string) $setModification->chassis &&
                     $modification['body_type'] === $setModification->body_type &&
                     $modification['month_from'] === $setModification->month_from &&
                     $modification['month_to'] === $setModification->month_to &&
