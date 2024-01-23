@@ -23,7 +23,7 @@ class CreateBaseItemPositionAction
         $itemPosition = $baseItemPdr->nomenclatureBaseItemPdrPositions()->create(
             [
                 'ic_number' => strtoupper($request->input('ic_number')),
-                'oem_number' => strtoupper($request->input('oem_number')),
+                'oem_number' => strtoupper($request->input('oem_number') ?? 'N/A'),
                 'ic_description' => $request->input('ic_description'),
             ]
         );
