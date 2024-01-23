@@ -30,19 +30,6 @@ class BaseItemPdrPositionController extends Controller
     {
         $icList = $this->buildPdrTreeWithoutEmpty($baseItemPdr->baseItemPDR);
         return response()->json($icList);
-        $icList = collect();
-        $baseItemPdr->load('baseItemPDR.nomenclatureBaseItemPdrPositions');
-        if ($baseItemPdr->baseItemPDR) {
-            $icList = collect();
-            $baseItemPdr->baseItemPDR->each(function($position) use ($icList) {
-                $position->nomenclatureBaseItemPdrPositions->each(function($item) use ($icList) {
-                    if (!$item->is_virtual) {
-                        $icList->push($item->load('nomenclatureBaseItemPdrCard', 'photos'));
-                    }
-                });
-            });
-        }
-        return response()->json($icList);
     }
 
     public function loadItemPosition(NomenclatureBaseItemPdrPosition $itemPosition): BaseItemPdrPositionResource
@@ -88,7 +75,7 @@ class BaseItemPdrPositionController extends Controller
         ]);
         $baseItemPdrPosition->update([
             'ic_number' => strtoupper($request->input('ic_number')),
-            'oem_number' => strtoupper($request->input('oem_number')),
+            'oem_number' => strtoupper($request->input('oem_number') ?? 'n/a'),
             'ic_description' => $request->input('description'),
         ]);
         return response()->json([], 202);
