@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\ReadyCars;
 
+use App\Actions\ReadyCars\ReadyCarPartsAction;
 use App\Http\Controllers\Controller;
 use App\Models\NomenclatureBaseItem;
 use Illuminate\Support\Facades\DB;
@@ -68,7 +69,7 @@ class ReadyCarsController extends Controller
         return response()->json($result);
     }
 
-    public function modifications(string $make, string $model, string $generation)
+    public function modifications(string $make, string $model, string $generation): \Illuminate\Http\JsonResponse
     {
         $query = DB::table('nomenclature_base_item_modifications')
             ->select('image_url', 'body_type', 'chassis', 'transmission', 'year_from', 'year_to', 'month_from', 'month_to', 'restyle', 'drive_train', 'header')
@@ -93,5 +94,12 @@ class ReadyCarsController extends Controller
                 $item->years_string = $year_from_str . '-' . $year_end_str;
             });
         return response()->json($query);
+    }
+
+
+    public function parts(string $make, string $model, string $generation, string $header = null): \Illuminate\Http\JsonResponse
+    {
+        $parts = app()->make(ReadyCarPartsAction::class)->handle($make, $model, $generation, $header);
+        return response()->json($parts);
     }
 }
