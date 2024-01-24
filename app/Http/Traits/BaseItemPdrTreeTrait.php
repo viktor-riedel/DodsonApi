@@ -50,7 +50,7 @@ trait BaseItemPdrTreeTrait
     {
         $branch = [];
         foreach ($elements as $i => &$el) {
-            if ($el['is_folder'] && count($el['children'])) {
+            if ($el['is_folder'] && isset($el['children']) && count($el['children'])) {
                 $this->deleteEmptyItemsFromTree($el['children'], $el['id']);
             }
             if (!$el['is_folder'] && !count($el['nomenclature_base_item_pdr_positions'])) {
