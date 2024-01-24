@@ -42,14 +42,31 @@ trait BaseItemPdrTreeTrait
 
     private function buildPdrTreeWithoutEmpty($pdr): array
     {
-        $pdr->load('nomenclatureBaseItemPdrPositions');
-        return $this->getPDRTreeExcludingEmpty($pdr->toArray());
+        $tree = $this->buildPdrTree($pdr);
+        return $this->deleteEmptyItemsFromTree($tree);
     }
 
-    private function getPDRTreeExcludingEmpty(array $elements, $parent_id = 0): array
+    private function deleteEmptyItemsFromTree(array &$elements, $parent_id = 0): array
     {
-        $tree = $this->recursivePDRTree($elements, $parent_id);
-        return $tree;
+        $branch = [];
+        foreach ($elements as $i => &$el) {
+            if ($el['is_folder'] && count($el['children'])) {
+                $this->deleteEmptyItemsFromTree($el['children'], $el['id']);
+            }
+            if (!$el['is_folder'] && !count($el['nomenclature_base_item_pdr_positions'])) {
+                unset($elements[$i]);
+            } else if ($el['is_folder'] && isset($el['children']) && !count($el['children'])) {
+                unset($elements[$i]);
+            }
+            else {
+                $el['key'] = $parent_id . '-'. $el['id'];
+                if (isset($el['children'])) {
+                    $el['children'] = array_values($el['children']);
+                }
+                $branch[] = $el;
+            }
+        }
+        return $branch;
     }
 
     private function getPhotos(array $elements, &$photos = []): array
