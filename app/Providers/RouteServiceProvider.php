@@ -39,7 +39,8 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('/routes/Cars/BaseCarsRoutes.php'))
                 ->group(base_path('/routes/Cars/AvailableCarsRoutes.php'))
                 ->group(base_path('/routes/SettingsRoutes/SettingsRoutes.php'))
-                ->group(base_path('/routes/public/auth.php'));
+                ->group(base_path('/routes/Auth/auth.php'))
+                ->group(base_path('/routes/Public/Nomenclature/PublicNomenclatureRoutes.php'));
 
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
