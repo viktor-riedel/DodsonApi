@@ -57,8 +57,11 @@ trait BaseItemPdrTreeTrait
                 unset($elements[$i]);
             } else if ($el['is_folder'] && isset($el['children']) && !count($el['children'])) {
                 unset($elements[$i]);
-            }
-            else {
+            } else if ($el['is_folder'] && !isset($el['children']) && count($el['nomenclature_base_item_pdr_positions']) === 1) {
+                if ($el['nomenclature_base_item_pdr_positions'][0]['is_virtual']) {
+                    unset($elements[$i]);
+                }
+            } else {
                 $el['key'] = $parent_id . '-'. $el['id'];
                 if (isset($el['children'])) {
                     $el['children'] = array_values($el['children']);
