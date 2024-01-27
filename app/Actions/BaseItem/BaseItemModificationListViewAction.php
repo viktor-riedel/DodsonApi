@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Actions\BaseItemPosition;
+namespace App\Actions\BaseItem;
 
 use App\Models\NomenclatureBaseItem;
 use Illuminate\Support\Collection;
 
-class BaseItemIcListAction
+class BaseItemModificationListViewAction
 {
-    public function handle(NomenclatureBaseItem $baseItemPdr): Collection
+    public function handle(NomenclatureBaseItem $baseItemPdr):Collection
     {
         $positions = $baseItemPdr->nomenclaturePositions()
             ->with(['photos', 'nomenclatureBaseItemPdrCard', 'nomenclatureBaseItemModifications'])

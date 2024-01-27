@@ -41,6 +41,7 @@ Route::prefix('nomenclature')->middleware('auth:sanctum')->group(function() {
            Route::prefix('global')->group(function() {
                Route::get('/{nomenclatureBaseItem}/ic-list', [BaseItemModificationsController::class, 'icList']);
                Route::post('/{nomenclatureBaseItem}/ic-list', [BaseItemModificationsController::class, 'updateModifications']);
+               Route::get('/{nomenclatureBaseItem}/ic-list-view', [BaseItemModificationsController::class, 'icListView']);
            });
        });
     });
