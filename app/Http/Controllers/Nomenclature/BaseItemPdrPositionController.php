@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Nomenclature;
 
 use App\Actions\BaseItem\BaseItemModificationsSyncAction;
+use App\Actions\BaseItemPosition\BaseItemIcListAction;
 use App\Actions\BaseItemPosition\CreateBaseItemPositionAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\BaseItem\BaseItemPdrPositionResource;
+use App\Http\Resources\ItemPdrPositionListResource;
 use App\Http\Traits\BaseItemPdrTreeTrait;
 use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemPdr;
@@ -30,6 +32,12 @@ class BaseItemPdrPositionController extends Controller
     {
         $icList = $this->buildPdrTreeWithoutEmpty($baseItemPdr->baseItemPDR);
         return response()->json($icList);
+    }
+
+    public function listView(NomenclatureBaseItem $baseItemPdr): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    {
+        $ic_list = app()->make(BaseItemIcListAction::class)->handle($baseItemPdr);
+        return ItemPdrPositionListResource::collection($ic_list);
     }
 
     public function loadItemPosition(NomenclatureBaseItemPdrPosition $itemPosition): BaseItemPdrPositionResource
