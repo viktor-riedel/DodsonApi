@@ -4,6 +4,7 @@ namespace App\Http\Resources\AvailableCars;
 
 use App\Http\Resources\BaseItem\BaseItemPdrPositionModificationResource;
 use App\Http\Resources\BaseItem\BaseItemPositionPhotosResource;
+use App\Http\Resources\BaseItemPdrPositionCardResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,6 +22,7 @@ class PartResource extends JsonResource
             'ic_description' => $this->ic_description,
             'photos' => BaseItemPositionPhotosResource::collection($this->photos),
             'modifications' => BaseItemPdrPositionModificationResource::collection($this->modifications),
+            'card' => new BaseItemPdrPositionCardResource($this->card),
         ];
     }
 }

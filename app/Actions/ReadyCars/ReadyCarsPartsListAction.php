@@ -4,6 +4,7 @@ namespace App\Actions\ReadyCars;
 
 use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemModification;
+use App\Models\NomenclatureBaseItemPdrCard;
 use App\Models\NomenclatureBaseItemPdrPositionPhoto;
 use Illuminate\Support\Collection;
 use DB;
@@ -49,6 +50,7 @@ class ReadyCarsPartsListAction
             ->each(function($item) {
                 $item->photos = NomenclatureBaseItemPdrPositionPhoto::where('nomenclature_base_item_pdr_position_id', $item->id)->get();
                 $item->modifications = NomenclatureBaseItemModification::where('nomenclature_base_item_pdr_position_id', $item->id)->get();
+                $item->card = NomenclatureBaseItemPdrCard::where('nomenclature_base_item_pdr_position_id', $item->id)->first();
             });
 
         return $data;
