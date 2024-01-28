@@ -10,14 +10,16 @@ class ReadyCarsModificationsAction
     public function handle(string $make, string $model, string $generation): Collection
     {
         $modifications = DB::table('nomenclature_base_item_modifications')
-            ->select('image_url', 'body_type', 'chassis', 'transmission', 'year_from', 'year_to', 'month_from', 'month_to', 'restyle', 'drive_train', 'header')
+            ->select('image_url', 'body_type', 'chassis', 'transmission', 'year_from', 'year_to', 'month_from', 'month_to', 'restyle', 'drive_train', 'header', 'restyle', 'nomenclature_base_item_modifications.generation')
             ->join('nomenclature_base_item_pdr_positions', 'nomenclature_base_item_pdr_positions.id', '=', 'nomenclature_base_item_modifications.nomenclature_base_item_pdr_position_id')
             ->join('nomenclature_base_item_pdrs', 'nomenclature_base_item_pdrs.id', '=', 'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id')
             ->join('nomenclature_base_items', 'nomenclature_base_items.id', '=', 'nomenclature_base_item_pdrs.nomenclature_base_item_id')
             ->where('nomenclature_base_items.make', $make)
             ->where('nomenclature_base_items.model', $model)
             ->where('nomenclature_base_items.generation', $generation)
-            ->groupBy('image_url', 'body_type', 'chassis', 'transmission', 'year_from', 'year_to', 'month_from', 'month_to', 'restyle', 'drive_train', 'header')
+            ->whereNull('nomenclature_base_items.deleted_at')
+            ->whereNull('nomenclature_base_item_pdrs.deleted_at')
+            ->groupBy('image_url', 'body_type', 'chassis', 'transmission', 'year_from', 'year_to', 'month_from', 'month_to', 'restyle', 'drive_train', 'header', 'restyle', 'nomenclature_base_item_modifications.generation')
             ->orderBy('year_from')
             ->orderBy('year_to')
             ->get()->each(function($item) use ($make, $model, $generation) {
@@ -30,12 +32,12 @@ class ReadyCarsModificationsAction
                     $year_end_str = 'now';
                 }
                 $item->years_string = $year_from_str . '-' . $year_end_str;
-                $item->parts_count = $this->getPartsCount($make, $model, $generation, $item->header);
+                $item->parts_count = $this->getPartsCount($make, $model, $generation, $item);
             });
         return $modifications;
     }
 
-    private function getPartsCount(string $make, string $model, string $generation, string $header): int
+    private function getPartsCount(string $make, string $model, string $generation, $modification): int
     {
         return DB::table('nomenclature_base_item_pdrs')
             ->selectRaw('distinct nomenclature_base_item_pdr_positions.id,
@@ -57,8 +59,14 @@ class ReadyCarsModificationsAction
             ->where('nomenclature_base_items.make', $make)
             ->where('nomenclature_base_items.model', $model)
             ->where('nomenclature_base_items.generation', $generation)
-            ->where('nomenclature_base_item_modifications.header', $header)
+            ->whereNull('nomenclature_base_items.deleted_at')
+            ->whereNull('nomenclature_base_item_pdrs.deleted_at')
+            ->when($modification, function ($query) use ($modification) {
+                return $query->where('nomenclature_base_item_modifications.header', $modification->header);
+                //->where('nomenclature_base_item_modifications.restyle', $modification->restyle);
+            })
             ->where('nomenclature_base_item_pdr_positions.is_virtual', false)
+            ->whereNull('nomenclature_base_item_pdr_positions.deleted_at')
             ->get()
             ->count();
     }

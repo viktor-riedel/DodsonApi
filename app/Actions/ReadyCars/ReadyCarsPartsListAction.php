@@ -44,6 +44,7 @@ class ReadyCarsPartsListAction
                 return $query->where('nomenclature_base_item_modifications.header', $modification);
             })
             ->where('nomenclature_base_item_pdr_positions.is_virtual', false)
+            ->whereNull('nomenclature_base_item_pdrs.deleted_at')
             ->get()
             ->each(function($item) {
                 $item->photos = NomenclatureBaseItemPdrPositionPhoto::where('nomenclature_base_item_pdr_position_id', $item->id)->get();

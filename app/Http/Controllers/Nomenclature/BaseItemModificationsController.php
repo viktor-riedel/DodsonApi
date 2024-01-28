@@ -7,6 +7,7 @@ use App\Actions\BaseItem\BaseItemModificationsGlobalAction;
 use App\Actions\BaseItem\BaseItemModificationsGlobalUpdateAction;
 use App\Actions\BaseItem\BaseItemModificationsListAction;
 use App\Actions\BaseItem\BaseItemPositionModificationUpdateAction;
+use App\Actions\ReadyCars\ReadyCarsModificationsAction;
 use App\Http\Controllers\Controller;
 use App\Http\ExternalApiHelpers\CatalogApiHelper;
 use App\Http\Resources\ItemPdrPositionListResource;
@@ -42,9 +43,16 @@ class BaseItemModificationsController extends Controller
         return response()->json($result);
     }
 
-    public function icListView(NomenclatureBaseItem $nomenclatureBaseItem)
+    public function icListView(NomenclatureBaseItem $nomenclatureBaseItem): \Illuminate\Http\JsonResponse
     {
         $list = app()->make(BaseItemModificationListViewAction::class)->handle($nomenclatureBaseItem);
-        return ItemPdrPositionListResource::collection($list);
+        $modifications = app()->make(ReadyCarsModificationsAction::class)->handle(
+            $nomenclatureBaseItem->make,
+            $nomenclatureBaseItem->model,
+            $nomenclatureBaseItem->generation);
+        return response()->json([
+            'list' => ItemPdrPositionListResource::collection($list),
+            'modifications' => $modifications,
+        ]);
     }
 }
