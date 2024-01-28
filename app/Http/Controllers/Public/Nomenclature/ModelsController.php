@@ -11,6 +11,12 @@ class ModelsController extends Controller
     public function list(string $make): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $make = strtoupper($make);
+        $exist = NomenclatureBaseItem::query()
+            ->where('make', $make)->exists();
+        if (!$exist) {
+            abort('404', 'Model not found');
+        }
+
         $models = NomenclatureBaseItem::query()
             ->where('make', $make)
             ->distinct()->orderBy('model')
