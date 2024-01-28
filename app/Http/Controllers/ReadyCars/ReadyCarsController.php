@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\ReadyCars;
 
-use App\Actions\ReadyCars\ReadyCarPartsAction;
+use App\Actions\ReadyCars\ReadyCarsModificationsAction;
+use App\Actions\ReadyCars\ReadyCarsPartsListAction;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\AvailableCars\PartResource;
 use App\Models\NomenclatureBaseItem;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class ReadyCarsController extends Controller
 {
@@ -28,7 +30,7 @@ class ReadyCarsController extends Controller
         return response()->json($result);
     }
 
-    public function models(string $make): \Illuminate\Http\JsonResponse
+    public function models(string $make, ReadyCarsPartsListAction $action): \Illuminate\Http\JsonResponse
     {
         $result = [];
         $positions = NomenclatureBaseItem::with('NomenclaturePositionsNotVirtual')
@@ -40,6 +42,7 @@ class ReadyCarsController extends Controller
         $models = array_unique($positions->pluck('model')->toArray());
         foreach ($models as $model) {
             $result[] = [
+                'parts_count' => $action->handle($make, $model)->count(),
                 'model' => $model,
                 'generations' => $positions->where('make', $make)->where('model', $model)->count(),
                 'preview_image' => $positions->where('make', $make)->first()->preview_image
@@ -49,12 +52,14 @@ class ReadyCarsController extends Controller
     }
 
 
-    public function generations(string $make, string $models): \Illuminate\Http\JsonResponse
+    public function generations(string $make, string $model,
+            ReadyCarsPartsListAction $action,
+            ReadyCarsModificationsAction $modsAction): \Illuminate\Http\JsonResponse
     {
         $result = [];
         $positions = NomenclatureBaseItem::with('NomenclaturePositionsNotVirtual')
             ->where('make', $make)
-            ->where('model', $models)
+            ->where('model', $model)
             ->get()
             ->filter(function($item) {
                 return count($item->NomenclaturePositionsNotVirtual);
@@ -62,6 +67,8 @@ class ReadyCarsController extends Controller
         $generations = array_unique($positions->pluck('generation')->toArray());
         foreach ($generations as $generation) {
             $result[] = [
+                'parts_count' => $action->handle($make, $model, $generation)->count(),
+                'modifications_count' => $modsAction->handle($make, $model, $generation)->count(),
                 'generation' => $generation,
                 'preview_image' => $positions->where('make', $make)->first()->preview_image
             ];
@@ -71,35 +78,16 @@ class ReadyCarsController extends Controller
 
     public function modifications(string $make, string $model, string $generation): \Illuminate\Http\JsonResponse
     {
-        $query = DB::table('nomenclature_base_item_modifications')
-            ->select('image_url', 'body_type', 'chassis', 'transmission', 'year_from', 'year_to', 'month_from', 'month_to', 'restyle', 'drive_train', 'header')
-            ->join('nomenclature_base_item_pdr_positions', 'nomenclature_base_item_pdr_positions.id', '=', 'nomenclature_base_item_modifications.nomenclature_base_item_pdr_position_id')
-            ->join('nomenclature_base_item_pdrs', 'nomenclature_base_item_pdrs.id', '=', 'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id')
-            ->join('nomenclature_base_items', 'nomenclature_base_items.id', '=', 'nomenclature_base_item_pdrs.nomenclature_base_item_id')
-            ->where('nomenclature_base_items.make', $make)
-            ->where('nomenclature_base_items.model', $model)
-            ->where('nomenclature_base_items.generation', $generation)
-            ->groupBy('image_url', 'body_type', 'chassis', 'transmission', 'year_from', 'year_to', 'month_from', 'month_to', 'restyle', 'drive_train', 'header')
-            ->orderBy('year_from')
-            ->orderBy('year_to')
-            ->get()->each(function($item) {
-                $year_from_str = str_pad($item->month_from,2,0,STR_PAD_LEFT) . '.'.
-                    $item->year_from;
-                if ($item->month_to && $item->year_to) {
-                    $year_end_str = str_pad($item->month_to,2,0,STR_PAD_LEFT) . '.'.
-                        $item->year_to;
-                } else {
-                    $year_end_str = 'now';
-                }
-                $item->years_string = $year_from_str . '-' . $year_end_str;
-            });
-        return response()->json($query);
+        $modifications = app()->make(ReadyCarsModificationsAction::class)->handle($make, $model, $generation);
+        return response()->json($modifications);
     }
 
 
-    public function parts(string $make, string $model, string $generation, string $header = null): \Illuminate\Http\JsonResponse
+    public function partsList(Request $request, string $make, string $model): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $parts = app()->make(ReadyCarPartsAction::class)->handle($make, $model, $generation, $header);
-        return response()->json($parts);
+        $generation = $request->get('generation', '');
+        $header = $request->get('header', '');
+        $parts = app()->make(ReadyCarsPartsListAction::class)->handle($make, $model, $generation, $header);
+        return PartResource::collection($parts);
     }
 }
