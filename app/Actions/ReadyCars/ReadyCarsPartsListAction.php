@@ -12,7 +12,8 @@ use DB;
 
 class ReadyCarsPartsListAction
 {
-    public function handle(string $make, string $model, string $generation = '', string $modification = ''): Collection
+    public function handle(string $make, string $model, string $generation = '',
+            string $modification = '', string $restyle = null): Collection
     {
         $query = NomenclatureBaseItem::query();
         $query->where(['make' => $make, 'model' => $model]);
@@ -21,6 +22,7 @@ class ReadyCarsPartsListAction
         });
         $baseItemsIds = $query->get()->pluck('id')->toArray();
 
+        ray()->queries();
         $data = DB::table('nomenclature_base_item_pdrs')
             ->selectRaw('distinct nomenclature_base_item_pdr_positions.id,
                                    nomenclature_base_item_pdrs.item_name_eng,
@@ -41,11 +43,14 @@ class ReadyCarsPartsListAction
                     'nomenclature_base_item_pdr_positions.id');
             })
             ->whereIn('nomenclature_base_item_id', $baseItemsIds)
-            ->when($modification, function($query) use ($modification) {
-                return $query->where('nomenclature_base_item_modifications.header', $modification);
-//                    ->when(isset($modification->restyle) && $modification->restyle, function($q) use ($modification) {
-//                        return $q->where('nomenclature_base_item_modifications.restyle', $modification->restyle);
-//                    });
+            ->when($modification, function($query) use ($modification, $restyle) {
+                return $query->where('nomenclature_base_item_modifications.header', $modification)
+                    ->when(!isset($restyle), function($q) {
+                        return $q->whereNull('nomenclature_base_item_modifications.restyle');
+                    })
+                    ->when(isset($restyle), function ($q) use ($restyle) {
+                        return $q->where('nomenclature_base_item_modifications.restyle', (int) $restyle);
+                    });
             })
             ->where('nomenclature_base_item_pdr_positions.is_virtual', false)
             ->whereNull('nomenclature_base_item_pdrs.deleted_at')

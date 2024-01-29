@@ -63,8 +63,10 @@ class ReadyCarsModificationsAction
             ->whereNull('nomenclature_base_item_pdrs.deleted_at')
             ->when($modification, function ($query) use ($modification) {
                 return $query->where('nomenclature_base_item_modifications.header', $modification->header)
-                ->when(isset($modification->restyle) && $modification->restyle, function($q) use ($modification) {
+                ->when(isset($modification->restyle), function($q) use ($modification) {
                     return $q->where('nomenclature_base_item_modifications.restyle', $modification->restyle);
+                })->when(!isset($modification->restyle), function ($q) {
+                    return $q->whereNull('nomenclature_base_item_modifications.restyle');
                 });
             })
             ->where('nomenclature_base_item_pdr_positions.is_virtual', false)
