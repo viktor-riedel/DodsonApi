@@ -42,7 +42,10 @@ class ReadyCarsPartsListAction
             })
             ->whereIn('nomenclature_base_item_id', $baseItemsIds)
             ->when($modification, function($query) use ($modification) {
-                return $query->where('nomenclature_base_item_modifications.header', $modification);
+                return $query->where('nomenclature_base_item_modifications.header', $modification->header)
+                    ->when(isset($modification->restyle) && $modification->restyle, function($q) use ($modification) {
+                        return $q->where('nomenclature_base_item_modifications.restyle', $modification->restyle);
+                    });
             })
             ->where('nomenclature_base_item_pdr_positions.is_virtual', false)
             ->whereNull('nomenclature_base_item_pdrs.deleted_at')
