@@ -87,7 +87,11 @@ class ReadyCarsController extends Controller
     {
         $generation = $request->get('generation', '');
         $header = $request->get('header', '');
-        $parts = app()->make(ReadyCarsPartsListAction::class)->handle($make, $model, $generation, $header);
+        $restyle = $request->get('restyle');
+        if ($restyle === 'no') {
+            $restyle = null;
+        }
+        $parts = app()->make(ReadyCarsPartsListAction::class)->handle($make, $model, $generation, $header, $restyle);
         return PartResource::collection($parts);
     }
 }
