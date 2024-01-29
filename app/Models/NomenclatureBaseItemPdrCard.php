@@ -36,6 +36,9 @@ class NomenclatureBaseItemPdrCard extends Model
         'oem_number',
         'color',
         'weight',
+        'delivery_price_nz',
+        'delivery_price_ru',
+        'pinnacle_price',
         'created_by',
         'deleted_by',
     ];
