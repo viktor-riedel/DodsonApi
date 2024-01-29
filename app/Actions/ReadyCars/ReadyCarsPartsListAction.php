@@ -22,7 +22,6 @@ class ReadyCarsPartsListAction
         });
         $baseItemsIds = $query->get()->pluck('id')->toArray();
 
-        ray()->queries();
         $data = DB::table('nomenclature_base_item_pdrs')
             ->selectRaw('distinct nomenclature_base_item_pdr_positions.id,
                                    nomenclature_base_item_pdrs.item_name_eng,
