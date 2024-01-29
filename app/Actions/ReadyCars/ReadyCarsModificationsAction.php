@@ -9,8 +9,12 @@ class ReadyCarsModificationsAction
 {
     public function handle(string $make, string $model, string $generation): Collection
     {
+        ray()->queries();
         $modifications = DB::table('nomenclature_base_item_modifications')
-            ->select('image_url', 'body_type', 'chassis', 'transmission', 'year_from', 'year_to', 'month_from', 'month_to', 'restyle', 'drive_train', 'header', 'restyle', 'nomenclature_base_item_modifications.generation')
+            ->selectRaw('image_url, body_type, chassis, transmission,
+                    year_from, year_to, month_from, month_to,
+                    restyle, drive_train, header,
+                    nomenclature_base_item_modifications.generation')
             ->join('nomenclature_base_item_pdr_positions', 'nomenclature_base_item_pdr_positions.id', '=', 'nomenclature_base_item_modifications.nomenclature_base_item_pdr_position_id')
             ->join('nomenclature_base_item_pdrs', 'nomenclature_base_item_pdrs.id', '=', 'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id')
             ->join('nomenclature_base_items', 'nomenclature_base_items.id', '=', 'nomenclature_base_item_pdrs.nomenclature_base_item_id')
@@ -19,7 +23,10 @@ class ReadyCarsModificationsAction
             ->where('nomenclature_base_items.generation', $generation)
             ->whereNull('nomenclature_base_items.deleted_at')
             ->whereNull('nomenclature_base_item_pdrs.deleted_at')
-            ->groupBy('image_url', 'body_type', 'chassis', 'transmission', 'year_from', 'year_to', 'month_from', 'month_to', 'restyle', 'drive_train', 'header', 'restyle', 'nomenclature_base_item_modifications.generation')
+            ->groupBy('image_url', 'body_type', 'chassis', 'transmission',
+                    'year_from', 'year_to', 'month_from', 'month_to', 'restyle',
+                    'drive_train', 'header', 'restyle',
+                    'nomenclature_base_item_modifications.generation')
             ->orderBy('year_from')
             ->orderBy('year_to')
             ->get()->each(function($item) use ($make, $model, $generation) {
@@ -40,13 +47,7 @@ class ReadyCarsModificationsAction
     private function getPartsCount(string $make, string $model, string $generation, $modification): int
     {
         return DB::table('nomenclature_base_item_pdrs')
-            ->selectRaw('distinct nomenclature_base_item_pdr_positions.id,
-                                   nomenclature_base_item_pdrs.item_name_eng,
-                                   nomenclature_base_item_pdrs.item_name_ru,
-                                   nomenclature_base_item_pdr_positions.ic_number,
-                                   nomenclature_base_item_pdr_positions.oem_number,
-                                   nomenclature_base_item_pdr_positions.ic_description,
-                                   nomenclature_base_items.generation')
+            ->selectRaw('distinct nomenclature_base_item_pdr_positions.id')
             ->join('nomenclature_base_item_pdr_positions',
                 'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id',
                 '=',
@@ -62,8 +63,10 @@ class ReadyCarsModificationsAction
             ->whereNull('nomenclature_base_items.deleted_at')
             ->whereNull('nomenclature_base_item_pdrs.deleted_at')
             ->when($modification, function ($query) use ($modification) {
-                return $query->where('nomenclature_base_item_modifications.header', $modification->header);
-                //->where('nomenclature_base_item_modifications.restyle', $modification->restyle);
+                return $query->where('nomenclature_base_item_modifications.header', $modification->header)
+                ->when(isset($modification->restyle) && $modification->restyle, function($q) use ($modification) {
+                    return $q->where('nomenclature_base_item_modifications.restyle', $modification->restyle);
+                });
             })
             ->where('nomenclature_base_item_pdr_positions.is_virtual', false)
             ->whereNull('nomenclature_base_item_pdr_positions.deleted_at')
