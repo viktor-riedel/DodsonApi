@@ -86,6 +86,13 @@ class BaseItemPdrPositionController extends Controller
             'oem_number' => strtoupper($request->input('oem_number') ?? 'n/a'),
             'ic_description' => $request->input('description'),
         ]);
+        $icNumbers  = $baseItemPdrPosition->nomenclatureBaseItemPdr->nomenclatureBaseItemPdrPositions()->where('id' , '!=', $baseItemPdrPosition->id)->get();
+        if ($icNumbers->count()) {
+            foreach($icNumbers as $number) {
+                $number->nomenclatureBaseItemPdrCard()
+                    ->update(['name_ru' => mb_strtoupper($request->input('name_ru'))]);
+            }
+        }
         return response()->json([], 202);
     }
 
