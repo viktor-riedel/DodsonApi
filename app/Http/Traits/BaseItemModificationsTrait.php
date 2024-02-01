@@ -76,8 +76,6 @@ trait BaseItemModificationsTrait
             Cache::put($key, $data, now()->addHours(3));
         }
 
-        $modifications = $baseItemPosition->nomenclatureBaseItemModifications;
-
         $availableModifications = [];
         foreach ($data as $modification) {
             $availableModifications[] = [
