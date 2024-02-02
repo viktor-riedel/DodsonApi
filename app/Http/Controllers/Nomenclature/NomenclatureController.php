@@ -14,11 +14,6 @@ class NomenclatureController extends Controller
     {
         $this->apiHelper = new CatalogApiHelper();
     }
-
-    public function index()
-    {
-
-    }
     
     // api calls
     public function getCatalogMakes()
