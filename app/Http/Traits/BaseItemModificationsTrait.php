@@ -11,7 +11,7 @@ trait BaseItemModificationsTrait
 {
     private function loadAvailableModificationByBaseItem(NomenclatureBaseItem $nomenclatureBaseItem, CatalogApiHelper $apiHelper): array
     {
-        $key = 'modifications-' . $nomenclatureBaseItem->id;
+        $key = 'modifications-' . $nomenclatureBaseItem->id . '-' . $nomenclatureBaseItem->generation;
         if (Cache::has($key)) {
             $data = Cache::get($key);
         } else {
