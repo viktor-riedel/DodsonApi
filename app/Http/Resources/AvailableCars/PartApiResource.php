@@ -13,6 +13,7 @@ class PartApiResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'base_item_id' => $this->card->nomenclature_base_item->inner_id,
             'generation' => $this->generation,
             'item_name_eng' => $this->item_name_eng,
             'item_name_ru' => $this->item_name_ru,

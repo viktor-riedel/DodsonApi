@@ -21,11 +21,17 @@ class BaseItemCreateAction
             'make' => $request->input('make'),
             'model' => $request->input('model'),
             'generation' => $request->input('generation'),
-            'generation_number' => $request->input('generation_number'),
             'preview_image' => $request->input('preview_image'),
             'created_by' => $request->user()->id,
             'deleted_by' => null,
         ]);
+        $innerId =  $nomenclatureBaseItem->generateInnerId(
+            $nomenclatureBaseItem->make .
+            $nomenclatureBaseItem->model .
+            $nomenclatureBaseItem->generation .
+            $nomenclatureBaseItem->created_at
+        );
+        $nomenclatureBaseItem->setInnerId($innerId);
         return $nomenclatureBaseItem->id;
     }
 }
