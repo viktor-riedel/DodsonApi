@@ -15,7 +15,10 @@ class CreateBaseItemPositionAction
     {
         $exist = NomenclatureBaseItemPdrPosition::whereHas('nomenclatureBaseItemPdr', function($q) use ($baseItemPdr) {
            $q->where('item_name_eng', $baseItemPdr->item_name_eng);
-        })->where('ic_number', $request->input('ic_number'))->first();
+        })->where([
+            'ic_number' => $request->input('ic_number'),
+            'ic_description' => trim($request->input('ic_description')),
+        ])->first();
         if ($exist && !$request->input('reuse_id')) {
             abort(403, 'IC Number: ' . $request->input('ic_number') . ' already exists');
         }
