@@ -2,15 +2,17 @@
 
 namespace App\Models;
 
+use App\Http\Traits\InnerIdTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class NomenclatureBaseItemPdrCard extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, InnerIdTrait;
     
     protected $fillable = [
+        'inner_id',
         'nomenclature_base_item_pdr_position_id',
         'name_eng',
         'name_ru',
@@ -55,6 +57,16 @@ class NomenclatureBaseItemPdrCard extends Model
 
     public function nomenclatureBaseItemPdrPosition(): BelongsTo
     {
-        return $this->belongsTo(NomenclatureBaseItemPdrPosition::class);
+        return $this->belongsTo(NomenclatureBaseItemPdrPosition::class)->withTrashed();
+    }
+
+    public function getIsDeletedAttribute(): bool
+    {
+        return $this->nomenclatureBaseItemPdrPosition->trashed();
+    }
+
+    public function getNomenclatureBaseItemAttribute(): NomenclatureBaseItem
+    {
+        return $this->nomenclatureBaseItemPdrPosition->nomenclatureBaseItemPdr->nomenclatureBaseItem;
     }
 }
