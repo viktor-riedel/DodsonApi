@@ -31,12 +31,18 @@ class UpdateRussianNomenclatureNamesCommand extends Command
                     && $card->nomenclatureBaseItemPdrPosition->item_name_ru
                     && $card->nomenclatureBaseItemPdrPosition->item_name_ru !== '') {
                 $this->info('Update card ' . $card->id . ' to ' . $card->nomenclatureBaseItemPdrPosition->item_name_ru);
-                $card->update(['name_ru' => $card->nomenclatureBaseItemPdrPosition->item_name_ru]);
+                $card->update([
+                    'name_ru' => $card->nomenclatureBaseItemPdrPosition->item_name_ru,
+                    'name_eng' => $card->nomenclatureBaseItemPdrPosition->item_name_eng,
+                ]);
             } else if ($card->nomenclatureBaseItemPdrPosition) {
                 $pdr = $card->nomenclatureBaseItemPdrPosition->nomenclatureBaseItemPdr;
                 if ($pdr && $pdr->item_name_ru) {
                     $this->info('Update card using PDR ' . $card->id . ' to ' . $pdr->item_name_ru);
-                    $card->update(['name_ru' => $pdr->item_name_ru]);
+                    $card->update([
+                        'name_ru' => $pdr->item_name_ru,
+                        'name_eng' => $pdr->item_name_eng,
+                    ]);
                 }
             }
         }

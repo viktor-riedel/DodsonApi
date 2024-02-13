@@ -10,6 +10,7 @@ class BaseItemPdrPositionCardApiResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->inner_id,
             'name_eng' => $this->name_eng,
             'name_ru' => $this->name_ru,
             'price_nz_wholesale' => $this->price_nz_wholesale,
@@ -37,6 +38,7 @@ class BaseItemPdrPositionCardApiResource extends JsonResource
             'oem_number' => $this->oem_number,
             'color' => $this->color,
             'weight' => $this->weight,
+            'trashed' => $this->is_deleted,
         ];
     }
 }

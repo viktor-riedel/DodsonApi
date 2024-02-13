@@ -3,6 +3,7 @@
 namespace App\Actions\BaseItemPosition;
 
 use App\Models\NomenclatureBaseItemPdr;
+use App\Models\NomenclatureBaseItemPdrCard;
 use App\Models\NomenclatureBaseItemPdrPosition;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -41,7 +42,7 @@ class CreateBaseItemPositionAction
 
     public function createCleanPosition(NomenclatureBaseItemPdrPosition $itemPosition): void
     {
-        $itemPosition->nomenclatureBaseItemPdrCard()->create([
+        $card = $itemPosition->nomenclatureBaseItemPdrCard()->create([
             'name_eng' => strtoupper($itemPosition->nomenclatureBaseItemPdr->item_name_eng),
             'name_ru' => mb_strtoupper($itemPosition->nomenclatureBaseItemPdr->item_name_ru),
             'description' => $itemPosition->ic_description,
@@ -50,13 +51,14 @@ class CreateBaseItemPositionAction
             'created_by' => $this->user->id,
             'deleted_by' => null,
         ]);
+        $this->createInnerId($card);
     }
 
     public function createReusedPosition(NomenclatureBaseItemPdrPosition $itemPosition, int $reuse_id): void
     {
         $reusePosition = NomenclatureBaseItemPdrPosition::with('photos')->find($reuse_id);
         if ($reusePosition) {
-            $itemPosition->nomenclatureBaseItemPdrCard()->create([
+            $card = $itemPosition->nomenclatureBaseItemPdrCard()->create([
                 'name_eng' => $reusePosition->item_name_eng,
                 'name_ru' => $reusePosition->item_name_ru,
                 'price_nz_wholesale' => $reusePosition->price_nz_wholesale,
@@ -87,6 +89,18 @@ class CreateBaseItemPositionAction
                 }
             }
             $reusePosition->relatedPositions()->attach($itemPosition);
+            $this->createInnerId($card);
         }
+    }
+
+    private function createInnerId(NomenclatureBaseItemPdrCard $card): void
+    {
+        $innerId = $card->generateInnerId(
+            $card->make .
+            $card->model .
+            $card->generation .
+            $card->created_at
+        );
+        $card->setInnerId($innerId);
     }
 }
