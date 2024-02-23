@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->string('color')->nullable();
             $table->integer('engine')->nullable();
             $table->unsignedBigInteger('created_by');
-            $table->unsignedBigInteger('deleted_by');
+            $table->unsignedBigInteger('deleted_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

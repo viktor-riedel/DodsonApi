@@ -15,11 +15,12 @@ return new class extends Migration {
             $table->string('generation')->nullable();
             $table->string('drive_train')->nullable();
             $table->string('header')->nullable();
-            $table->string('month_from')->nullable();
-            $table->string('month_to')->nullable();
+            $table->integer('month_from')->nullable();
+            $table->integer('month_to')->nullable();
             $table->boolean('restyle')->nullable();
             $table->string('transmission')->nullable();
-            $table->string('year_from')->nullable();
+            $table->integer('year_from')->nullable();
+            $table->integer('year_to')->nullable();
             $table->string('years_string')->nullable();
             $table->softDeletes();
             $table->timestamps();

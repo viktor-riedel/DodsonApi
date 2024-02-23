@@ -23,10 +23,15 @@ class CreateCarController extends Controller
                 $mime = $file->getMimeType();
                 $fileExtension = '.' . $file->clientExtension();
                 $savePath = $folderName . '/' . $fileName . $fileExtension;
+                $size = $file->getSize();
                 $result = $storage->put($savePath, $file->getContent(), 'public');
                 $uploaded[] = [
-                    'file_name' => $originFileName,
+                    'file_name' => $fileName,
+                    'original_file_name' => $originFileName,
+                    'folder_name' => $folderName,
+                    'size' => $size,
                     'mime' => $mime,
+                    'ext' => $fileExtension,
                     'name' => $fileName . $fileExtension,
                     'uploaded_url' => $storage->url($savePath),
                 ];

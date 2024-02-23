@@ -21,6 +21,7 @@ class CarModification extends Model
         'restyle',
         'transmission',
         'year_from',
+        'year_to',
         'years_string',
     ];
 }

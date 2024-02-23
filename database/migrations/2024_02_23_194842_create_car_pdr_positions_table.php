@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->text('ic_description')->nullable();
             $table->boolean('is_virtual')->default(false);
             $table->unsignedBigInteger('created_by');
-            $table->unsignedBigInteger('deleted_by');
+            $table->unsignedBigInteger('deleted_by')->nullable();
             $table->softDeletes();
             $table->timestamps();
 

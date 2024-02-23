@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->integer('file_size')->nullable();
             $table->string('special_flag')->nullable();
             $table->unsignedBigInteger('created_by');
-            $table->unsignedBigInteger('deleted_by');
+            $table->unsignedBigInteger('deleted_by')->nullable();
             $table->softDeletes();
             $table->timestamps();
 

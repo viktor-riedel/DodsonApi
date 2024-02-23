@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->string('ic_number')->nullable()->index();
             $table->string('oem_number')->nullable()->index();
             $table->unsignedBigInteger('created_by');
-            $table->unsignedBigInteger('deleted_by');
+            $table->unsignedBigInteger('deleted_by')->nullable();
             $table->softDeletes();
             $table->timestamps();
 
