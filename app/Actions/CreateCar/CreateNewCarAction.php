@@ -66,11 +66,6 @@ class CreateNewCarAction
             }
         }
 
-        $positions = $baseCar->baseItemPDR->nomenclaturePositions()
-            ->with(['photos', 'nomenclatureBaseItemPdrCard', 'nomenclatureBaseItemModifications'])
-            ->where('is_virtual', false)
-            ->get();
-
         return $car->id;
     }
 }
