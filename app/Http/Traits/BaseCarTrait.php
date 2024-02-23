@@ -70,7 +70,7 @@ trait BaseCarTrait
         $modifications = DB::table('nomenclature_base_item_modifications')
             ->selectRaw('image_url, body_type, chassis, transmission,
                     year_from, year_to, month_from, month_to,
-                    restyle, drive_train, header, doors,
+                    restyle, drive_train, header, doors, engine_size,
                     nomenclature_base_item_modifications.generation')
             ->join('nomenclature_base_item_pdr_positions', 'nomenclature_base_item_pdr_positions.id', '=', 'nomenclature_base_item_modifications.nomenclature_base_item_pdr_position_id')
             ->join('nomenclature_base_item_pdrs', 'nomenclature_base_item_pdrs.id', '=', 'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id')
@@ -82,7 +82,7 @@ trait BaseCarTrait
             ->whereNull('nomenclature_base_item_pdrs.deleted_at')
             ->groupBy('image_url', 'body_type', 'chassis', 'transmission',
                 'year_from', 'year_to', 'month_from', 'month_to', 'restyle',
-                'drive_train', 'header', 'restyle', 'doors',
+                'drive_train', 'header', 'restyle', 'doors', 'engine_size',
                 'nomenclature_base_item_modifications.generation')
             ->orderBy('year_from')
             ->orderBy('year_to')

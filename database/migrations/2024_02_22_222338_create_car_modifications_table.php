@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->integer('doors')->nullable();
             $table->string('drive_train')->nullable();
             $table->string('header')->nullable();
+            $table->string('engine_size')->nullable();
             $table->integer('month_from')->nullable();
             $table->integer('month_to')->nullable();
             $table->boolean('restyle')->nullable();

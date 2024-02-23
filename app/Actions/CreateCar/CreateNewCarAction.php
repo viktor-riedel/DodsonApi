@@ -23,8 +23,28 @@ class CreateNewCarAction
 //        foreach($basePdr as $pdrPosition) {
 //            //nomenclatureBaseItemModifications
 //            $pdrPosition->load('nomenclatureBaseItemPdrPositions');
+//            foreach($pdrPosition->nomenclatureBaseItemPdrPositions as $position) {
+//                $position->load('nomenclatureBaseItemModifications');
+//                $filtered = $position->nomenclatureBaseItemModifications->filter(function($mod) use ($request) {
+//                    return  $mod->body_type === $request->input('modification.body_type') &&
+//                        $mod->chassis === $request->input('modification.chassis') &&
+//                        $mod->generation === $request->input('modification.generation') &&
+//                        $mod->drive_train === $request->input('modification.drive_train') &&
+//                        $mod->header === $request->input('modification.header') &&
+//                        $mod->month_from === (int) $request->input('modification.month_from') &&
+//                        $mod->month_to === (int) $request->input('modification.month_to') &&
+//                        $mod->restyle === (bool) $request->input('modification.restyle') &&
+//                        $mod->doors === (int) $request->input('modification.doors') &&
+//                        $mod->transmission === $request->input('modification.transmission') &&
+//                        $mod->year_from === (int) $request->input('modification.year_from') &&
+//                        $mod->year_to === (int) $request->input('modification.year_to');
+//                });
+//                if ($filtered->count()) {
+//                    ray($filtered);
+//                }
+//            }
 //        }
-//        ray($basePdr);
+//        //ray($basePdr);
 //        return -1;
 
         $car = Car::create([
@@ -40,6 +60,7 @@ class CreateNewCarAction
             'body_type' => $request->input('modification.body_type'),
             'chassis' => $request->input('modification.chassis'),
             'generation' => $request->input('modification.generation'),
+            'engine_size' => $request->input('modification.engine_size'),
             'drive_train' => $request->input('modification.drive_train'),
             'header' => $request->input('modification.header'),
             'month_from' => (int) $request->input('modification.month_from'),
