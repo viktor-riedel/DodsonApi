@@ -42,12 +42,13 @@ class CreateNewCarAction
             'generation' => $request->input('modification.generation'),
             'drive_train' => $request->input('modification.drive_train'),
             'header' => $request->input('modification.header'),
-            'month_from' => $request->input('modification.month_from'),
-            'month_to' => $request->input('modification.month_to'),
+            'month_from' => (int) $request->input('modification.month_from'),
+            'month_to' => (int) $request->input('modification.month_to'),
             'restyle' => (bool) $request->input('modification.restyle'),
+            'doors' => (int) $request->input('modification.doors'),
             'transmission' => $request->input('modification.transmission'),
-            'year_from' => $request->input('modification.year_from'),
-            'year_to' => $request->input('modification.year_to'),
+            'year_from' => (int) $request->input('modification.year_from'),
+            'year_to' => (int) $request->input('modification.year_to'),
             'years_string' => $request->input('modification.years_string'),
         ]);
 

@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->string('body_type')->nullable();
             $table->string('chassis')->nullable();
             $table->string('generation')->nullable();
+            $table->integer('doors')->nullable();
             $table->string('drive_train')->nullable();
             $table->string('header')->nullable();
             $table->integer('month_from')->nullable();

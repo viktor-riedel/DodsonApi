@@ -14,6 +14,7 @@ class CarModification extends Model
         'body_type',
         'chassis',
         'generation',
+        'doors',
         'drive_train',
         'header',
         'month_from',
