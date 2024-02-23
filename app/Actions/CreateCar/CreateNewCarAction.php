@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class CreateNewCarAction
 {
-    public function handle(Request $request)
+    public function handle(Request $request): int
     {
         $baseCar = NomenclatureBaseItem::where('make', strtoupper(trim($request->input('make'))))
             ->where('model', strtoupper(trim($request->input('model'))))
@@ -53,5 +53,7 @@ class CreateNewCarAction
                 ]);
             }
         }
+
+        return $car->id;
     }
 }

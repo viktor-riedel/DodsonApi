@@ -40,9 +40,9 @@ class CreateCarController extends Controller
         return response()->json(['files' => $uploaded], 201);
     }
 
-    public function createNewCar(Request $request)
+    public function createNewCar(Request $request): \Illuminate\Http\JsonResponse
     {
-        ray($request->user()->id);
-        app()->make(CreateNewCarAction::class)->handle($request);
+        $carId = app()->make(CreateNewCarAction::class)->handle($request);
+        return response()->json(['success' => $carId]);
     }
 }
