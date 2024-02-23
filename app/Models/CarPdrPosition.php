@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CarPdrPosition extends Model
@@ -20,4 +22,14 @@ class CarPdrPosition extends Model
         'created_by',
         'deleted_by',
     ];
+
+    public function cards(): HasMany
+    {
+        return $this->hasMany(CarPdrCardPositionCard::class);
+    }
+
+    public function images(): MorphMany
+    {
+        return $this->morphMany(MediaFile::class, 'mediable');
+    }
 }

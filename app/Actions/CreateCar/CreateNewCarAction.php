@@ -2,18 +2,30 @@
 
 namespace App\Actions\CreateCar;
 
+use App\Http\Traits\BaseItemPdrTreeTrait;
 use App\Models\Car;
 use App\Models\NomenclatureBaseItem;
+use App\Models\NomenclatureBaseItemModification;
 use Illuminate\Http\Request;
 
 class CreateNewCarAction
 {
+    use BaseItemPdrTreeTrait;
+
     public function handle(Request $request): int
     {
         $baseCar = NomenclatureBaseItem::where('make', strtoupper(trim($request->input('make'))))
             ->where('model', strtoupper(trim($request->input('model'))))
             ->where('generation', trim($request->input('generation')))
             ->first();
+
+//        $basePdr = $baseCar->baseItemPDR;
+//        foreach($basePdr as $pdrPosition) {
+//            //nomenclatureBaseItemModifications
+//            $pdrPosition->load('nomenclatureBaseItemPdrPositions');
+//        }
+//        ray($basePdr);
+//        return -1;
 
         $car = Car::create([
             'parent_inner_id' => $baseCar->inner_id,
@@ -26,7 +38,7 @@ class CreateNewCarAction
         $car->carAttributes()->create([]);
         $car->modification()->create([
             'body_type' => $request->input('modification.body_type'),
-            'chassis' => $request->input('=modification.chassis'),
+            'chassis' => $request->input('modification.chassis'),
             'generation' => $request->input('modification.generation'),
             'drive_train' => $request->input('modification.drive_train'),
             'header' => $request->input('modification.header'),
@@ -53,6 +65,11 @@ class CreateNewCarAction
                 ]);
             }
         }
+
+        $positions = $baseCar->baseItemPDR->nomenclaturePositions()
+            ->with(['photos', 'nomenclatureBaseItemPdrCard', 'nomenclatureBaseItemModifications'])
+            ->where('is_virtual', false)
+            ->get();
 
         return $car->id;
     }

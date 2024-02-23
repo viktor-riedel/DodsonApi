@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -34,6 +35,11 @@ class Car extends Model
     public function modification(): HasOne
     {
         return $this->hasOne(CarModification::class);
+    }
+
+    public function pdrPositions(): HasMany
+    {
+        return $this->hasMany(CarPdr::class);
     }
 
     public function createdBy(): BelongsTo
