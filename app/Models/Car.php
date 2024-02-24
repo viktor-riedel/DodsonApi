@@ -30,6 +30,11 @@ class Car extends Model
         'deleted_by',
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
+    ];
+
     public function images(): MorphMany
     {
         return $this->morphMany(MediaFile::class, 'mediable');

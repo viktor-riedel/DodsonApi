@@ -43,6 +43,6 @@ class CreateCarController extends Controller
     public function createNewCar(Request $request): \Illuminate\Http\JsonResponse
     {
         $carId = app()->make(CreateNewCarAction::class)->handle($request);
-        return response()->json(['success' => $carId]);
+        return response()->json(['id' => $carId]);
     }
 }
