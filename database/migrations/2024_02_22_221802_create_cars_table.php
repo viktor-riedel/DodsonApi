@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->integer('mileage')->nullable();
             $table->string('color')->nullable();
             $table->integer('engine')->nullable();
+            $table->integer('car_status')->default(0);
             $table->unsignedBigInteger('created_by');
             $table->unsignedBigInteger('deleted_by')->nullable();
             $table->timestamps();

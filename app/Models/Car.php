@@ -13,10 +13,18 @@ class Car extends Model
 {
     use SoftDeletes;
 
+    public const CAR_STATUSES = [
+        0 => 'virtual',
+        1 => 'in work',
+        2 => 'done',
+        3 => 'problem',
+    ];
+
     protected $fillable = [
         'parent_inner_id',
         'make',
         'model',
+        'car_status',
         'generation',
         'created_by',
         'deleted_by',
@@ -37,7 +45,7 @@ class Car extends Model
         return $this->hasOne(CarModification::class);
     }
 
-    public function pdrPositions(): HasMany
+    public function pdrs(): HasMany
     {
         return $this->hasMany(CarPdr::class);
     }

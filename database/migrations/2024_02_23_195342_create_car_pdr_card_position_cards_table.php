@@ -7,9 +7,10 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('car_pdr_card_position_cards', function (Blueprint $table) {
+        Schema::dropIfExists('car_pdr_card_position_cards');
+        Schema::create('car_pdr_position_cards', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('car_pdr_position_card_id');
+            $table->unsignedBigInteger('car_pdr_position_id');
             $table->string('parent_inner_id')->nullable()->index();
             $table->string('name_eng')->nullable();
             $table->string('name_ru')->nullable();
@@ -30,7 +31,7 @@ return new class extends Migration {
                 ->references('id')
                 ->on('users')
                 ->cascadeOnDelete();
-            $table->foreign('car_pdr_position_card_id')
+            $table->foreign('car_pdr_position_id')
                 ->references('id')
                 ->on('car_pdr_positions')
                 ->cascadeOnDelete();
@@ -40,5 +41,6 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::dropIfExists('car_pdr_card_position_cards');
+        Schema::dropIfExists('car_pdr_position_cards');
     }
 };

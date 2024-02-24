@@ -28,7 +28,7 @@ return new class extends Migration {
 
             $table->foreign('car_pdr_position_card_id')
                 ->references('id')
-                ->on('car_pdr_card_position_cards')
+                ->on('car_pdr_position_cards')
                 ->cascadeOnDelete();
         });
     }

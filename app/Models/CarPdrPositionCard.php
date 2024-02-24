@@ -8,13 +8,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class CarPdrCardPositionCard extends Model
+class CarPdrPositionCard extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
         'parent_inner_id',
-        'car_pdr_position_id',
         'name_eng',
         'name_ru',
         'comment',

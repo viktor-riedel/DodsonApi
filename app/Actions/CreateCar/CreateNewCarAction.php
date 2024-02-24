@@ -5,23 +5,26 @@ namespace App\Actions\CreateCar;
 use App\Http\Traits\BaseItemPdrTreeTrait;
 use App\Models\Car;
 use App\Models\NomenclatureBaseItem;
+use App\Models\NomenclatureBaseItemPdrPosition;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 
 class CreateNewCarAction
 {
     use BaseItemPdrTreeTrait;
 
+    private User $user;
+    private Request $request;
+
     public function handle(Request $request): int
     {
+        $this->user = $request->user();
+        $this->request = $request;
+
         $baseCar = NomenclatureBaseItem::where('make', strtoupper(trim($request->input('make'))))
             ->where('model', strtoupper(trim($request->input('model'))))
             ->where('generation', trim($request->input('generation')))
             ->first();
-
-//        $modifications = $this->getModifications($baseCar->id, $request);
-//        ray($modifications->pluck('nomenclature_base_item_pdr_id')->toArray());
-//        return -1;
 
         $car = Car::create([
             'parent_inner_id' => $baseCar->inner_id,
@@ -31,25 +34,27 @@ class CreateNewCarAction
             'created_by' => $request->user()->id,
         ]);
 
+        $this->copyOriginalPdr($baseCar, $car);
+
         $car->carAttributes()->create([]);
         $car->modification()->create([
-            'body_type' => $request->input('modification.body_type'),
-            'chassis' => $request->input('modification.chassis'),
-            'generation' => $request->input('modification.generation'),
-            'engine_size' => $request->input('modification.engine_size'),
-            'drive_train' => $request->input('modification.drive_train'),
-            'header' => $request->input('modification.header'),
-            'month_from' => (int) $request->input('modification.month_from'),
-            'month_to' => (int) $request->input('modification.month_to'),
-            'restyle' => (bool) $request->input('modification.restyle'),
-            'doors' => (int) $request->input('modification.doors'),
-            'transmission' => $request->input('modification.transmission'),
-            'year_from' => (int) $request->input('modification.year_from'),
-            'year_to' => (int) $request->input('modification.year_to'),
-            'years_string' => $request->input('modification.years_string'),
+            'body_type' => $this->request->input('modification.body_type'),
+            'chassis' => $this->request->input('modification.chassis'),
+            'generation' => $this->request->input('modification.generation'),
+            'engine_size' => $this->request->input('modification.engine_size'),
+            'drive_train' => $this->request->input('modification.drive_train'),
+            'header' => $this->request->input('modification.header'),
+            'month_from' => (int) $this->request->input('modification.month_from'),
+            'month_to' => (int) $this->request->input('modification.month_to'),
+            'restyle' => (bool) $this->request->input('modification.restyle'),
+            'doors' => (int) $this->request->input('modification.doors'),
+            'transmission' => $this->request->input('modification.transmission'),
+            'year_from' => (int) $this->request->input('modification.year_from'),
+            'year_to' => (int) $this->request->input('modification.year_to'),
+            'years_string' => $this->request->input('modification.years_string'),
         ]);
 
-        if (is_array($request->photos)) {
+        if (is_array($request->photos) && count($request->photos)) {
             foreach($request->photos as $photo) {
                 $car->images()->create([
                     'url' => $photo['uploaded_url'] ?? '',
@@ -67,34 +72,126 @@ class CreateNewCarAction
         return $car->id;
     }
 
-    private function getModifications(int $baseItemId, Request $request): Collection
+    private function copyOriginalPdr(NomenclatureBaseItem $baseItem, Car $car): bool
     {
-        return \DB::table('nomenclature_base_item_modifications')
-            ->select('*')
-            ->join('nomenclature_base_item_pdr_positions', 'nomenclature_base_item_pdr_positions.id', '=', 'nomenclature_base_item_modifications.nomenclature_base_item_pdr_position_id')
-            ->join('nomenclature_base_item_pdrs', 'nomenclature_base_item_pdrs.id', '=', 'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id')
-            ->join('nomenclature_base_items', 'nomenclature_base_items.id', '=', 'nomenclature_base_item_pdrs.nomenclature_base_item_id')
-            ->where('nomenclature_base_items.id', $baseItemId)
-            ->whereNull('nomenclature_base_item_modifications.deleted_at')
-            ->where('nomenclature_base_item_modifications.body_type', $request->input('modification.body_type'))
-            ->where('nomenclature_base_item_modifications.chassis', $request->input('modification.chassis'))
-            ->where('nomenclature_base_item_modifications.generation', $request->input('modification.generation'))
-            ->where('nomenclature_base_item_modifications.engine_size', $request->input('modification.engine_size'))
-            ->where('nomenclature_base_item_modifications.drive_train', $request->input('modification.drive_train'))
-            ->where('nomenclature_base_item_modifications.header', $request->input('modification.header'))
-            ->where('nomenclature_base_item_modifications.month_from', $request->input('modification.month_from'))
-            ->where('nomenclature_base_item_modifications.month_to', $request->input('modification.month_to'))
-            ->where('nomenclature_base_item_modifications.restyle', $request->input('modification.restyle'))
-            ->where('nomenclature_base_item_modifications.doors', $request->input('modification.doors'))
-            ->where('nomenclature_base_item_modifications.transmission', $request->input('modification.transmission'))
-            ->where('nomenclature_base_item_modifications.year_from', $request->input('modification.year_from'))
-            ->where('nomenclature_base_item_modifications.year_to', $request->input('modification.year_to'))
-            ->when($request->input('modification.restyle')  && in_array((int) $request->input('modification.year_from'), [0, 1], true), function($q) use($request) {
-                $q->where('nomenclature_base_item_modifications.restyle', $request->input('modification.restyle'));
-            })
-            ->when( $request->input('modification.year_from', 'no') === 'no', function($q) {
-                $q->whereNull('nomenclature_base_item_modifications.restyle');
-            })
+        $pdr = $this->buildPdrTreeWithoutEmpty($baseItem->baseItemPDR);
+        $this->copyOriginalPdrWithCards($pdr, $car);
+        return true;
+    }
+
+    private function copyOriginalPdrWithCards(array $parts, Car $car, $parentId = 0): void
+    {
+        foreach ($parts as $part) {
+            $id = $this->recursiveCopyPdrWithCards($part, $car, $parentId);
+            if (isset($part['children']) && count($part['children'])) {
+                $this->copyOriginalPdrWithCards($part['children'], $car, $id);
+            }
+        }
+    }
+
+    private function recursiveCopyPdrWithCards(array $part, Car $car, $parentId = 0): int
+    {
+        $pdr = $car->pdrs()->create([
+            'parent_id' => $parentId,
+            'item_name_eng' => $part['item_name_eng'],
+            'item_name_ru' => $part['item_name_ru'],
+            'is_folder' => $part['is_folder'],
+            'is_deleted' => false,
+            'parts_list_id' => $part['id'],
+            'created_by' => $this->user->id,
+        ]);
+
+        $originalPosition = NomenclatureBaseItemPdrPosition::where('nomenclature_base_item_pdr_id', $part['id'])
             ->get();
+
+        foreach($originalPosition as $origin) {
+            //check match modification
+            $modificationMatch = false;
+            foreach($origin->nomenclatureBaseItemModifications as $mod)
+            {
+                if ($mod->body_type === $this->request->input('modification.body_type') &&
+                $mod->chassis === $this->request->input('modification.chassis') &&
+                $mod->generation === $this->request->input('modification.generation') &&
+                $mod->engine_size === $this->request->input('modification.engine_size') &&
+                $mod->drive_train === $this->request->input('modification.drive_train') &&
+                $mod->header === $this->request->input('modification.header') &&
+                $mod->month_from === $this->request->input('modification.month_from') &&
+                $mod->month_to === $this->request->input('modification.month_to') &&
+                $mod->restyle === $this->request->input('modification.restyle') &&
+                $mod->doors === $this->request->input('modification.doors') &&
+                $mod->transmission === $this->request->input('modification.transmission') &&
+                $mod->year_from === $this->request->input('modification.year_from') &&
+                $mod->year_to === $this->request->input('modification.year_to') &&
+                $mod->restyle ===  $this->request->input('modification.restyle')) {
+                    $modificationMatch = true;
+                }
+            }
+
+            $position = null;
+            if ($origin->is_virtual) {
+                $position = $pdr->positions()->create([
+                    'item_name_ru' => $origin->item_name_ru,
+                    'item_name_eng' => $origin->item_name_eng,
+                    'ic_number' => $origin->ic_number,
+                    'oem_number' => $origin->oem_number,
+                    'ic_description' => $origin->ic_description,
+                    'is_virtual' => $origin->is_virtual,
+                    'created_by' => $this->user->id,
+                ]);
+            } else if ($modificationMatch) {
+                $position = $pdr->positions()->create([
+                    'item_name_ru' => $origin->item_name_ru,
+                    'item_name_eng' => $origin->item_name_eng,
+                    'ic_number' => $origin->ic_number,
+                    'oem_number' => $origin->oem_number,
+                    'ic_description' => $origin->ic_description,
+                    'is_virtual' => $origin->is_virtual,
+                    'created_by' => $this->user->id,
+                ]);
+            }
+            if ($part['is_folder'] && $origin->is_virtual && $position) {
+                $pdr->update(['car_pdr_position_id' => $position->id]);
+            }
+
+            if ($modificationMatch && $position) {
+                $originCard = $origin->nomenclatureBaseItemPdrCard;
+                $card = $position->cards()->create([
+                    'parent_inner_id' => $originCard->inner_id,
+                    'name_eng' => $originCard->name_eng,
+                    'name_ru' => $originCard->name_ru,
+                    'comment' => $originCard->comment,
+                    'description' => $originCard->description,
+                    'ic_number' => $originCard->ic_number,
+                    'oem_number' => $originCard->oem_number,
+                    'created_by' => $this->user->id,
+                ]);
+                $card->priceCard()->create([
+                    'price_nz_wholesale' => $originCard->price_nz_wholesale,
+                    'price_nz_retail' => $originCard->price_nz_retail,
+                    'price_ru_wholesale' => $originCard->price_ru_wholesale,
+                    'price_ru_retail' => $originCard->price_ru_retail,
+                    'price_jp_minimum_buy' => $originCard->price_jp_minimum_buy,
+                    'price_jp_maximum_buy' => $originCard->price_jp_maximum_buy,
+                    'minimum_threshold_nz_retail' => $originCard->minimum_threshold_nz_retail,
+                    'minimum_threshold_nz_wholesale' => $originCard->minimum_threshold_nz_wholesale,
+                    'minimum_threshold_ru_retail' => $originCard->minimum_threshold_ru_retail,
+                    'minimum_threshold_ru_wholesale' => $originCard->minimum_threshold_ru_wholesale,
+                    'delivery_price_nz' => $originCard->delivery_price_nz,
+                    'delivery_price_ru' => $originCard->delivery_price_ru,
+                    'pinnacle_price' => $originCard->pinnacle_price,
+                ]);
+                $card->partAttributesCard()->create([
+                    'color' => $originCard->color,
+                    'weight' => $originCard->weight,
+                    'volume' => $originCard->volume,
+                    'trademe' => $originCard->trademe,
+                    'drom' => $originCard->drom,
+                    'avito' => $originCard->avito,
+                    'dodson' => $originCard->dodson,
+                ]);
+            }
+        }
+
+        return $pdr->id;
     }
 }

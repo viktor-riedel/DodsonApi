@@ -25,7 +25,7 @@ class CarPdrPosition extends Model
 
     public function cards(): HasMany
     {
-        return $this->hasMany(CarPdrCardPositionCard::class);
+        return $this->hasMany(CarPdrPositionCard::class);
     }
 
     public function images(): MorphMany

@@ -20,7 +20,7 @@ class CarPdrPositionCardPrice extends Model
         'minimum_threshold_nz_retail',
         'minimum_threshold_nz_wholesale',
         'minimum_threshold_ru_retail',
-        'minimum_threshold_nz_wholesale',
+        'minimum_threshold_ru_wholesale',
         'delivery_price_nz',
         'delivery_price_ru',
         'pinnacle_price',

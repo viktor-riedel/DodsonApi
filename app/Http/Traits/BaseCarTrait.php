@@ -9,37 +9,42 @@ trait BaseCarTrait
 {
     public function makes(): \Illuminate\Http\JsonResponse
     {
-        $makes = NomenclatureBaseItem::get()
-            ->pluck('make')
-            ->toArray();
-        $makes = array_unique($makes);
-        sort($makes);
-        $makes = collect($makes)->transform(function($make) {
-            return [
+        $result = [];
+        $positions = NomenclatureBaseItem::with('NomenclaturePositionsNotVirtual')
+            ->get()
+            ->filter(function($item) {
+                return count($item->NomenclaturePositionsNotVirtual);
+            });
+        $makes = array_unique($positions->pluck('make')->toArray());
+        foreach($makes as $make) {
+            $result[] = [
                 'make' => $make,
-                'image_url' => NomenclatureBaseItem::where('make', $make)->first()->preview_image
+                'models' => $positions->where('make', $make)->count(),
+                'image_url' => $positions->where('make', $make)->first()->preview_image
             ];
-        });
+        }
+        return response()->json($result);
         return response()->json($makes);
     }
 
     public function models(string $make): \Illuminate\Http\JsonResponse
     {
-        $models = NomenclatureBaseItem::where('make', $make)
+        $result = [];
+        $positions = NomenclatureBaseItem::with('NomenclaturePositionsNotVirtual')
+            ->where('make', $make)
             ->get()
-            ->pluck('model')
-            ->toArray();
-        $models = array_unique($models);
-        sort($models);
-        $models = collect($models)->transform(function($model) use ($make) {
-            return [
+            ->filter(function($item) {
+                return count($item->NomenclaturePositionsNotVirtual);
+            });
+        $models = array_unique($positions->pluck('model')->toArray());
+        foreach ($models as $model) {
+            $result[] = [
                 'model' => $model,
-                'image_url' => NomenclatureBaseItem::where('make', $make)
-                        ->where('model', $model)
-                        ->first()->preview_image
+                'generations' => $positions->where('make', $make)->where('model', $model)->count(),
+                'image_url' => $positions->where('make', $make)->first()->preview_image
             ];
-        });
-        return response()->json($models);
+        }
+        return response()->json($result);
     }
 
     public function generations(string $make, string $model): \Illuminate\Http\JsonResponse

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CarPdr extends Model
@@ -14,6 +15,7 @@ class CarPdr extends Model
     protected $fillable = [
         'car_id',
         'car_pdr_card_id',
+        //base car pdr position below
         'car_pdr_position_id',
         'parent_id',
         'item_name_eng',
@@ -26,6 +28,11 @@ class CarPdr extends Model
     public function positions(): HasMany
     {
         return $this->hasMany(CarPdrPosition::class);
+    }
+
+    public function virtualPosition(): HasOne
+    {
+        return $this->hasOne(CarPdrPosition::class, 'id', 'car_pdr_position_id');
     }
     
     public function createdBy(): BelongsTo
