@@ -17,4 +17,6 @@ class CarAttribute extends Model
         'engine',
         'mileage',
     ];
+
+    protected $hidden = ['updated_at', 'deleted_at'];
 }

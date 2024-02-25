@@ -26,4 +26,6 @@ class CarModification extends Model
         'year_to',
         'years_string',
     ];
+
+    protected $hidden = ['updated_at', 'deleted_at'];
 }

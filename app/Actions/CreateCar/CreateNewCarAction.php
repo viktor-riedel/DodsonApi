@@ -155,7 +155,7 @@ class CreateNewCarAction
 
             if ($modificationMatch && $position) {
                 $originCard = $origin->nomenclatureBaseItemPdrCard;
-                $card = $position->cards()->create([
+                $card = $position->card()->create([
                     'parent_inner_id' => $originCard->inner_id,
                     'name_eng' => $originCard->name_eng,
                     'name_ru' => $originCard->name_ru,

@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -24,14 +23,16 @@ class CarPdrPositionCard extends Model
         'deleted_by',
     ];
 
+    protected $hidden = ['updated_at', 'deleted_at'];
+
     public function priceCard(): HasOne
     {
         return $this->hasOne(CarPdrPositionCardPrice::class);
     }
 
-    public function partAttributesCard(): HasMany
+    public function partAttributesCard(): HasOne
     {
-        return $this->hasMany(CarPdrPositionCardAttribute::class);
+        return $this->HasOne(CarPdrPositionCardAttribute::class);
     }
 
     public function createdBy(): BelongsTo

@@ -35,6 +35,8 @@ class Car extends Model
         'updated_at' => 'datetime'
     ];
 
+    protected $hidden = ['updated_at', 'deleted_at'];
+
     public function images(): MorphMany
     {
         return $this->morphMany(MediaFile::class, 'mediable');

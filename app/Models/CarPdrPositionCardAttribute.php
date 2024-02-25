@@ -19,4 +19,6 @@ class CarPdrPositionCardAttribute extends Model
         'avito',
         'dodson',
     ];
+
+    protected $hidden = ['updated_at', 'deleted_at'];
 }

@@ -25,6 +25,8 @@ class MediaFile extends Model
         'deleted_by',
     ];
 
+    protected $hidden = ['updated_at', 'deleted_at'];
+
     public function mediable(): MorphTo
     {
         return $this->morphTo();

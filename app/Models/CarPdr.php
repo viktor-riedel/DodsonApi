@@ -25,6 +25,8 @@ class CarPdr extends Model
         'deleted_by',
     ];
 
+    protected $hidden = ['updated_at', 'deleted_at'];
+
     public function positions(): HasMany
     {
         return $this->hasMany(CarPdrPosition::class);

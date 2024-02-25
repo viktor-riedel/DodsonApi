@@ -25,4 +25,6 @@ class CarPdrPositionCardPrice extends Model
         'delivery_price_ru',
         'pinnacle_price',
     ];
+
+    protected $hidden = ['updated_at', 'deleted_at'];
 }

@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -23,9 +23,9 @@ class CarPdrPosition extends Model
         'deleted_by',
     ];
 
-    public function cards(): HasMany
+    public function card(): HasOne
     {
-        return $this->hasMany(CarPdrPositionCard::class);
+        return $this->hasOne(CarPdrPositionCard::class);
     }
 
     public function images(): MorphMany
