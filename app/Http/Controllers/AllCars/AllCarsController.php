@@ -11,7 +11,7 @@ class AllCarsController extends Controller
     public function list()
     {
         $cars = Car::with('images', 'carAttributes', 'modification')
-            ->orderBy('created_at')
+            ->orderBy('created_at', 'desc')
             ->paginate(20);
 
         return CarResource::collection($cars);

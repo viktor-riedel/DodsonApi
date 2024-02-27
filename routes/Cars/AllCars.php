@@ -10,5 +10,6 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
         Route::get('/edit', [EditCarController::class, 'edit']);
         Route::post('/upload-car-photo', [EditCarController::class, 'uploadCarPhoto']);
         Route::delete('/delete-car-photo/{photo}', [EditCarController::class, 'deleteCarPhoto']);
+        Route::patch('/update-car', [EditCarController::class, 'updateCar']);
     });
 });

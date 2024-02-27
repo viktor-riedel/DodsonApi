@@ -55,13 +55,30 @@ class EditCarController extends Controller
         return response()->json($car->images);
     }
 
-    public function deleteCarPhoto(Request $request, Car $car, MediaFile $photo)
+    public function deleteCarPhoto(Request $request, Car $car, MediaFile $photo): \Illuminate\Http\JsonResponse
     {
-        $photo = $car->images()->where('id', $photo->id)->first();
+        $photo = $car->images->where('id', $photo->id)->first();
         if ($photo) {
             $photo->update(['deleted_by' => $request->user()->id]);
             $photo->delete();
         }
         return response()->json($car->images);
+    }
+
+    public function updateCar(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    {
+        $car->carAttributes()->update([
+            'color' => strtoupper(trim($request->input('color'))),
+            'mileage' => $request->integer('mileage'),
+            'engine' => strtoupper(trim($request->input('engine'))),
+            'chassis' => strtoupper(trim($request->input('chassis'))),
+            'year' => $request->integer('chassis'),
+        ]);
+        $car->update([
+            'generation' => strtoupper(trim($request->input('generation'))),
+            'chassis' => strtoupper(trim($request->input('chassis'))),
+        ]);
+
+        return response()->json([], 202);
     }
 }
