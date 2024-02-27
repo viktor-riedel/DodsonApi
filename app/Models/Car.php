@@ -37,6 +37,18 @@ class Car extends Model
 
     protected $hidden = ['updated_at', 'deleted_at'];
 
+    public static function getStatusesJson(): array
+    {
+        $statuses = [];
+        foreach (self::CAR_STATUSES as $id => $status) {
+            $statuses[] = [
+                'id' => $id,
+                'status' => $status,
+            ];
+        }
+        return $statuses;
+    }
+
     public function images(): MorphMany
     {
         return $this->morphMany(MediaFile::class, 'mediable');

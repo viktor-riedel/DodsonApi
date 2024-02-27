@@ -23,7 +23,7 @@ class EditCarController extends Controller
            'car_info' => $car,
            'parts_tree' => $parts,
            'parts_list' => $partsList,
-           'car_statuses' => Car::CAR_STATUSES,
+           'car_statuses' => Car::getStatusesJson(),
         ]);
     }
 
@@ -80,5 +80,14 @@ class EditCarController extends Controller
         ]);
 
         return response()->json([], 202);
+    }
+
+    public function updateCarStatus(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    {
+        if ((int) $request->input('car_status') >= 0) {
+            $car->update(['car_status' => (int) $request->input('car_status')]);
+            return response()->json([], 202);
+        }
+        return response()->json(['error' => 'status not found'], 402);
     }
 }
