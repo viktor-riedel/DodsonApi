@@ -36,6 +36,11 @@ class CarPdr extends Model
     {
         return $this->hasOne(CarPdrPosition::class, 'id', 'car_pdr_position_id');
     }
+
+    public function card(): HasOne
+    {
+        return $this->hasOne(CarPdrPositionCard::class, 'id', 'car_pdr_card_id');
+    }
     
     public function createdBy(): BelongsTo
     {

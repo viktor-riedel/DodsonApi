@@ -4,6 +4,7 @@ namespace App\Http\Traits;
 
 use App\Models\Car;
 use App\Models\CarPdrPosition;
+use App\Models\CarPdrPositionCard;
 use Illuminate\Support\Collection;
 
 trait CarPdrTrait
@@ -37,6 +38,14 @@ trait CarPdrTrait
                     }
                 }
                 $el['key'] = $el['parent_id'] . '-'. $el['id'];
+                if ($el['is_folder']) {
+                    $position = CarPdrPosition::find($el['id']);
+                    $el['card'] = $position->carPdr->
+                        card?->with('priceCard', 'partAttributesCard', 'images');
+                } else {
+                    $el['card'] = CarPdrPositionCard::with('priceCard', 'partAttributesCard', 'images')
+                        ->where('car_pdr_position_id', $el['id'])->get();
+                }
                 $el['positions_count'] = $count;
                 $branch[] = $el;
             }

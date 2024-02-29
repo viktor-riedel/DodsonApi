@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -22,6 +23,11 @@ class CarPdrPosition extends Model
         'created_by',
         'deleted_by',
     ];
+
+    public function carPdr(): BelongsTo
+    {
+        return $this->belongsTo(CarPdr::class);
+    }
 
     public function card(): HasOne
     {

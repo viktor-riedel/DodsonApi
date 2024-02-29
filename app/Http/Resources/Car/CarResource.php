@@ -20,8 +20,10 @@ class CarResource extends JsonResource
             'created_by' => $this->createdBy->name,
             'created_at' => $this->created_at->format('d/m/Y'),
             'images' => CarImageResource::collection($this->images),
+            'chassis' =>  $this->chassis,
             'attributes' => new CarAttributeResource($this->carAttributes),
             'modification' => new CarModificationResource($this->modification),
+            'parts_count' => $this->parts_count,
         ];
     }
 }
