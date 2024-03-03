@@ -36,7 +36,7 @@ class EditCarController extends Controller
             foreach ($request->file('uploadCarPhotos') as $file) {
                 $fileName = \Str::random();
                 $originFileName = $file->getFilename();
-                $folderName = 'cars/new/'.\Str::random();
+                $folderName = 'cars/' . $car->id . '/photos';
                 $mime = $file->getMimeType();
                 $fileExtension = '.'.$file->clientExtension();
                 $savePath = $folderName.'/'.$fileName.$fileExtension;
@@ -93,7 +93,7 @@ class EditCarController extends Controller
         return response()->json(['error' => 'status not found'], 402);
     }
 
-    public function deletePart(Request $request, Car $car, CarPdrPositionCard $card)
+    public function deletePart(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
     {
         $card->update(['deleted_by' => $request->user()->id]);
         $card->images()->update(['deleted_by' => $request->user()->id]);
@@ -106,5 +106,34 @@ class EditCarController extends Controller
         $partsList = $this->getPartsList($car);
         $car->unsetRelation('pdrs');
         return response()->json($partsList);
+    }
+
+
+    public function uploadPartPhoto(Request $request, Car $car, CarPdrPositionCard $card)
+    {
+        if ($request->file('uploadPartPhotos')) {
+            $storage = \Storage::disk('s3');
+            foreach ($request->file('uploadPartPhotos') as $file) {
+                $fileName = \Str::random();
+                $originFileName = $file->getFilename();
+                $folderName = 'cars/' . $car->id . '/parts/' . $card->id;
+                $mime = $file->getMimeType();
+                $fileExtension = '.'.$file->clientExtension();
+                $savePath = $folderName.'/'.$fileName.$fileExtension;
+                $size = $file->getSize();
+                $storage->put($savePath, $file->getContent(), 'public');
+                $card->images()->create([
+                    'url' => $storage->url($savePath),
+                    'mime' => $mime,
+                    'original_file_name' => $originFileName,
+                    'folder_name' => $folderName,
+                    'extension' => $fileExtension,
+                    'file_size' => $size,
+                    'special_flag' => null,
+                    'created_by' => $request->user()->id,
+                ]);
+            }
+        }
+        return response()->json($card->images);
     }
 }
