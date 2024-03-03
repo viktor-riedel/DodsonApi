@@ -5,6 +5,7 @@ namespace App\Actions\CreateCar;
 use App\Http\Traits\BaseItemPdrTreeTrait;
 use App\Models\Car;
 use App\Models\NomenclatureBaseItem;
+use App\Models\NomenclatureBaseItemModification;
 use App\Models\NomenclatureBaseItemPdrPosition;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -89,7 +90,7 @@ class CreateNewCarAction
         }
     }
 
-    private function recursiveCopyPdrWithCards(array $part, Car $car, $parentId = 0): int
+    private function recursiveCopyPdrWithCards($part, Car $car, $parentId = 0): int
     {
         $pdr = $car->pdrs()->create([
             'parent_id' => $parentId,
@@ -101,44 +102,15 @@ class CreateNewCarAction
             'created_by' => $this->user->id,
         ]);
 
-        $originalPosition = NomenclatureBaseItemPdrPosition::where('nomenclature_base_item_pdr_id', $part['id'])
+        $originalPositions = NomenclatureBaseItemPdrPosition::where('nomenclature_base_item_pdr_id', $part['id'])
             ->get();
 
-        foreach($originalPosition as $origin) {
+        foreach($originalPositions as $origin) {
             //check match modification
-            $modificationMatch = false;
-            foreach($origin->nomenclatureBaseItemModifications as $mod)
-            {
-                if ($mod->body_type === $this->request->input('modification.body_type') &&
-                $mod->chassis === $this->request->input('modification.chassis') &&
-                $mod->generation === $this->request->input('modification.generation') &&
-                $mod->engine_size === $this->request->input('modification.engine_size') &&
-                $mod->drive_train === $this->request->input('modification.drive_train') &&
-                $mod->header === $this->request->input('modification.header') &&
-                $mod->month_from === $this->request->input('modification.month_from') &&
-                $mod->month_to === $this->request->input('modification.month_to') &&
-                $mod->restyle === $this->request->input('modification.restyle') &&
-                $mod->doors === $this->request->input('modification.doors') &&
-                $mod->transmission === $this->request->input('modification.transmission') &&
-                $mod->year_from === $this->request->input('modification.year_from') &&
-                $mod->year_to === $this->request->input('modification.year_to') &&
-                $mod->restyle ===  $this->request->input('modification.restyle')) {
-                    $modificationMatch = true;
-                }
-            }
+            $modificationMatch = $this->modificationMatch($origin);
 
             $position = null;
-            if ($origin->is_virtual) {
-                $position = $pdr->positions()->create([
-                    'item_name_ru' => $origin->item_name_ru,
-                    'item_name_eng' => $origin->item_name_eng,
-                    'ic_number' => $origin->ic_number,
-                    'oem_number' => $origin->oem_number,
-                    'ic_description' => $origin->ic_description,
-                    'is_virtual' => $origin->is_virtual,
-                    'created_by' => $this->user->id,
-                ]);
-            } else if ($modificationMatch) {
+            if ($origin->is_virtual || $modificationMatch) {
                 $position = $pdr->positions()->create([
                     'item_name_ru' => $origin->item_name_ru,
                     'item_name_eng' => $origin->item_name_eng,
@@ -149,6 +121,7 @@ class CreateNewCarAction
                     'created_by' => $this->user->id,
                 ]);
             }
+
             if ($part['is_folder'] && $origin->is_virtual && $position) {
                 $pdr->update(['car_pdr_position_id' => $position->id]);
             }
@@ -193,5 +166,30 @@ class CreateNewCarAction
         }
 
         return $pdr->id;
+    }
+
+    private function modificationMatch(NomenclatureBaseItemPdrPosition $position): bool
+    {
+        $modificationMatch = false;
+        foreach($position->nomenclatureBaseItemModifications as $mod)
+        {
+            if ($mod->body_type === $this->request->input('modification.body_type') &&
+                $mod->chassis === $this->request->input('modification.chassis') &&
+                $mod->generation === $this->request->input('modification.generation') &&
+                $mod->engine_size === $this->request->input('modification.engine_size') &&
+                $mod->drive_train === $this->request->input('modification.drive_train') &&
+                $mod->header === $this->request->input('modification.header') &&
+                $mod->month_from === $this->request->input('modification.month_from') &&
+                $mod->month_to === $this->request->input('modification.month_to') &&
+                $mod->restyle === $this->request->input('modification.restyle') &&
+                $mod->doors === $this->request->input('modification.doors') &&
+                $mod->transmission === $this->request->input('modification.transmission') &&
+                $mod->year_from === $this->request->input('modification.year_from') &&
+                $mod->year_to === $this->request->input('modification.year_to') &&
+                $mod->restyle ===  $this->request->input('modification.restyle')) {
+                $modificationMatch = true;
+            }
+        }
+        return $modificationMatch;
     }
 }

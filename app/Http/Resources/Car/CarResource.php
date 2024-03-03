@@ -23,7 +23,7 @@ class CarResource extends JsonResource
             'chassis' =>  $this->chassis,
             'attributes' => new CarAttributeResource($this->carAttributes),
             'modification' => new CarModificationResource($this->modification),
-            'parts_count' => $this->parts_count,
+            'parts_count' => $this->positions ? count($this->positions) : 0,
         ];
     }
 }

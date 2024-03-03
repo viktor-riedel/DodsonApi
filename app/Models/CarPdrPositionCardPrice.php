@@ -26,5 +26,5 @@ class CarPdrPositionCardPrice extends Model
         'pinnacle_price',
     ];
 
-    protected $hidden = ['updated_at', 'deleted_at'];
+    protected $hidden = ['updated_at', 'deleted_at', 'created_at'];
 }

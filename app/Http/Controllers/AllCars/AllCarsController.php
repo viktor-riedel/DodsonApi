@@ -11,13 +11,9 @@ class AllCarsController extends Controller
 {
     public function list(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $cars = Car::with('images', 'carAttributes', 'modification', 'pdrs')
+        $cars = Car::with('images', 'carAttributes', 'modification', 'positions')
             ->orderBy('created_at', 'desc')
-            ->paginate(20)->each(function ($item) {
-                $item->parts_count =
-                    CarPdrPosition::whereIn('car_pdr_id', $item->pdrs->pluck('id')->toArray())->count();
-            });
-
+            ->paginate(20);
         return CarResource::collection($cars);
     }
 }

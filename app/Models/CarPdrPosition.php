@@ -24,6 +24,8 @@ class CarPdrPosition extends Model
         'deleted_by',
     ];
 
+    protected $hidden = ['updated_at', 'deleted_at', 'created_at'];
+
     public function carPdr(): BelongsTo
     {
         return $this->belongsTo(CarPdr::class);

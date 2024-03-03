@@ -38,13 +38,15 @@ trait CarPdrTrait
                     }
                 }
                 $el['key'] = $el['parent_id'] . '-'. $el['id'];
+                $el['card'] = null;
                 if ($el['is_folder']) {
                     $position = CarPdrPosition::find($el['id']);
-                    $el['card'] = $position->carPdr->
-                        card?->with('priceCard', 'partAttributesCard', 'images');
+                    if ($position) {
+                        $el['card'] = $position->carPdr?->card?->with('priceCard', 'partAttributesCard', 'images');
+                    }
                 } else {
                     $el['card'] = CarPdrPositionCard::with('priceCard', 'partAttributesCard', 'images')
-                        ->where('car_pdr_position_id', $el['id'])->get();
+                        ->where('car_pdr_position_id', $el['id'])->first();
                 }
                 $el['positions_count'] = $count;
                 $branch[] = $el;
@@ -120,9 +122,9 @@ trait CarPdrTrait
             ->whereNull('car_pdrs.deleted_at')
             ->where('cars.id', $car->id)
             ->get()->each(function($position) {
-                $pos = CarPdrPosition::with('images', 'card', 'card.priceCard', 'card.partAttributesCard')->find($position->id);
-                $position->images = $pos->images;
-                $position->card = $pos->card;
+                $card = CarPdrPositionCard::with('images', 'priceCard', 'partAttributesCard')->find($position->id);
+                $position->images = $card->images ?? [];
+                $position->card = $card ?? null;
             });
 
         return $parts;
