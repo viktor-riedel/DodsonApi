@@ -5,6 +5,8 @@ namespace App\Http\Controllers\EditCar;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\CarPdrTrait;
 use App\Models\Car;
+use App\Models\CarPdrPosition;
+use App\Models\CarPdrPositionCard;
 use App\Models\MediaFile;
 use Illuminate\Http\Request;
 
@@ -89,5 +91,20 @@ class EditCarController extends Controller
             return response()->json([], 202);
         }
         return response()->json(['error' => 'status not found'], 402);
+    }
+
+    public function deletePart(Request $request, Car $car, CarPdrPositionCard $card)
+    {
+        $card->update(['deleted_by' => $request->user()->id]);
+        $card->images()->update(['deleted_by' => $request->user()->id]);
+        $card->position()->update(['deleted_by' => $request->user()->id]);
+
+        $card->position()->delete();
+        $card->delete();
+
+        $car->load('images', 'carAttributes', 'modification', 'createdBy');
+        $partsList = $this->getPartsList($car);
+        $car->unsetRelation('pdrs');
+        return response()->json($partsList);
     }
 }

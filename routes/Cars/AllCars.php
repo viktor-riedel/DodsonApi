@@ -12,5 +12,6 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
         Route::delete('/delete-car-photo/{photo}', [EditCarController::class, 'deleteCarPhoto']);
         Route::patch('/update-car', [EditCarController::class, 'updateCar']);
         Route::patch('/update-car-status', [EditCarController::class, 'updateCarStatus']);
+        Route::delete('/delete-part/{card}', [EditCarController::class, 'deletePart']);
     });
 });

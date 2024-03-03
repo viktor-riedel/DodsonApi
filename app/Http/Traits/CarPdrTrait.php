@@ -38,15 +38,14 @@ trait CarPdrTrait
                     }
                 }
                 $el['key'] = $el['parent_id'] . '-'. $el['id'];
-                $el['card'] = null;
-                if ($el['is_folder']) {
-                    $position = CarPdrPosition::find($el['id']);
-                    if ($position) {
-                        $el['card'] = $position->carPdr?->card?->with('priceCard', 'partAttributesCard', 'images');
+                $el['card'] = [];
+                $positions = CarPdrPosition::where('car_pdr_id', $el['id'])->get();
+                if ($positions->count()) {
+                    foreach($positions as $position) {
+                        if ($position->card)  {
+                            $el['card'][] = $position->card->load('priceCard', 'partAttributesCard', 'images');
+                        }
                     }
-                } else {
-                    $el['card'] = CarPdrPositionCard::with('priceCard', 'partAttributesCard', 'images')
-                        ->where('car_pdr_position_id', $el['id'])->first();
                 }
                 $el['positions_count'] = $count;
                 $branch[] = $el;
@@ -119,8 +118,8 @@ trait CarPdrTrait
             ->join('car_pdrs', 'car_pdrs.car_id', '=', 'cars.id')
             ->join('car_pdr_positions','car_pdr_positions.car_pdr_id', '=', 'car_pdrs.id')
             ->join('car_pdr_position_cards', 'car_pdr_position_cards.car_pdr_position_id', '=', 'car_pdr_positions.id')
-            ->whereNull('car_pdrs.deleted_at')
             ->where('cars.id', $car->id)
+            ->whereNull('car_pdr_positions.deleted_at')
             ->get()->each(function($position) {
                 $card = CarPdrPositionCard::with('images', 'priceCard', 'partAttributesCard')->find($position->id);
                 $position->images = $card->images ?? [];

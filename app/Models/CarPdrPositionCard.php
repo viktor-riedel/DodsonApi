@@ -13,6 +13,7 @@ class CarPdrPositionCard extends Model
     use SoftDeletes;
 
     protected $fillable = [
+        'car_pdr_position_id',
         'parent_inner_id',
         'name_eng',
         'name_ru',
@@ -25,6 +26,11 @@ class CarPdrPositionCard extends Model
     ];
 
     protected $hidden = ['updated_at', 'deleted_at', 'created_at'];
+
+    public function position(): BelongsTo
+    {
+        return $this->belongsTo(CarPdrPosition::class, 'car_pdr_position_id', 'id');
+    }
 
     public function priceCard(): HasOne
     {
