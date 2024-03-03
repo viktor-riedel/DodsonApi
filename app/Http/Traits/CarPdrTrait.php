@@ -38,12 +38,25 @@ trait CarPdrTrait
                     }
                 }
                 $el['key'] = $el['parent_id'] . '-'. $el['id'];
-                $el['card'] = [];
+
                 $positions = CarPdrPosition::where('car_pdr_id', $el['id'])->get();
                 if ($positions->count()) {
                     foreach($positions as $position) {
                         if ($position->card)  {
-                            $el['card'][] = $position->card->load('priceCard', 'partAttributesCard', 'images');
+                            $el['children'][] =
+                                [
+                                    'id' => $position->card->id,
+                                    'is_folder' => true,
+                                    'key' => $el['key'] = $el['parent_id'] . '-'. $el['id'] . '-' . $position->card->id,
+                                    'icon' => 'pi pi-pw pi-book',
+                                    'positions' => [],
+                                    'is_card' =>  true,
+                                    'ic_number' => $position->card->ic_number,
+                                    'ic_description' => $position->card->description,
+                                    'name_eng' => $position->card->name_ru,
+                                    'name_ru' => $position->card->name_eng,
+                                    'card' => $position->card->load('priceCard', 'partAttributesCard', 'images'),
+                                ];
                         }
                     }
                 }
