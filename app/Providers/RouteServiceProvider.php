@@ -36,11 +36,11 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('/routes/UserRoutes/UserRoutes.php'))
                 ->group(base_path('/routes/Roles/UserPermissions.php'))
                 ->group(base_path('/routes/Nomenclature/NomenclatureRoutes.php'))
-                ->group(base_path('/routes/Cars/CarsRoutes.php'))
                 ->group(base_path('/routes/Cars/BaseCarsRoutes.php'))
                 ->group(base_path('/routes/Cars/CreateNewCar.php'))
                 ->group(base_path('/routes/Cars/AllCars.php'))
                 ->group(base_path('/routes/Cars/AvailableCarsRoutes.php'))
+                ->group(base_path('/routes/Import/ImportRoutes.php'))
                 ->group(base_path('/routes/SettingsRoutes/SettingsRoutes.php'))
                 ->group(base_path('/routes/Auth/auth.php'))
                 ->group(base_path('/routes/Public/Nomenclature/PublicNomenclatureRoutes.php'));

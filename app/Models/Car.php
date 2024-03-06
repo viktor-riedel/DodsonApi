@@ -85,4 +85,9 @@ class Car extends Model
         return $this->belongsTo(User::class, 'deleted_by', 'id')->withTrashed();
     }
 
+    public function importedCar(): HasOne
+    {
+        return $this->hasOne(ImportedCar::class);
+    }
+
 }
