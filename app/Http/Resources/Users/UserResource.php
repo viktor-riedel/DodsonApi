@@ -17,6 +17,7 @@ class UserResource extends JsonResource
             'roles' => $this->getRoleNames()->first(),
             'created' => $this->created_at ? $this->created_at->format('d/m/Y') : null,
             'inactive' => $this->trashed(),
+            'card' => $this->whenLoaded('userCard', new UserCardResource($this->userCard), null),
         ];
     }
 }

@@ -7,7 +7,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('users')->middleware('auth:sanctum')->group(function() {
     Route::get('/', [UsersController::class, 'list']);
-    Route::get('/edit/{user}', [UsersController::class, 'edit']);
+    Route::prefix('edit/{user}')->group(function() {
+        Route::get('/', [UsersController::class, 'edit']);
+        Route::put('/update', [UsersController::class, 'update']);
+    });
     Route::post('/create', [UsersController::class, 'create']);
 });
 

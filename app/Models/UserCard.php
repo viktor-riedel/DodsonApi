@@ -6,20 +6,25 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class UserInformation extends Model
+class UserCard extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
-        'phone',
+        'user_id',
+        'mobile_phone',
+        'landline_phone',
+        'company_name',
+        'trading_name',
         'address',
         'country',
-        'is_wholeseller',
+        'comment',
+        'wholesaler',
     ];
 
-    protected $casts = [
-        'is_wholeseller' => 'boolean',
-    ];
+    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
+
+    protected $casts = ['wholesaler' => 'boolean'];
 
     public function user(): BelongsTo
     {
