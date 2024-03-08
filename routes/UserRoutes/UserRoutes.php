@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('users')->middleware('auth:sanctum')->group(function() {
     Route::get('/', [UsersController::class, 'index']);
-    Router::get('/edit/{user}', [UsersController::class, 'edit']);
+    Route::get('/edit/{user}', [UsersController::class, 'edit']);
     Route::post('/create', [UsersController::class, 'create']);
 });
 
