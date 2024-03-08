@@ -5,7 +5,7 @@ namespace App\Http\Resources\Roles;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class RoleResource extends JsonResource
+class PermissionsResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
@@ -13,7 +13,7 @@ class RoleResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
-            'guard_name' => $this->guard_name,
+            'guard_name' => $this->guqrd_name,
         ];
     }
 }

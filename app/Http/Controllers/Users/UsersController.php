@@ -8,7 +8,7 @@ use App\Models\User;
 
 class UsersController extends Controller
 {
-    public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function list(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $users = User::orderBy('name')
                 ->orderBy('created_at', 'desc')
