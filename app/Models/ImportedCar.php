@@ -19,6 +19,10 @@ class ImportedCar extends Model
         'imported_from',
         'date_import',
         'importedBy',
+        'lot_number',
+        'auction_name',
+        'warehouse',
+        'stock_number',
     ];
 
     protected $hidden = ['created_at', 'updated_at', 'deleted_at'];

@@ -14,11 +14,9 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'last_login' => null,
-            'user_information' => $this->userInformation ? new UserInformationResource($this->userInformation) : [],
-            'roles' => [],
-            'permissions' => [],
-            'created' => $this->created_at->format('d/m/Y'),
-            'inactive' => $this->deleted_at !== null,
+            'roles' => $this->getRoleNames()->first(),
+            'created' => $this->created_at ? $this->created_at->format('d/m/Y') : null,
+            'inactive' => $this->trashed(),
         ];
     }
 }

@@ -14,12 +14,13 @@ class CarController extends Controller implements Importable
     {
         $helper = new CapartsApiHelper();
         $cars = $helper->importUnsoldCars();
+        //TO DO remove already imported cars from the collection
         return response()->json($cars);
     }
 
     public function importEntity(Request $request): \Illuminate\Http\JsonResponse
     {
         $result = app()->make(ImportFromCapartsAction::class)->handle($request);
-        return response()->json(['ok' => $request->all()]);
+        return response()->json(['id' => $result]);
     }
 }

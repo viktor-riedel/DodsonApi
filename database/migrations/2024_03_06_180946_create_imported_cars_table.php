@@ -14,6 +14,10 @@ return new class extends Migration {
             $table->string('imported_from');
             $table->date('date_import');
             $table->unsignedBigInteger('importedBy');
+            $table->string('lot_number')->nullable();
+            $table->string('auction_name')->nullable();
+            $table->string('warehouse')->nullable();
+            $table->string('stock_number')->nullable();
             $table->softDeletes();
             $table->timestamps();
 

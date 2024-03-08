@@ -10,17 +10,15 @@ class UsersController extends Controller
 {
     public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $users = User::with('userInformation')
-                ->with('trashed')
-                ->with('roles', 'roles.permissions')
-                ->orderBy('name', 'asc')
-                ->get();
+        $users = User::orderBy('name')
+                ->orderBy('created_at', 'desc')
+                ->paginate(20);
 
         return UserResource::collection($users);
     }
 
-    public function create()
+    public function edit(User $user)
     {
-
+        return response()->json($user);
     }
 }
