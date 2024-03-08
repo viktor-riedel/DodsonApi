@@ -9,9 +9,15 @@ use Illuminate\Http\Request;
 
 class UsersController extends Controller
 {
-    public function list(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function list(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $users = User::orderBy('name')
+        $search = $request->get('search');
+        $users = User::withTrashed()
+                ->orderBy('name')
+                ->when($search, function($q) use ($search) {
+                    return $q->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('email', 'like', '%' . $search . '%');
+                })
                 ->orderBy('created_at', 'desc')
                 ->paginate(20);
 
@@ -28,7 +34,19 @@ class UsersController extends Controller
         return new UserResource($user);
     }
 
-    public function update(Request $request, User $user)
+    public function blockUser(int $user): \Illuminate\Http\JsonResponse
+    {
+        $user = User::withTrashed()->find($user);
+        if ($user->trashed()) {
+            $user->restore();
+        } else {
+            $user->delete();
+        }
+
+        return response()->json([], 202);
+    }
+
+    public function update(Request $request, User $user): UserResource
     {
         $user->refresh();
         $user->update([

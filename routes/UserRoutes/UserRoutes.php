@@ -9,6 +9,7 @@ Route::prefix('users')->middleware('auth:sanctum')->group(function() {
     Route::get('/', [UsersController::class, 'list']);
     Route::prefix('edit/{user}')->group(function() {
         Route::get('/', [UsersController::class, 'edit']);
+        Route::patch('/block', [UsersController::class, 'blockUser']);
         Route::put('/update', [UsersController::class, 'update']);
     });
     Route::post('/create', [UsersController::class, 'create']);
