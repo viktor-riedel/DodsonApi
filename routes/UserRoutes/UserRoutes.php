@@ -16,6 +16,7 @@ Route::prefix('users')->middleware('auth:sanctum')->group(function() {
 
 Route::prefix('roles')->middleware('auth:sanctum')->group(function() {
     Route::get('/', [RolesController::class, 'list']);
+    Route::post('/create', [RolesController::class, 'create']);
 });
 
 Route::prefix('permissions')->middleware('auth:sanctum')->group(function() {
