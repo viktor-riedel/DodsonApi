@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Users\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
 {
@@ -55,6 +56,10 @@ class UsersController extends Controller
         ]);
         if ($request->input('password')) {
             $user->update(['password' => bcrypt(trim($request->input('password')))]);
+        }
+        if ($request->input('roles')) {
+            $role = Role::where('name', $request->input('roles'))->first();
+            $user->assignRole($role);
         }
         $user->userCard()->update([
             'mobile_phone' => $request->input('card.mobile_phone'),

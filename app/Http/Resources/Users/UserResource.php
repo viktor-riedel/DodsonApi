@@ -4,6 +4,7 @@ namespace App\Http\Resources\Users;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Spatie\Permission\Models\Role;
 
 class UserResource extends JsonResource
 {
@@ -18,6 +19,7 @@ class UserResource extends JsonResource
             'created' => $this->created_at ? $this->created_at->format('d/m/Y') : null,
             'inactive' => $this->trashed(),
             'card' => $this->whenLoaded('userCard', new UserCardResource($this->userCard), null),
+            'available_roles' => Role::get(),
         ];
     }
 }

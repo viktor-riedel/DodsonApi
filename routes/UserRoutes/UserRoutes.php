@@ -22,4 +22,5 @@ Route::prefix('roles')->middleware('auth:sanctum')->group(function() {
 
 Route::prefix('permissions')->middleware('auth:sanctum')->group(function() {
     Route::get('/', [RolesPermissionsController::class, 'list']);
+    Route::put('/assign-permissions', [RolesPermissionsController::class, 'assign']);
 });

@@ -33,6 +33,8 @@ class AuthController extends Controller
             return response()->json([
                 'name' => $request->user()->name,
                 'email' => $request->user()->email,
+                'role' => $request->user()->getRoleNames()->first(),
+                'permissions' => $request->user()->getPermissionsViaRoles()->pluck('name')->toArray(),
             ]);
         }
         return response()->json(['message' => 'invalid credentials'], 401);
