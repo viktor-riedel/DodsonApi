@@ -40,21 +40,19 @@ return [
             'host' => env('MAIL_HOST', 'smtp.mailgun.org'),
             'port' => env('MAIL_PORT', 587),
             'encryption' => env('MAIL_ENCRYPTION', 'tls'),
-            'username' => env('MAIL_USERNAME'),
-            'password' => env('MAIL_PASSWORD'),
+            'username' => env('MAIL_USERNAME_MAILGUN'),
+            'password' => env('MAIL_PASSWORD_MAILGUN'),
             'timeout' => null,
+            'auth_mode' => null,
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
+            'from' => [
+                'address' => env('MAIL_FROM_ADDRESS_MAILGUN', 'noreply@dodsonparts.online'),
+                'name' => env('MAIL_FROM_NAME_MAILGUN', 'DODSONPARTS'),
+            ],
         ],
 
         'ses' => [
             'transport' => 'ses',
-        ],
-
-        'mailgun' => [
-            'transport' => 'mailgun',
-            // 'client' => [
-            //     'timeout' => 5,
-            // ],
         ],
 
         'postmark' => [

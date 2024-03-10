@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\AuthRequest;
+use App\Http\Requests\Auth\ForgotPasswordRequest;
+use App\Http\Requests\Auth\RestorePasswordRequest;
+use App\Mail\ResetPasswordMail;
 use App\Models\User;
 use http\Env\Response;
 use Illuminate\Http\Request;
@@ -38,5 +41,29 @@ class AuthController extends Controller
             ]);
         }
         return response()->json(['message' => 'invalid credentials'], 401);
+    }
+
+    public function forgetPassword(ForgotPasswordRequest $request): \Illuminate\Http\JsonResponse
+    {
+        $email = $request->validated('email');
+        $resetCode = \Str::uuid()->toString();
+        $user = User::where('email', $email)->first();
+        if ($user) {
+            $user->update(['reset_code' => $resetCode]);
+            \Mail::to($user->email)->send(new ResetPasswordMail($user));
+        }
+        return response()->json($email);
+    }
+
+    public function restorePassword(RestorePasswordRequest $request): \Illuminate\Http\JsonResponse
+    {
+        $uuid = $request->validated('guid');
+        $newPassword = bcrypt($request->validated('new_password'));
+        $user = User::where('reset_code', $uuid)->first();
+        if ($user) {
+            $user->update(['password' => $newPassword, 'reset_code' => null]);
+        }
+
+        return response()->json([], 203);
     }
 }
