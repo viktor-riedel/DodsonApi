@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Public\LeftoversController;
 use App\Http\Controllers\Public\Nomenclature\CardsController;
 use App\Http\Controllers\Public\Nomenclature\MakesController;
 use App\Http\Controllers\Public\Nomenclature\ModelsController;
@@ -17,5 +18,8 @@ Route::namespace('Public')->middleware('auth:sanctum')->group(function() {
             Route::get('/{id}', [CardsController::class, 'index']);
             Route::post('/{id}/update', [CardsController::class, 'update']);
         });
+    });
+    Route::prefix('stats')->group(function() {
+        Route::post('/update', [LeftoversController::class, 'update']);
     });
 });
