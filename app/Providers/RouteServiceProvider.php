@@ -42,7 +42,8 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('/routes/Import/ImportRoutes.php'))
                 ->group(base_path('/routes/SettingsRoutes/SettingsRoutes.php'))
                 ->group(base_path('/routes/Auth/auth.php'))
-                ->group(base_path('/routes/Public/Nomenclature/PublicNomenclatureRoutes.php'));
+                ->group(base_path('/routes/Public/Nomenclature/PublicNomenclatureRoutes.php'))
+                ->group(base_path('/routes/Website/WebsiteRoutes.php'));
 
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
