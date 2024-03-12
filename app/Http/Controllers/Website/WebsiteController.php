@@ -8,7 +8,7 @@ use App\Mail\ContactUsMail;
 
 class WebsiteController extends Controller
 {
-    public function sendContactEmail(ContactUsRequest $request)
+    public function sendContactEmail(ContactUsRequest $request): \Illuminate\Http\JsonResponse
     {
         $data = [
             'first_name' => $request->validated('first_name'),
