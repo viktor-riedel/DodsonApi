@@ -17,6 +17,8 @@ class RegisterController extends Controller
             'password' => bcrypt($request->validated('password')),
         ]);
 
+        $user->assignRole(['USER']);
+
         \Mail::to($user->email)->send(new UserRegisteredMail($user));
 
         return response()->json(['success' => true], 201);

@@ -8,7 +8,7 @@ use Spatie\Permission\Models\Role;
 
 class PermissionsSeeder extends Seeder
 {
-    const ROLES = [
+    public const ROLES = [
         [
             'name' => 'ADMIN',
             'description' => 'Admin has access to all modules across entire system'
@@ -27,7 +27,7 @@ class PermissionsSeeder extends Seeder
         ]
     ];
 
-    const PERMISSIONS = [
+    public const PERMISSIONS = [
             // CARS
             [
                 'name' => 'CARS ACCESS',
