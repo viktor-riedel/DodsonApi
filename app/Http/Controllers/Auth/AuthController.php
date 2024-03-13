@@ -21,6 +21,9 @@ class AuthController extends Controller
             return response()->json(['message' => 'invalid credentials'], 401);
         }
         $user = User::where('email', $email)->firstOrFail();
+        if ($user->hasRole('USER')) {
+            abort(401, 'Users login is not allowed at the moment');
+        }
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json([
            'name' => $user->name,
