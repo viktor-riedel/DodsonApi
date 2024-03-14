@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Public;
 
+use App\Actions\UpdatePrices\UpdatePricesAction;
 use App\Http\Controllers\Controller;
 use App\Models\CatalogUpdateLog;
 use Illuminate\Http\Request;
@@ -17,7 +18,11 @@ class LeftoversController extends Controller
             'user_id' => $request->user()->id,
             'packet' => json_encode($request->all()),
         ]);
-        \Log::debug(json_encode($request->all()));
-        return response()->json(['ok' => true]);
+        # only for 1c update
+        if ($request->all() !== []) {
+
+        }
+        $result = app()->make(UpdatePricesAction::class)->handle($request->all());
+        return response()->json($result);
     }
 }
