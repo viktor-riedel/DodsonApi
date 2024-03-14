@@ -16,7 +16,6 @@ class UpdatePricesAction
         $docNumber = $data['DocNumber'] ?? '';
         $baseCar = $data['BaseCarName'] ?? '';
         if (isset($data['Needs']) && is_array($data['Needs'])) {
-            $result = true;
             foreach($data['Needs'] as $need) {
                 $card = NomenclatureBaseItemPdrCard::where('inner_id', $need['id'])->first();
                 if (!$card) {
