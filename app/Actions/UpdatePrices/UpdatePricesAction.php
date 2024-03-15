@@ -39,6 +39,7 @@ class UpdatePricesAction
                         'ru_needs' => isset($need['RuNeed']) ? (int) $need['RuNeed'] : null,
                         'mng_needs' => isset($need['MngNeed']) ? (int) $need['MngNeed'] : null,
                         'jp_needs' => isset($need['JpNeed']) ? (int) $need['JpNeed'] : null,
+                        'needs' => isset($need['Need']) ? (int) $need['Need'] : null,
                     ]);
                     $result['success'][] = $need['id'];
                 }
