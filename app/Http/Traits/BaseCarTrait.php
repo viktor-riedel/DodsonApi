@@ -80,8 +80,14 @@ trait BaseCarTrait
             ->selectRaw('image_url, body_type, chassis, transmission,
                     year_from, year_to, month_from, month_to,
                     restyle, drive_train, header, doors, engine_size,
-                    nomenclature_base_item_modifications.generation')
+                    nomenclature_base_item_modifications.generation, 
+                    sum(nomenclature_base_item_pdr_cards.needs) as needs,
+                    sum(nomenclature_base_item_pdr_cards.ru_needs) as needs_ru,
+                    sum(nomenclature_base_item_pdr_cards.nz_needs) as needs_nz,
+                    sum(nomenclature_base_item_pdr_cards.mng_needs) as needs_mng,
+                    sum(nomenclature_base_item_pdr_cards.jp_needs) as needs_jp')
             ->join('nomenclature_base_item_pdr_positions', 'nomenclature_base_item_pdr_positions.id', '=', 'nomenclature_base_item_modifications.nomenclature_base_item_pdr_position_id')
+            ->join('nomenclature_base_item_pdr_cards', 'nomenclature_base_item_pdr_cards.nomenclature_base_item_pdr_position_id', '=', 'nomenclature_base_item_pdr_positions.id')
             ->join('nomenclature_base_item_pdrs', 'nomenclature_base_item_pdrs.id', '=', 'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id')
             ->join('nomenclature_base_items', 'nomenclature_base_items.id', '=', 'nomenclature_base_item_pdrs.nomenclature_base_item_id')
             ->where('nomenclature_base_items.make', $make)
@@ -95,7 +101,7 @@ trait BaseCarTrait
                 'nomenclature_base_item_modifications.generation')
             ->orderBy('year_from')
             ->orderBy('year_to')
-            ->get()->each(function($item) use ($make, $model, $generation) {
+            ->get()->each(function($item) {
                 $year_from_str = str_pad($item->month_from,2,0,STR_PAD_LEFT) . '.'.
                     $item->year_from;
                 if ($item->month_to && $item->year_to) {
