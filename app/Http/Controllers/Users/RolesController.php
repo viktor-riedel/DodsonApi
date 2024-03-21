@@ -18,7 +18,7 @@ class RolesController extends Controller
     public function create(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         if ($request->input('role_name') && $request->input('description')) {
-            Role::create([
+            Role::updateOrCreate([
                 'name' => strtoupper(trim($request->input('role_name'))),
                 'description' => trim($request->input('description')),
                 'guard_name' => 'api',
