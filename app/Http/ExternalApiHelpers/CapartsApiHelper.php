@@ -40,6 +40,7 @@ class CapartsApiHelper
                     'X-CSRF-TOKEN' => '',
                 ]
             )
+            ->timeout(60)
             ->get(config('api_helpers.caparts_api_url') . '/cars/export-latest-unsold-cars');
         if ($response->ok()) {
             return $response->json()['data'];
@@ -59,8 +60,7 @@ class CapartsApiHelper
             'password' => config('api_helpers.password'),
             'company_name' => config('api_helpers.caparts_company_name')
         ];
-        $response = Http::
-        withHeaders(
+        $response = Http::withHeaders(
             [
                 'X-COMPANY-NAME' => config('api_helpers.caparts_company_name'),
                 'X-CSRF-TOKEN' => '',

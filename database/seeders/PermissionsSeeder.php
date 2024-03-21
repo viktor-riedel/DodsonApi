@@ -73,6 +73,11 @@ class PermissionsSeeder extends Seeder
                 'name' => 'SET PERMISSIONS',
                 'description' => 'Can change users permissions',
             ],
+            [
+                'name' => 'ACCESS SETTINGS',
+                'description' => 'Can access settings',
+            ],
+
     ];
 
     public function run(): void
