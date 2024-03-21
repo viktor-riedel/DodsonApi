@@ -34,7 +34,10 @@ class ReadyCarsPartsListAction
                     'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id',
                     '=',
                 'nomenclature_base_item_pdrs.id')
-            ->join('nomenclature_base_items', 'nomenclature_base_items.id', '=' , 'nomenclature_base_item_pdrs.nomenclature_base_item_id')
+            ->join('nomenclature_base_items',
+                'nomenclature_base_items.id',
+                '=' ,
+                'nomenclature_base_item_pdrs.nomenclature_base_item_id')
             ->when($modification, function($query) {
                 return $query->join('nomenclature_base_item_modifications',
                     'nomenclature_base_item_modifications.nomenclature_base_item_pdr_position_id',
@@ -57,7 +60,7 @@ class ReadyCarsPartsListAction
             ->each(function($item) {
                 $item->photos = NomenclatureBaseItemPdrPositionPhoto::where('nomenclature_base_item_pdr_position_id', $item->id)->get();
                 $item->modifications = NomenclatureBaseItemModification::where('nomenclature_base_item_pdr_position_id', $item->id)->get();
-                $item->card = NomenclatureBaseItemPdrCard::where('nomenclature_base_item_pdr_position_id', $item->id)->first();
+                $item->card = NomenclatureBaseItemPdrCard::where('nomenclature_base_item_pdr_position_id', $item->id)->withTrashed()->first();
             });
 
         return $data;
