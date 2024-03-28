@@ -11,9 +11,11 @@ use Illuminate\Support\Collection;
 
 class FindPartAction
 {
-    public function handle(string $page, string $search = ''): LengthAwarePaginator
+    public function handle(string $page, string $search = '',
+        string $make = '', string $model = '', string $generation = ''
+    ): LengthAwarePaginator
     {
-        $data = \DB::table('nomenclature_base_item_pdr_cards')
+        return \DB::table('nomenclature_base_item_pdr_cards')
             ->selectRaw('
                 nomenclature_base_item_pdr_cards.id,
                 nomenclature_base_item_pdr_cards.inner_id,
@@ -39,9 +41,16 @@ class FindPartAction
             ->when($search, function($q) use ($search) {
                 return $q->where('nomenclature_base_item_pdr_cards.ic_number', 'like', '%' . $search . '%');
             })
+            ->when($make, function($q) use ($make) {
+                return $q->where('nomenclature_base_items.make', $make);
+            })
+            ->when($model, function($q) use ($model) {
+                return $q->where('nomenclature_base_items.model', $model);
+            })
+            ->when($generation, function($q) use ($generation) {
+                return $q->where('nomenclature_base_items.generation', $generation);
+            })
             ->orderBy('nomenclature_base_item_pdr_cards.name_eng')
             ->paginate(20);
-
-        return $data;
     }
 }

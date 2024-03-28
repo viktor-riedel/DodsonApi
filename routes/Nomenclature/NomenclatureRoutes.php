@@ -69,6 +69,9 @@ Route::prefix('nomenclature')->middleware('auth:sanctum')->group(function() {
 
     Route::prefix('find-parts')->group(function() {
         Route::get('/', [FindPartsController::class, 'list']);
+        Route::get('/makes', [FindPartsController::class, 'makes']);
+        Route::get('/{make}/models', [FindPartsController::class, 'models']);
+        Route::get('/{make}/{model}/generations', [FindPartsController::class, 'generations']);
     });
 
     Route::prefix('parts-list')->group(function() {
