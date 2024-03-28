@@ -26,14 +26,14 @@ class FindPartAction
                 nomenclature_base_items.model,
                 nomenclature_base_items.generation, 
                 nomenclature_base_items.preview_image,
-                nomenclature_base_item_pdr_positions.id as position_id
+                nomenclature_base_item_pdr_cards.nomenclature_base_item_pdr_position_id as position_id
             ')
-            ->leftJoin('nomenclature_base_item_pdr_positions', 'nomenclature_base_item_pdr_positions.id',
+            ->join('nomenclature_base_item_pdr_positions', 'nomenclature_base_item_pdr_positions.id',
             '=',
             'nomenclature_base_item_pdr_cards.id')
-            ->leftJoin('nomenclature_base_item_pdrs', 'nomenclature_base_item_pdrs.id', '=',
+            ->join('nomenclature_base_item_pdrs', 'nomenclature_base_item_pdrs.id', '=',
             'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id')
-            ->leftJoin('nomenclature_base_items', 'nomenclature_base_items.id', '=',
+            ->join('nomenclature_base_items', 'nomenclature_base_items.id', '=',
             'nomenclature_base_item_pdrs.nomenclature_base_item_id')
             ->whereNull('nomenclature_base_item_pdr_cards.deleted_at')
             ->when($search, function($q) use ($search) {

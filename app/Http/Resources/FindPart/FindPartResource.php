@@ -2,6 +2,9 @@
 
 namespace App\Http\Resources\FindPart;
 
+use App\Models\NomenclatureBaseItemModification;
+use App\Models\NomenclatureBaseItemPdrCard;
+use App\Models\NomenclatureBaseItemPdrPositionPhoto;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -20,9 +23,9 @@ class FindPartResource extends JsonResource
             'make' => $this->make,
             'model' => $this->model,
             'generation' => $this->generation,
-            'photos' => \App\Models\NomenclatureBaseItemPdrPositionPhoto::where('nomenclature_base_item_pdr_position_id', $this->position_id)->get(),
-            'modifications' => \App\Models\NomenclatureBaseItemModification::where('nomenclature_base_item_pdr_position_id', $this->position_id)->get(),
-            'card' => \App\Models\NomenclatureBaseItemPdrCard::where('nomenclature_base_item_pdr_position_id', $this->position_id)->first(),
+            'photos' => NomenclatureBaseItemPdrPositionPhoto::where('nomenclature_base_item_pdr_position_id', $this->position_id)->get(),
+            'modifications' => NomenclatureBaseItemModification::where('nomenclature_base_item_pdr_position_id', $this->position_id)->get(),
+            'card' => NomenclatureBaseItemPdrCard::find($this->id),
         ];
     }
 }
