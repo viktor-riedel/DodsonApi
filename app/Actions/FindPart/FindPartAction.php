@@ -37,7 +37,7 @@ class FindPartAction
             'nomenclature_base_item_pdrs.nomenclature_base_item_id')
             ->whereNull('nomenclature_base_item_pdr_cards.deleted_at')
             ->orderBy('nomenclature_base_item_pdr_cards.name_eng')
-            ->paginate(20);
+            ->paginate(50);
 
         return $data;
     }
