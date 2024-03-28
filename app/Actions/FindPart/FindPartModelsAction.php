@@ -21,7 +21,7 @@ class FindPartModelsAction
                 'nomenclature_base_item_pdrs.nomenclature_base_item_id')
             ->whereNull('nomenclature_base_item_pdr_cards.deleted_at')
             ->where('nomenclature_base_items.make', $make)
-            ->orderBy('nomenclature_base_items.make')
+            ->orderBy('nomenclature_base_items.model')
             ->get();
     }
 }

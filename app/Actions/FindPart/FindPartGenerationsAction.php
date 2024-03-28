@@ -22,7 +22,7 @@ class FindPartGenerationsAction
             ->whereNull('nomenclature_base_item_pdr_cards.deleted_at')
             ->where('nomenclature_base_items.make', $make)
             ->where('nomenclature_base_items.model', $model)
-            ->orderBy('nomenclature_base_items.make')
+            ->orderBy('nomenclature_base_items.generation')
             ->get();
     }
 }
