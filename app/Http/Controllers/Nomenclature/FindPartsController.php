@@ -12,7 +12,8 @@ class FindPartsController extends Controller
     public function list(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $page = $request->get('page', 1);
-        $list = app()->make(FindPartAction::class)->handle($page);
+        $search = $request->get('search', '');
+        $list = app()->make(FindPartAction::class)->handle($page, $search);
         return FindPartResource::collection($list);
     }
 }

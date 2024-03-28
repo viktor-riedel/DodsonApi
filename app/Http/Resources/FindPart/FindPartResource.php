@@ -11,9 +11,10 @@ class FindPartResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'position_id' => $this->position_id,
             'inner_id' => $this->inner_id,
-            'item_name_eng' => $this->name_eng,
-            'item_name_ru' => $this->name_ru,
+            'name_eng' => $this->name_eng,
+            'name_ru' => $this->name_ru,
             'description' => $this->description,
             'ic_number' => $this->ic_number,
             'make' => $this->make,

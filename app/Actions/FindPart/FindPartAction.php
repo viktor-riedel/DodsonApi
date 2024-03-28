@@ -11,7 +11,7 @@ use Illuminate\Support\Collection;
 
 class FindPartAction
 {
-    public function handle(string $page): LengthAwarePaginator
+    public function handle(string $page, string $search = ''): LengthAwarePaginator
     {
         $data = \DB::table('nomenclature_base_item_pdr_cards')
             ->selectRaw('
@@ -36,8 +36,11 @@ class FindPartAction
             ->leftJoin('nomenclature_base_items', 'nomenclature_base_items.id', '=',
             'nomenclature_base_item_pdrs.nomenclature_base_item_id')
             ->whereNull('nomenclature_base_item_pdr_cards.deleted_at')
+            ->when($search, function($q) use ($search) {
+                return $q->where('nomenclature_base_item_pdr_cards.ic_number', 'like', '%' . $search . '%');
+            })
             ->orderBy('nomenclature_base_item_pdr_cards.name_eng')
-            ->paginate(50);
+            ->paginate(20);
 
         return $data;
     }
