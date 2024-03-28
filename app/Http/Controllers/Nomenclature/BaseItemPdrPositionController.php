@@ -77,7 +77,16 @@ class BaseItemPdrPositionController extends Controller
             }
         }
         $baseItemPdrPosition->nomenclatureBaseItemPdrCard()->update(
-            $request->except('id', 'nomenclature_base_item_pdr_position_id')
+            $request->except('id',
+                'nomenclature_base_item_pdr_position_id',
+                'position_id',
+                'make',
+                'model',
+                'generation',
+                'photos',
+                'card',
+                'modifications'
+            )
         );
         $baseItemPdrPosition->nomenclatureBaseItemPdr()->update([
             'item_name_eng' => strtoupper($request->input('name_eng')),
