@@ -116,7 +116,7 @@ trait BaseCarTrait
         return response()->json($modifications);
     }
 
-    public function partsList(Request $request, string $make, string $model, string $generation)
+    public function partsList(Request $request, string $make, string $model, string $generation): \Illuminate\Http\JsonResponse
     {
         $query = NomenclatureBaseItem::query();
         $query->where(['make' => $make, 'model' => $model, 'generation' => $generation]);
