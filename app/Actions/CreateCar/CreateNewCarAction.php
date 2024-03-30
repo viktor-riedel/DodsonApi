@@ -21,6 +21,7 @@ class CreateNewCarAction
     {
         $this->user = $request->user();
         $this->request = $request;
+        $parts = $request->parts;
 
         $baseCar = NomenclatureBaseItem::where('make', strtoupper(trim($request->input('make'))))
             ->where('model', strtoupper(trim($request->input('model'))))
@@ -35,7 +36,7 @@ class CreateNewCarAction
             'created_by' => $request->user()->id,
         ]);
 
-        $this->copyOriginalPdr($baseCar, $car);
+        $this->copyOriginalPdr($baseCar, $car, $parts);
 
         $car->carAttributes()->create([]);
         $car->modification()->create([
@@ -70,10 +71,14 @@ class CreateNewCarAction
             }
         }
 
+        if (is_array($request->misc) && count($request->misc)) {
+
+        }
+
         return $car->id;
     }
 
-    private function copyOriginalPdr(NomenclatureBaseItem $baseItem, Car $car): bool
+    private function copyOriginalPdr(NomenclatureBaseItem $baseItem, Car $car, array $parts): bool
     {
         $pdr = $this->buildPdrTreeWithoutEmpty($baseItem->baseItemPDR);
         $this->copyOriginalPdrWithCards($pdr, $car);
