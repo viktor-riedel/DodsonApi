@@ -7,6 +7,7 @@ use App\Http\Traits\CarPdrTrait;
 use App\Models\Car;
 use App\Models\CarPdrPosition;
 use App\Models\CarPdrPositionCard;
+use App\Models\CarPdrPositionCardAttribute;
 use App\Models\MediaFile;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,7 @@ class EditCarController extends Controller
 {
     use CarPdrTrait;
 
-    public function edit(Car $car)
+    public function edit(Car $car): \Illuminate\Http\JsonResponse
     {
         $car->load('images', 'carAttributes', 'modification', 'createdBy');
         $parts = $this->buildPdrTreeWithoutEmpty($car);
@@ -135,5 +136,11 @@ class EditCarController extends Controller
             }
         }
         return response()->json($card->images);
+    }
+
+    public function updateAttributes(Request $request, Car $car, CarPdrPositionCardAttribute $card): \Illuminate\Http\JsonResponse
+    {
+        $card->update($request->except('car_pdr_position_id', 'id'));
+        return response()->json([], 202);
     }
 }

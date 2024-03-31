@@ -3,6 +3,7 @@
 namespace App\Actions\CreateCar;
 
 use App\Http\Traits\BaseItemPdrTreeTrait;
+use App\Http\Traits\InnerIdTrait;
 use App\Models\Car;
 use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemModification;
@@ -13,6 +14,7 @@ use Illuminate\Http\Request;
 class CreateNewCarAction
 {
     use BaseItemPdrTreeTrait;
+    use InnerIdTrait;
 
     private User $user;
     private Request $request;
@@ -72,7 +74,60 @@ class CreateNewCarAction
         }
 
         if (is_array($request->misc) && count($request->misc)) {
+            $miscPdr = $car->pdrs()->create([
+                'parent_id' => 0,
+                'item_name_eng' => 'MISC PARTS',
+                'item_name_ru' => 'ДРУГИЕ ЗАПЧАСТИ',
+                'is_folder' => true,
+                'is_deleted' => false,
+                'parts_list_id' => null,
+                'created_by' => $this->user->id,
+            ]);
 
+            // add misc parts under MISC folder
+            foreach($request->misc as $misc_part) {
+                $position = $miscPdr->positions()->create([
+                    'item_name_ru' => $misc_part['part_name_eng'],
+                    'item_name_eng' => $misc_part['part_name_ru'] ?? null,
+                    'ic_number' => $misc_part['ic_number'] ?? '',
+                    'oem_number' => null,
+                    'ic_description' => $misc_part['description'],
+                    'is_virtual' => false,
+                    'created_by' => $this->user->id,
+                ]);
+                $card = $position->card()->create([
+                    'parent_inner_id' => $this->generateInnerId(\Str::random(10) . now()),
+                    'name_eng' => $misc_part['part_name_eng'],
+                    'name_ru' => $misc_part['part_name_ru'] ?? null,
+                    'comment' => $misc_part['comment'],
+                    'description' => $misc_part['description'],
+                    'ic_number' => $misc_part['ic_number'] ?? '',
+                    'oem_number' => null,
+                    'created_by' => $this->user->id,
+                ]);
+                $card->priceCard()->create([
+                    'price_nz_wholesale' => null,
+                    'price_nz_retail' => null,
+                    'price_ru_wholesale' => null,
+                    'price_ru_retail' => null,
+                    'price_jp_minimum_buy' => null,
+                    'price_jp_maximum_buy' => null,
+                    'minimum_threshold_nz_retail' => null,
+                    'minimum_threshold_nz_wholesale' => null,
+                    'minimum_threshold_ru_retail' => null,
+                    'minimum_threshold_ru_wholesale' => null,
+                    'delivery_price_nz' => null,
+                    'delivery_price_ru' => null,
+                    'pinnacle_price' => null,
+                ]);
+                $card->partAttributesCard()->create([
+                    'color' => null,
+                    'weight' => null,
+                    'volume' => null,
+                    'amount' => (int) $misc_part['amount'],
+                    'ordered_for_user_id' => $misc_part['ordered_for'] ?? null,
+                ]);
+            }
         }
 
         return $car->id;
