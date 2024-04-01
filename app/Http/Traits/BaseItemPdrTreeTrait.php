@@ -40,13 +40,37 @@ trait BaseItemPdrTreeTrait
         return $branch;
     }
 
-    private function buildPdrTreeWithoutEmpty($pdr): array
+    private function buildPdrTreeWithoutEmpty($pdr, array $includeOnlyPositions = []): array
     {
         $tree = $this->buildPdrTree($pdr);
-        return $this->deleteEmptyItemsFromTree($tree);
+        // only use included
+        if (count($includeOnlyPositions)) {
+            $this->includeOnlyPositions($tree, $includeOnlyPositions);
+        }
+        $tr = $this->deleteEmptyItemsFromTree($tree);
+        ray($tr);
+        return $tr;
     }
 
-    private function deleteEmptyItemsFromTree(array &$elements, $parent_id = 0): array
+    private function includeOnlyPositions(array &$elements, array $positions = []): void
+    {
+        foreach ($elements as &$el) {
+            if ($el['is_folder'] && isset($el['children']) && count($el['children'])) {
+                $this->includeOnlyPositions($el['children'], $positions);
+            }
+            if (isset($el['nomenclature_base_item_pdr_positions'])) {
+                $pos = collect($el['nomenclature_base_item_pdr_positions'])->filter(function($item) use ($positions) {
+                    return in_array($item['id'], $positions, true);
+                });
+                $el['nomenclature_base_item_pdr_positions'] = array_values($pos->toArray());
+            }
+            if (isset($el['children'])) {
+                $el['children'] = array_values($el['children']);
+            }
+        }
+    }
+
+    private function deleteEmptyItemsFromTree(array &$elements, int $parent_id = 0): array
     {
         $branch = [];
         foreach ($elements as $i => &$el) {
@@ -56,7 +80,9 @@ trait BaseItemPdrTreeTrait
             if (!$el['is_folder'] && !count($el['nomenclature_base_item_pdr_positions'])) {
                 unset($elements[$i]);
             } else if ($el['is_folder'] && isset($el['children']) && !count($el['children'])) {
-                unset($elements[$i]);
+                if (!count($el['nomenclature_base_item_pdr_positions'])) {
+                    unset($elements[$i]);
+                }
             } else if ($el['is_folder'] && !isset($el['children']) && count($el['nomenclature_base_item_pdr_positions']) === 1) {
                 if ($el['nomenclature_base_item_pdr_positions'][0]['is_virtual']) {
                     unset($elements[$i]);

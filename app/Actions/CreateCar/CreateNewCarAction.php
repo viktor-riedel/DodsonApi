@@ -23,7 +23,7 @@ class CreateNewCarAction
     {
         $this->user = $request->user();
         $this->request = $request;
-        $parts = $request->parts;
+        $includeParts = $request->input('parts');
 
         $baseCar = NomenclatureBaseItem::where('make', strtoupper(trim($request->input('make'))))
             ->where('model', strtoupper(trim($request->input('model'))))
@@ -38,7 +38,9 @@ class CreateNewCarAction
             'created_by' => $request->user()->id,
         ]);
 
-        $this->copyOriginalPdr($baseCar, $car, $parts);
+        if (count($includeParts)) {
+            $this->copyOriginalPdr($baseCar, $car, $includeParts);
+        }
 
         $car->carAttributes()->create([]);
         $car->modification()->create([
@@ -133,19 +135,22 @@ class CreateNewCarAction
         return $car->id;
     }
 
-    private function copyOriginalPdr(NomenclatureBaseItem $baseItem, Car $car, array $parts): bool
+    private function copyOriginalPdr(NomenclatureBaseItem $baseItem, Car $car, array $includeCards = []): bool
     {
-        $pdr = $this->buildPdrTreeWithoutEmpty($baseItem->baseItemPDR);
-        $this->copyOriginalPdrWithCards($pdr, $car);
+        $onlyIncludeIds = collect($includeCards)->pluck('id')->toArray();
+        $pdr = $this->buildPdrTreeWithoutEmpty($baseItem->baseItemPDR, $onlyIncludeIds);
+        $this->copyOriginalPdrWithCards($pdr, $car, 0, $includeCards);
         return true;
     }
 
-    private function copyOriginalPdrWithCards(array $parts, Car $car, $parentId = 0): void
+    private function copyOriginalPdrWithCards(array $pdrs, Car $car, $parentId = 0, array $includePositions = []): void
     {
-        foreach ($parts as $part) {
-            $id = $this->recursiveCopyPdrWithCards($part, $car, $parentId);
-            if (isset($part['children']) && count($part['children'])) {
-                $this->copyOriginalPdrWithCards($part['children'], $car, $id);
+        if (count($includePositions)) {
+            foreach ($pdrs as $pdr) {
+                $id = $this->recursiveCopyPdrWithCards($pdr, $car, $parentId);
+                if (isset($pdr['children']) && count($pdr['children'])) {
+                    $this->copyOriginalPdrWithCards($pdr['children'], $car, $id);
+                }
             }
         }
     }
@@ -162,31 +167,28 @@ class CreateNewCarAction
             'created_by' => $this->user->id,
         ]);
 
-        $originalPositions = NomenclatureBaseItemPdrPosition::where('nomenclature_base_item_pdr_id', $part['id'])
+        $originalPositions = NomenclatureBaseItemPdrPosition::whereIn
+            ('id', collect($part['nomenclature_base_item_pdr_positions'])->pluck('id')->toArray())
             ->get();
 
         foreach($originalPositions as $origin) {
             //check match modification
-            $modificationMatch = $this->modificationMatch($origin);
 
-            $position = null;
-            if ($origin->is_virtual || $modificationMatch) {
-                $position = $pdr->positions()->create([
-                    'item_name_ru' => $origin->item_name_ru,
-                    'item_name_eng' => $origin->item_name_eng,
-                    'ic_number' => $origin->ic_number,
-                    'oem_number' => $origin->oem_number,
-                    'ic_description' => $origin->ic_description,
-                    'is_virtual' => $origin->is_virtual,
-                    'created_by' => $this->user->id,
-                ]);
-            }
+            $position = $pdr->positions()->create([
+                'item_name_ru' => $origin->item_name_ru,
+                'item_name_eng' => $origin->item_name_eng,
+                'ic_number' => $origin->ic_number,
+                'oem_number' => $origin->oem_number,
+                'ic_description' => $origin->ic_description,
+                'is_virtual' => $origin->is_virtual,
+                'created_by' => $this->user->id,
+            ]);
 
             if ($part['is_folder'] && $origin->is_virtual && $position) {
                 $pdr->update(['car_pdr_position_id' => $position->id]);
             }
 
-            if ($modificationMatch && $position) {
+            if ($position) {
                 $originCard = $origin->nomenclatureBaseItemPdrCard;
                 $card = $position->card()->create([
                     'parent_inner_id' => $originCard->inner_id,
