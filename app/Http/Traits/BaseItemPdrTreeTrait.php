@@ -47,8 +47,8 @@ trait BaseItemPdrTreeTrait
         if (count($includeOnlyPositions)) {
             $this->includeOnlyPositions($tree, $includeOnlyPositions);
         }
+        ray($tree);
         $tr = $this->deleteEmptyItemsFromTree($tree);
-        ray($tr);
         return $tr;
     }
 

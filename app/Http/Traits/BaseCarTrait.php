@@ -142,6 +142,9 @@ trait BaseCarTrait
                     'nomenclature_base_item_pdr_positions.id')
             ->whereIn('nomenclature_base_item_id', $baseItemsIds)
             ->where('nomenclature_base_item_modifications.header', $modification['header'])
+            ->when($request->input('generation'), function($q)  use ($request) {
+                return $q->where('nomenclature_base_item_modifications.generation', $request->input('generation'));
+            })
             ->when(!isset($modification['restyle']), function($q) {
                 return $q->whereNull('nomenclature_base_item_modifications.restyle');
             })
