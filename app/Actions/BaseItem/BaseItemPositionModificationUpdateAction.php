@@ -2,17 +2,20 @@
 
 namespace App\Actions\BaseItem;
 
+use App\Http\Traits\InnerIdTrait;
 use App\Models\NomenclatureBaseItemPdrPosition;
 use Illuminate\Http\Request;
 
 class BaseItemPositionModificationUpdateAction
 {
+    use InnerIdTrait;
+
     public function handle(Request $request, NomenclatureBaseItemPdrPosition $nomenclatureBaseItemPosition): bool
     {
         $nomenclatureBaseItemPosition->nomenclatureBaseItemModifications()->delete();
         if (count($request->toArray()) > 0) {
             foreach($request->toArray() as $modification) {
-                $nomenclatureBaseItemPosition->nomenclatureBaseItemModifications()->create([
+                $modification = $nomenclatureBaseItemPosition->nomenclatureBaseItemModifications()->create([
                     'header' => $modification['header'],
                     'generation' => $modification['generation'],
                     'modification' => $modification['modification'],
@@ -33,8 +36,10 @@ class BaseItemPositionModificationUpdateAction
                     'year_from' => $modification['year_from'],
                     'year_to' => $modification['year_to'],
                 ]);
+                $modification->update([
+                    'inner_id' => $this->generateInnerId($modification->id . $modification->created_at),
+                ]);
             }
-
         }
         return true;
     }
