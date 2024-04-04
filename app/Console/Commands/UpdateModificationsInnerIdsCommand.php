@@ -16,7 +16,7 @@ class UpdateModificationsInnerIdsCommand extends Command
 
     public function handle(): void
     {
-        $mods = NomenclatureBaseItemModification::whereNull('inner_id')->get();
+        $mods = NomenclatureBaseItemModification::whereNull('inner_id')->withTrashed()->get();
         foreach($mods as $mod) {
             $mod->update([
                 'inner_id' => $this->generateInnerId($mod->id . $mod->created_at),
