@@ -20,6 +20,7 @@ class BaseItemPdrPositionModificationApiResource extends JsonResource
         }
 
         return [
+            'inner_id' => $this->inner_id,
             'header' => $this->header,
             'generation' => $this->generation,
             'modification' => $this->modification,

@@ -2,12 +2,15 @@
 
 namespace App\Actions\BaseItem;
 
+use App\Http\Traits\InnerIdTrait;
 use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemPdrPosition;
 use Illuminate\Http\Request;
 
 class BaseItemModificationsGlobalUpdateAction
 {
+    use InnerIdTrait;
+
     public function handle(Request $request, NomenclatureBaseItem $nomenclatureBaseItem): bool
     {
         if (count($request->input('ic_list'))) {
@@ -18,6 +21,7 @@ class BaseItemModificationsGlobalUpdateAction
                     if (count($request->input('modifications'))) {
                         foreach($request->input('modifications') as $modification) {
                             $icNum->nomenclatureBaseItemModifications()->create([
+                                'inner_id' => $this->generateInnerId($modification['id'] . $modification['header']),
                                 'header' => $modification['header'],
                                 'generation' => $modification['generation'],
                                 'modification' => $modification['modification'],
