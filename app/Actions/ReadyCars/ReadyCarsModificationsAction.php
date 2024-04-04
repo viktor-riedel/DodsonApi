@@ -10,7 +10,7 @@ class ReadyCarsModificationsAction
     public function handle(string $make, string $model, string $generation): Collection
     {
         $modifications = DB::table('nomenclature_base_item_modifications')
-            ->selectRaw('image_url, body_type, chassis, transmission,
+            ->selectRaw('inner_id, image_url, body_type, chassis, transmission,
                     year_from, year_to, month_from, month_to,
                     restyle, drive_train, header, engine_type, engine_size, doors, engine_name,
                     nomenclature_base_item_modifications.generation')

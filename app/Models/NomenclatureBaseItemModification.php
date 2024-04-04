@@ -11,6 +11,7 @@ class NomenclatureBaseItemModification extends Model
     use SoftDeletes;
 
     protected $fillable = [
+        'inner_id',
         'nomenclature_base_item_pdr_position_id',
         'header',
         'generation',

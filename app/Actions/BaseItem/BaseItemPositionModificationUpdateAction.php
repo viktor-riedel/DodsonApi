@@ -36,8 +36,10 @@ class BaseItemPositionModificationUpdateAction
                     'year_from' => $modification['year_from'],
                     'year_to' => $modification['year_to'],
                 ]);
+                $modification->update([
+                    'inner_id' => $this->generateInnerId($modification->id . $modification->created_at),
+                ]);
             }
-
         }
         return true;
     }
