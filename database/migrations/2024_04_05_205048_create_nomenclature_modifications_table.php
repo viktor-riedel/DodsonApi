@@ -9,6 +9,9 @@ return new class extends Migration {
     {
         Schema::create('nomenclature_modifications', function (Blueprint $table) {
             $table->id();
+            $table->integer('modificationable_id');
+            $table->string('modificationable_type');
+            $table->string('inner_id');
             $table->timestamps();
         });
     }
