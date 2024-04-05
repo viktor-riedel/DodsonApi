@@ -44,12 +44,11 @@ trait BaseItemPdrTreeTrait
     {
         $tree = $this->buildPdrTree($pdr);
         // only use included
+        $this->deleteEmptyItemsFromTree($tree);
         if (count($includeOnlyPositions)) {
             $this->includeOnlyPositions($tree, $includeOnlyPositions);
         }
-        ray($tree);
-        $tr = $this->deleteEmptyItemsFromTree($tree);
-        return $tr;
+        return $tree;
     }
 
     private function includeOnlyPositions(array &$elements, array $positions = []): void

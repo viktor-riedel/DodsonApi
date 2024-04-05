@@ -84,7 +84,9 @@ trait CarPdrTrait
             if (!$el['is_folder'] && !count($el['positions'])) {
                 unset($elements[$i]);
             } else if ($el['is_folder'] && isset($el['children']) && !count($el['children'])) {
-                unset($elements[$i]);
+                if (!isset($el['nomenclature_base_item_pdr_positions']) || !count($el['nomenclature_base_item_pdr_positions'])) {
+                    unset($elements[$i]);
+                }
             } else if ($el['is_folder'] && !isset($el['children']) && count($el['positions']) === 1) {
                 if ($el['positions'][0]['is_virtual']) {
                     unset($elements[$i]);
