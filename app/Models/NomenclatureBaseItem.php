@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class NomenclatureBaseItem extends Model
@@ -55,5 +56,10 @@ class NomenclatureBaseItem extends Model
     {
         return $this->hasManyThrough(NomenclatureBaseItemPdrPosition::class, NomenclatureBaseItemPdr::class,)
             ->where('is_virtual', false);
+    }
+
+    public function modifications(): MorphMany
+    {
+        return $this->morphMany(NomenclatureModification::class, 'modificationable');
     }
 }

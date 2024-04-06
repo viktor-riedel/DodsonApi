@@ -4,6 +4,7 @@ namespace App\Http\Resources\Users;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Spatie\Permission\Models\Role;
 
 class UserResource extends JsonResource
 {
@@ -14,11 +15,11 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'last_login' => null,
-            'user_information' => $this->userInformation ? new UserInformationResource($this->userInformation) : [],
-            'roles' => [],
-            'permissions' => [],
-            'created' => $this->created_at->format('d/m/Y'),
-            'inactive' => $this->deleted_at !== null,
+            'roles' => $this->getRoleNames()->first(),
+            'created' => $this->created_at ? $this->created_at->format('d/m/Y') : null,
+            'inactive' => $this->trashed(),
+            'card' => $this->whenLoaded('userCard', new UserCardResource($this->userCard), null),
+            'available_roles' => Role::get(),
         ];
     }
 }

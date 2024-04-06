@@ -15,6 +15,8 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles, SoftDeletes;
 
+    protected $guard_name = 'api';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -24,6 +26,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'reset_code',
     ];
 
     /**
@@ -34,6 +37,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'reset_code',
     ];
 
     /**
@@ -47,8 +51,8 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function userInformation(): HasOne
+    public function userCard(): HasOne
     {
-        return $this->hasOne(UserInformation::class);
+        return $this->hasOne(UserCard::class);
     }
 }

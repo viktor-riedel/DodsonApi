@@ -3,12 +3,14 @@
 namespace App\Console\Commands;
 
 use App\Http\Traits\InnerIdTrait;
+use App\Http\Traits\SyncBaseItemModificationsTrait;
+use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemModification;
 use Illuminate\Console\Command;
 
 class UpdateModificationsInnerIdsCommand extends Command
 {
-    use InnerIdTrait;
+    use InnerIdTrait, SyncBaseItemModificationsTrait;
 
     protected $signature = 'update:modifications-inner-ids';
 
@@ -16,12 +18,15 @@ class UpdateModificationsInnerIdsCommand extends Command
 
     public function handle(): void
     {
-        $mods = NomenclatureBaseItemModification::whereNull('inner_id')->withTrashed()->get();
+        $mods = NomenclatureBaseItemModification::withTrashed()->get();
         foreach($mods as $mod) {
             $mod->update([
-                'inner_id' => $this->generateInnerId($mod->id . $mod->created_at),
+                'inner_id' => $this->generateInnerId(
+                    $mod->header . $mod->generation . $mod->chassis
+                ),
             ]);
         }
+
         $this->info('done');
     }
 }

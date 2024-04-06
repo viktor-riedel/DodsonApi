@@ -25,11 +25,8 @@ class BaseItemModificationsGlobalAction
             $listItem->count_modifications = $listItem->nomenclatureBaseItemModifications->count();
         }
 
-
-
         $result['ic_list'] = $iclist;
         $result['modifications'] = $this->loadAvailableModificationByBaseItem($nomenclatureBaseItem, $apiHelper);
-
         return $result;
     }
 }

@@ -26,6 +26,7 @@ class BaseItemPdrPositionResource extends JsonResource
             'markets' => $this->whenLoaded('markets'),
             'modifications' => BaseItemPdrPositionModificationResource::collection($this->nomenclatureBaseItemModifications),
             'is_virtual' => $this->is_virtual,
+            'needs' => $this->nomenclatureBaseItemPdrCard?->needs,
         ];
     }
 }
