@@ -3,12 +3,13 @@
 namespace App\Actions\BaseItem;
 
 use App\Http\Traits\InnerIdTrait;
+use App\Http\Traits\SyncBaseItemModificationsTrait;
 use App\Models\NomenclatureBaseItemPdrPosition;
 use Illuminate\Http\Request;
 
 class BaseItemPositionModificationUpdateAction
 {
-    use InnerIdTrait;
+    use InnerIdTrait, SyncBaseItemModificationsTrait;
 
     public function handle(Request $request, NomenclatureBaseItemPdrPosition $nomenclatureBaseItemPosition): bool
     {
@@ -18,7 +19,7 @@ class BaseItemPositionModificationUpdateAction
                 $modification = $nomenclatureBaseItemPosition->nomenclatureBaseItemModifications()->create([
                     'header' => $modification['header'],
                     'generation' => $modification['generation'],
-                    'modification' => $modification['modification'],
+                    'modification' => $modification['generation'],
                     'engine_name' => $modification['engine_name'],
                     'engine_type' => $modification['engine_type'],
                     'engine_size' => $modification['engine_size'],
@@ -37,9 +38,11 @@ class BaseItemPositionModificationUpdateAction
                     'year_to' => $modification['year_to'],
                 ]);
                 $modification->update([
-                    'inner_id' => $this->generateInnerId($modification->id . $modification->created_at),
+                    'inner_id' => $this->generateInnerId($modification['header'] . $modification['generation'] . $modification['chassis']),
                 ]);
             }
+
+            $this->syncBaseItemModifications($nomenclatureBaseItemPosition->nomenclatureBaseItemPdr->nomenclatureBaseItem);
         }
         return true;
     }

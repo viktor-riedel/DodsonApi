@@ -39,7 +39,7 @@ class BaseItemModificationsSyncAction
 
         if ($modifications->count()) {
             foreach($modifications as $modification) {
-                $position->nomenclatureBaseItemModifications()->create((array) $modification);
+                $position->nomenclatureBaseItemModifications()->create($modification->toArray());
             }
         }
     }

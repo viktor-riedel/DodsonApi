@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class NomenclatureBaseItemPdrPosition extends Model
@@ -56,9 +57,14 @@ class NomenclatureBaseItemPdrPosition extends Model
         return $this->hasMany(NomenclatureBaseItemModification::class);
     }
 
+    public function modifications(): MorphMany
+    {
+        return $this->morphMany(NomenclatureModification::class, 'modificationable');
+    }
+
     public function relatedPositions(): BelongsToMany
     {
-        return $this->belongsToMany(NomenclatureBaseItemPdrPosition::class, 'related_base_item_positions',
+        return $this->belongsToMany(__CLASS__, 'related_base_item_positions',
                                     'nomenclature_base_item_pdr_position_id', 'related_id');
     }
 }

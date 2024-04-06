@@ -28,7 +28,6 @@ trait BaseCarTrait
             ];
         }
         return response()->json($result);
-        return response()->json($makes);
     }
 
     public function models(string $make): \Illuminate\Http\JsonResponse
