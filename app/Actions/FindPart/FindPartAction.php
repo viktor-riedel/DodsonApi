@@ -42,6 +42,7 @@ class FindPartAction
             ->whereNull('nomenclature_base_items.deleted_at')
             ->whereNull('nomenclature_base_item_pdr_positions.deleted_at')
             ->whereNull('nomenclature_base_item_pdr_cards.deleted_at')
+            ->where('nomenclature_base_item_pdrs.is_folder', 0)
             ->when($search, function($q) use ($search) {
                 return $q->where('nomenclature_base_item_pdr_cards.ic_number', 'like', '%' . $search . '%');
             })
