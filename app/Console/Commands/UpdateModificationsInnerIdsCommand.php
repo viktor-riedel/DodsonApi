@@ -4,8 +4,8 @@ namespace App\Console\Commands;
 
 use App\Http\Traits\InnerIdTrait;
 use App\Http\Traits\SyncBaseItemModificationsTrait;
-use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemModification;
+use App\Models\NomenclatureBaseItemPdrPosition;
 use Illuminate\Console\Command;
 
 class UpdateModificationsInnerIdsCommand extends Command
@@ -25,6 +25,16 @@ class UpdateModificationsInnerIdsCommand extends Command
                     $mod->header . $mod->generation . $mod->chassis
                 ),
             ]);
+        }
+
+        $positions = NomenclatureBaseItemPdrPosition::with('nomenclatureBaseItemModifications')
+            ->withTrashed()->get();
+
+        foreach($positions as $position) {
+            $position->modifications()->delete();
+            foreach($position->nomenclatureBaseItemModifications as $mod) {
+                $position->modifications()->create($mod->toArray());
+            }
         }
 
         $this->info('done');
