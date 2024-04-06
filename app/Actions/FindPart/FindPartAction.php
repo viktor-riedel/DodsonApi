@@ -15,6 +15,7 @@ class FindPartAction
         string $make = '', string $model = '', string $generation = ''
     ): LengthAwarePaginator
     {
+        ray()->queries();
         return \DB::table('nomenclature_base_item_pdr_cards')
             ->selectRaw('
                 nomenclature_base_item_pdr_cards.id,
@@ -32,11 +33,15 @@ class FindPartAction
             ')
             ->join('nomenclature_base_item_pdr_positions', 'nomenclature_base_item_pdr_positions.id',
             '=',
-            'nomenclature_base_item_pdr_cards.id')
+            'nomenclature_base_item_pdr_cards.nomenclature_base_item_pdr_position_id')
             ->join('nomenclature_base_item_pdrs', 'nomenclature_base_item_pdrs.id', '=',
             'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id')
             ->join('nomenclature_base_items', 'nomenclature_base_items.id', '=',
             'nomenclature_base_item_pdrs.nomenclature_base_item_id')
+            ->whereNull('nomenclature_base_item_pdr_cards.deleted_at')
+            ->whereNull('nomenclature_base_item_pdrs.deleted_at')
+            ->whereNull('nomenclature_base_items.deleted_at')
+            ->whereNull('nomenclature_base_item_pdr_positions.deleted_at')
             ->whereNull('nomenclature_base_item_pdr_cards.deleted_at')
             ->when($search, function($q) use ($search) {
                 return $q->where('nomenclature_base_item_pdr_cards.ic_number', 'like', '%' . $search . '%');
