@@ -15,7 +15,6 @@ class FindPartAction
         string $make = '', string $model = '', string $generation = ''
     ): LengthAwarePaginator
     {
-        ray()->queries();
         return \DB::table('nomenclature_base_item_pdr_cards')
             ->selectRaw('
                 nomenclature_base_item_pdr_cards.id,
