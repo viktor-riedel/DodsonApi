@@ -28,6 +28,7 @@ class BaseItemPdrPositionCardResource extends JsonResource
             'delivery_price_ru' => $this->delivery_price_ru,
             'pinnacle_price' => $this->pinnacle_price,
             'nz_team_price' => $this->nz_team_price,
+            'nz_team_needs' => $this->nz_team_needs,
             'price_mng_retail' => $this->price_mng_retail,
             'price_mng_wholesale' => $this->price_mng_wholesale,
             'minimum_threshold_mng_retail' => $this->minimum_threshold_mng_retail,

@@ -55,6 +55,7 @@ class NomenclatureBaseItemPdrCard extends Model
         'delivery_price_ru',
         'pinnacle_price',
         'nz_team_price',
+        'nz_team_needs',
         'created_by',
         'deleted_by',
     ];
