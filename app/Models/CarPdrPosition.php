@@ -36,6 +36,11 @@ class CarPdrPosition extends Model
         return $this->hasOne(CarPdrPositionCard::class);
     }
 
+    public function modification(): MorphMany
+    {
+        return $this->morphMany(NomenclatureModification::class, 'modificationable');
+    }
+
     public function images(): MorphMany
     {
         return $this->morphMany(MediaFile::class, 'mediable');

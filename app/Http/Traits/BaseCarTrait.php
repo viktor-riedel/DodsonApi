@@ -4,7 +4,9 @@ namespace App\Http\Traits;
 
 use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemModification;
+use App\Models\NomenclatureBaseItemPdr;
 use App\Models\NomenclatureBaseItemPdrCard;
+use App\Models\NomenclatureBaseItemPdrPosition;
 use App\Models\NomenclatureBaseItemPdrPositionPhoto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -75,48 +77,83 @@ trait BaseCarTrait
 
     public function modifications(string $make, string $model, string $generation): \Illuminate\Http\JsonResponse
     {
-        $modifications = DB::table('nomenclature_base_item_modifications')
-            ->selectRaw('image_url, body_type, chassis, transmission,
-                    year_from, year_to, month_from, month_to,
-                    restyle, drive_train, header, doors, engine_size,
-                    nomenclature_base_item_modifications.generation, 
-                    sum(nomenclature_base_item_pdr_cards.needs) as needs,
-                    sum(nomenclature_base_item_pdr_cards.ru_needs) as needs_ru,
-                    sum(nomenclature_base_item_pdr_cards.nz_needs) as needs_nz,
-                    sum(nomenclature_base_item_pdr_cards.mng_needs) as needs_mng,
-                    sum(nomenclature_base_item_pdr_cards.jp_needs) as needs_jp')
-            ->join('nomenclature_base_item_pdr_positions', 'nomenclature_base_item_pdr_positions.id', '=', 'nomenclature_base_item_modifications.nomenclature_base_item_pdr_position_id')
-            ->join('nomenclature_base_item_pdr_cards', 'nomenclature_base_item_pdr_cards.nomenclature_base_item_pdr_position_id', '=', 'nomenclature_base_item_pdr_positions.id')
-            ->join('nomenclature_base_item_pdrs', 'nomenclature_base_item_pdrs.id', '=', 'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id')
-            ->join('nomenclature_base_items', 'nomenclature_base_items.id', '=', 'nomenclature_base_item_pdrs.nomenclature_base_item_id')
-            ->where('nomenclature_base_items.make', $make)
-            ->where('nomenclature_base_items.model', $model)
-            ->where('nomenclature_base_items.generation', $generation)
-            ->whereNull('nomenclature_base_items.deleted_at')
-            ->whereNull('nomenclature_base_item_pdrs.deleted_at')
-            ->groupBy('image_url', 'body_type', 'chassis', 'transmission',
-                'year_from', 'year_to', 'month_from', 'month_to', 'restyle',
-                'drive_train', 'header', 'restyle', 'doors', 'engine_size',
-                'nomenclature_base_item_modifications.generation')
-            ->orderBy('year_from')
-            ->orderBy('year_to')
-            ->get()->each(function($item) {
-                $year_from_str = str_pad($item->month_from,2,0,STR_PAD_LEFT) . '.'.
-                    $item->year_from;
-                if ($item->month_to && $item->year_to) {
-                    $year_end_str = str_pad($item->month_to,2,0,STR_PAD_LEFT) . '.'.
-                        $item->year_to;
-                } else {
-                    $year_end_str = 'now';
-                }
-                $item->years_string = $year_from_str . '-' . $year_end_str;
-            });
+        $baseItem = NomenclatureBaseItem::with(
+                'baseItemPDR',
+                         'nomenclaturePositions',
+                         'nomenclaturePositions.nomenclatureBaseItemPdrCard',
+                         'nomenclaturePositions.modifications')
+            ->where('make', $make)
+            ->where('model', $model)
+            ->where('generation', $generation)
+            ->first();
 
-        return response()->json($modifications);
+        foreach($baseItem->modifications as $mod) {
+            $needs = \DB::table('nomenclature_base_item_pdr_positions')
+                ->selectRaw('
+                sum(needs) as needs, sum(nz_needs) as needs_nz,
+	            sum(ru_needs) as needs_ru, sum(mng_needs) as needs_mng, 
+	            sum(jp_needs) as needs_jp            
+            ')
+                ->join('nomenclature_modifications', 'nomenclature_modifications.modificationable_id',
+                    '=', 'nomenclature_base_item_pdr_positions.id')
+                ->join('nomenclature_base_item_pdr_cards', 'nomenclature_base_item_pdr_cards.nomenclature_base_item_pdr_position_id',
+                    '=', 'nomenclature_base_item_pdr_positions.id')
+                ->where('nomenclature_modifications.inner_id', $mod->inner_id)
+                ->whereNull('nomenclature_base_item_pdr_cards.deleted_at')
+                ->first();
+
+            $mod->needs = $needs->needs;
+            $mod->needs_ru = $needs->needs_ru;
+            $mod->needs_nz = $needs->needs_nz;
+            $mod->needs_mng = $needs->needs_mng;
+            $mod->needs_jp = $needs->needs_jp;
+        }
+
+        return response()->json($baseItem->modifications);
     }
 
-    public function partsList(Request $request, string $make, string $model, string $generation): \Illuminate\Http\JsonResponse
+    public function partsList(Request $request,
+        string $make,
+        string $model,
+        string $generation,
+        string $modification
+    ): \Illuminate\Http\JsonResponse
     {
+        $baseItem = NomenclatureBaseItem::with(
+            'baseItemPDR',
+            'nomenclaturePositions',
+            'nomenclaturePositions.nomenclatureBaseItemPdrCard',
+            'nomenclaturePositions.modifications')
+            ->where('make', $make)
+            ->where('model', $model)
+            ->where('generation', $generation)
+            ->first();
+
+        $cards = \DB::table('nomenclature_base_item_pdr_positions')
+            ->selectRaw('nomenclature_base_item_pdr_positions.id,
+                                   nomenclature_base_item_pdrs.item_name_eng,
+                                   nomenclature_base_item_pdrs.item_name_ru,
+                                   nomenclature_base_item_pdr_positions.ic_number,
+                                   nomenclature_base_item_pdr_positions.oem_number,
+                                   nomenclature_base_item_pdr_positions.ic_description,
+                                   nomenclature_modifications.generation')
+            ->join('nomenclature_modifications', 'nomenclature_modifications.modificationable_id',
+                '=', 'nomenclature_base_item_pdr_positions.id')
+            ->join('nomenclature_base_item_pdr_cards', 'nomenclature_base_item_pdr_cards.nomenclature_base_item_pdr_position_id',
+                '=', 'nomenclature_base_item_pdr_positions.id')
+            ->join('nomenclature_base_item_pdrs', 'nomenclature_base_item_pdrs.id',
+            '=', 'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id')
+            ->where('nomenclature_modifications.inner_id', $modification)
+            ->where('nomenclature_base_item_pdr_positions.is_virtual', false)
+            ->whereNull('nomenclature_base_item_pdr_cards.deleted_at')
+            ->get()->each(function($item) {
+                $item->photos = NomenclatureBaseItemPdrPositionPhoto::where('nomenclature_base_item_pdr_position_id', $item->id)->get();
+                $item->modifications = NomenclatureBaseItemModification::where('nomenclature_base_item_pdr_position_id', $item->id)->get();
+                $item->card = NomenclatureBaseItemPdrCard::where('nomenclature_base_item_pdr_position_id', $item->id)->first();
+            });
+
+        return response()->json($cards);
+
         $query = NomenclatureBaseItem::query();
         $query->where(['make' => $make, 'model' => $model, 'generation' => $generation]);
         $modification = $request->toArray();
