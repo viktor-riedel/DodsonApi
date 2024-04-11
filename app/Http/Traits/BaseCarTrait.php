@@ -129,74 +129,58 @@ trait BaseCarTrait
                                    nomenclature_modifications.generation')
             ->join('nomenclature_modifications', 'nomenclature_modifications.modificationable_id',
                 '=', 'nomenclature_base_item_pdr_positions.id')
-            ->join('nomenclature_base_item_pdr_cards', 'nomenclature_base_item_pdr_cards.nomenclature_base_item_pdr_position_id',
+            ->join('nomenclature_base_item_pdr_cards',
+                'nomenclature_base_item_pdr_cards.nomenclature_base_item_pdr_position_id',
                 '=', 'nomenclature_base_item_pdr_positions.id')
             ->join('nomenclature_base_item_pdrs', 'nomenclature_base_item_pdrs.id',
-            '=', 'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id')
+                '=', 'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id')
             ->whereNull('nomenclature_modifications.deleted_at')
             ->where('nomenclature_modifications.inner_id', $modification)
             ->where('nomenclature_base_item_pdr_positions.is_virtual', false)
             ->whereNull('nomenclature_base_item_pdr_cards.deleted_at')
-            ->get()->each(function($item) {
-                $item->photos = NomenclatureBaseItemPdrPositionPhoto::where('nomenclature_base_item_pdr_position_id', $item->id)->get();
-                $item->modifications = NomenclatureBaseItemModification::where('nomenclature_base_item_pdr_position_id', $item->id)->get();
-                $item->card = NomenclatureBaseItemPdrCard::where('nomenclature_base_item_pdr_position_id', $item->id)->first();
+            ->get()->each(function ($item) {
+                $item->photos = NomenclatureBaseItemPdrPositionPhoto::where('nomenclature_base_item_pdr_position_id',
+                    $item->id)->get();
+                $item->modifications = NomenclatureBaseItemModification::where('nomenclature_base_item_pdr_position_id',
+                    $item->id)->get();
+                $item->card = NomenclatureBaseItemPdrCard::where('nomenclature_base_item_pdr_position_id',
+                    $item->id)->first();
             });
 
         return response()->json($cards);
+    }
 
-        $baseItem = NomenclatureBaseItem::with(
-            'baseItemPDR',
-            'nomenclaturePositions',
-            'nomenclaturePositions.nomenclatureBaseItemPdrCard',
-            'nomenclaturePositions.modifications')
-            ->where('make', $make)
-            ->where('model', $model)
-            ->where('generation', $generation)
+    public function miscPartsList(Request $request)
+    {
+        $miscParts = [];
+        $miscFolder = \DB::table('part_lists')
+            ->selectRaw('id, parent_id, item_name_eng, item_name_ru')
+            ->where('item_name_eng', 'like', '%MISC%')
+            ->where('is_folder', 1)
+            ->whereNull('deleted_at')
             ->first();
 
-        $query = NomenclatureBaseItem::query();
-        $query->where(['make' => $make, 'model' => $model, 'generation' => $generation]);
-        $modification = $request->toArray();
-        $baseItemsIds = $query->get()->pluck('id')->toArray();
+        if ($miscFolder) {
+            $this->buildPartsList($miscParts, $miscFolder->id);
+        }
 
-        $data = DB::table('nomenclature_base_item_pdrs')
-            ->selectRaw('distinct nomenclature_base_item_pdr_positions.id,
-                                   nomenclature_base_item_pdrs.item_name_eng,
-                                   nomenclature_base_item_pdrs.item_name_ru,
-                                   nomenclature_base_item_pdr_positions.ic_number,
-                                   nomenclature_base_item_pdr_positions.oem_number,
-                                   nomenclature_base_item_pdr_positions.ic_description,
-                                   nomenclature_base_items.generation')
-            ->join('nomenclature_base_item_pdr_positions',
-                'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id',
-                '=',
-                'nomenclature_base_item_pdrs.id')
-            ->join('nomenclature_base_items', 'nomenclature_base_items.id', '=' , 'nomenclature_base_item_pdrs.nomenclature_base_item_id')
-            ->join('nomenclature_base_item_modifications',
-                    'nomenclature_base_item_modifications.nomenclature_base_item_pdr_position_id',
-                    '=',
-                    'nomenclature_base_item_pdr_positions.id')
-            ->whereIn('nomenclature_base_item_id', $baseItemsIds)
-            ->where('nomenclature_base_item_modifications.header', $modification['header'])
-            ->when($request->input('generation'), function($q)  use ($request) {
-                return $q->where('nomenclature_base_item_modifications.generation', $request->input('generation'));
-            })
-            ->when(!isset($modification['restyle']), function($q) {
-                return $q->whereNull('nomenclature_base_item_modifications.restyle');
-            })
-            ->when(isset($modification['restyle']), function ($q) use ($modification) {
-                return $q->where('nomenclature_base_item_modifications.restyle', (int) $modification['restyle']);
-            })
-            ->where('nomenclature_base_item_pdr_positions.is_virtual', false)
-            ->whereNull('nomenclature_base_item_pdrs.deleted_at')
-            ->get()
-            ->each(function($item) {
-                $item->photos = NomenclatureBaseItemPdrPositionPhoto::where('nomenclature_base_item_pdr_position_id', $item->id)->get();
-                $item->modifications = NomenclatureBaseItemModification::where('nomenclature_base_item_pdr_position_id', $item->id)->get();
-                $item->card = NomenclatureBaseItemPdrCard::where('nomenclature_base_item_pdr_position_id', $item->id)->first();
-            });
+        return response()->json($miscParts);
+    }
 
-        return response()->json($data);
+    private function buildPartsList(array &$parts = [], $parent_id = 0): array
+    {
+        $items = \DB::table('part_lists')
+            ->selectRaw('id, parent_id, item_name_eng, item_name_ru, is_folder')
+            ->whereNull('deleted_at')
+            ->where('parent_id', $parent_id)
+            ->get();
+        foreach ($items as $item) {
+            if (!$item->is_folder) {
+                $parts[] = $item;
+            } else {
+                $this->buildPartsList($parts, $item->id);
+            }
+        }
+        return $parts;
     }
 }
