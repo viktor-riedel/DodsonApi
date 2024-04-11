@@ -41,14 +41,20 @@ class CreateNewCarAction
             'make' => strtoupper(trim($request->input('make'))),
             'model' => strtoupper(trim($request->input('model'))),
             'generation' => trim($request->input('generation')),
+            'chassis' => ($modification->chassis) . '-',
             'created_by' => $request->user()->id,
         ]);
 
-        if (count($includeParts)) {
+        if (count($includeParts) && !$request->input('use_default_parts')) {
             $this->copyOriginalPdr($baseCar, $car, $includeParts);
+        } else {
+            $this->copyOriginalPdr($baseCar, $car);
         }
 
-        $car->carAttributes()->create([]);
+        $car->carAttributes()->create([
+            'chassis' => ($modification->chassis) . '-',
+            'engine' => $modification->engine_name,
+        ]);
         $car->modification()->create([
             'body_type' => $modification->body_type,
             'chassis' => $modification->chassis,
@@ -87,7 +93,7 @@ class CreateNewCarAction
         if (is_array($request->misc) && count($request->misc)) {
             $miscPdr = $car->pdrs()->create([
                 'parent_id' => 0,
-                'item_name_eng' => 'MISC PARTS',
+                'item_name_eng' => 'MISC',
                 'item_name_ru' => 'ДРУГИЕ ЗАПЧАСТИ',
                 'is_folder' => true,
                 'is_deleted' => false,
@@ -154,12 +160,10 @@ class CreateNewCarAction
 
     private function copyOriginalPdrWithCards(array $pdrs, Car $car, $parentId = 0, array $includePositions = []): void
     {
-        if (count($includePositions)) {
-            foreach ($pdrs as $pdr) {
-                $id = $this->recursiveCopyPdrWithCards($pdr, $car, $parentId);
-                if (isset($pdr['children']) && count($pdr['children'])) {
-                    $this->copyOriginalPdrWithCards($pdr['children'], $car, $id);
-                }
+        foreach ($pdrs as $pdr) {
+            $id = $this->recursiveCopyPdrWithCards($pdr, $car, $parentId);
+            if (isset($pdr['children']) && count($pdr['children'])) {
+                $this->copyOriginalPdrWithCards($pdr['children'], $car, $id);
             }
         }
     }

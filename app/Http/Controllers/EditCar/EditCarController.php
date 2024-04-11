@@ -30,6 +30,13 @@ class EditCarController extends Controller
         ]);
     }
 
+    public function delete(Request $request, Car $car)
+    {
+        $car->update(['deleted_by' => $request->user()->id]);
+        $car->delete();
+        return response()->json([], 202);
+    }
+
     public function uploadCarPhoto(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
         if ($request->file('uploadCarPhotos')) {

@@ -9,6 +9,7 @@ Route::prefix('create-car')->middleware('auth:sanctum')->group(function() {
    Route::get('/{make}/{model}/generations', [CreateCarController::class, 'generations']);
    Route::get('/{make}/{model}/{generation}/modifications', [CreateCarController::class, 'modifications']);
    Route::get('/{make}/{model}/{generation}/{modification}/parts-list', [CreateCarController::class, 'partsList']);
+    Route::get('/{make}/{model}/{generation}/{modification}/misc-parts-list', [CreateCarController::class, 'miscPartsList']);
    Route::post('/upload-image', [CreateCarController::class, 'uploadPhoto']);
    Route::post('/create-new-car', [CreateCarController::class, 'createNewCar']);
 });

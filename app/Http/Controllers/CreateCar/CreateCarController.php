@@ -24,7 +24,7 @@ class CreateCarController extends Controller
                 $fileExtension = '.' . $file->clientExtension();
                 $savePath = $folderName . '/' . $fileName . $fileExtension;
                 $size = $file->getSize();
-                $result = $storage->put($savePath, $file->getContent(), 'public');
+                $storage->put($savePath, $file->getContent(), 'public');
                 $uploaded[] = [
                     'file_name' => $fileName,
                     'original_file_name' => $originFileName,
