@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Car extends Model
@@ -63,6 +64,11 @@ class Car extends Model
     public function modification(): HasOne
     {
         return $this->hasOne(CarModification::class);
+    }
+
+    public function modifications(): MorphOne
+    {
+        return $this->morphOne(NomenclatureModification::class, 'modificationable');
     }
 
     public function pdrs(): HasMany
