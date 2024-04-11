@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CarPdrPosition extends Model
@@ -36,9 +37,9 @@ class CarPdrPosition extends Model
         return $this->hasOne(CarPdrPositionCard::class);
     }
 
-    public function modification(): MorphMany
+    public function modification(): MorphOne
     {
-        return $this->morphMany(NomenclatureModification::class, 'modificationable');
+        return $this->MorphOne(NomenclatureModification::class, 'modificationable');
     }
 
     public function images(): MorphMany

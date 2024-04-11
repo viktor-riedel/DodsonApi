@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CarPdrPositionCard extends Model
@@ -50,6 +51,11 @@ class CarPdrPositionCard extends Model
     public function images(): MorphMany
     {
         return $this->morphMany(MediaFile::class, 'mediable');
+    }
+
+    public function modification(): MorphOne
+    {
+        return $this->morphOne(NomenclatureModification::class, 'modificationable');
     }
 
     public function deletedBy(): BelongsTo

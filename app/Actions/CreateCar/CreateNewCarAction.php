@@ -30,6 +30,12 @@ class CreateNewCarAction
             ->where('generation', trim($request->input('generation')))
             ->first();
 
+        $modification = $baseCar->modifications()->where('inner_id', $this->request->input('modification'))->first();
+        //raise exception if modification not found
+        if (!$modification) {
+            throw new \Exception('Nomenclature modification not found');
+        }
+
         $car = Car::create([
             'parent_inner_id' => $baseCar->inner_id,
             'make' => strtoupper(trim($request->input('make'))),
@@ -44,21 +50,24 @@ class CreateNewCarAction
 
         $car->carAttributes()->create([]);
         $car->modification()->create([
-            'body_type' => $this->request->input('modification.body_type'),
-            'chassis' => $this->request->input('modification.chassis'),
-            'generation' => $this->request->input('modification.generation'),
-            'engine_size' => $this->request->input('modification.engine_size'),
-            'drive_train' => $this->request->input('modification.drive_train'),
-            'header' => $this->request->input('modification.header'),
-            'month_from' => (int) $this->request->input('modification.month_from'),
-            'month_to' => (int) $this->request->input('modification.month_to'),
-            'restyle' => (bool) $this->request->input('modification.restyle'),
-            'doors' => (int) $this->request->input('modification.doors'),
-            'transmission' => $this->request->input('modification.transmission'),
-            'year_from' => (int) $this->request->input('modification.year_from'),
-            'year_to' => (int) $this->request->input('modification.year_to'),
-            'years_string' => $this->request->input('modification.years_string'),
+            'body_type' => $modification->body_type,
+            'chassis' => $modification->chassis,
+            'generation' => $modification->generation,
+            'engine_size' => $modification->engine_size,
+            'drive_train' => $modification->drive_train,
+            'header' => $modification->header,
+            'month_from' => $modification->month_from,
+            'month_to' => $modification->month_to,
+            'restyle' => $modification->restyle,
+            'doors' => $modification->doors,
+            'transmission' => $modification->transmission,
+            'year_from' => $modification->year_from,
+            'year_to' => $modification->year_to,
+            'years_string' => $modification->years_string,
         ]);
+
+        //polymorph relation
+        $car->modifications()->create($modification->toArray());
 
         if (is_array($request->photos) && count($request->photos)) {
             foreach($request->photos as $photo) {
@@ -185,6 +194,10 @@ class CreateNewCarAction
                     'is_virtual' => $origin->is_virtual,
                     'created_by' => $this->user->id,
                 ]);
+                $modification = $origin->modifications()->where('inner_id', $this->request->input('modification'))->first();
+                if ($modification) {
+                    $position->modification()->create($modification->toArray());
+                }
             }
 
             if ($part['is_folder'] && $origin->is_virtual && $position) {
@@ -203,6 +216,9 @@ class CreateNewCarAction
                     'oem_number' => $originCard->oem_number,
                     'created_by' => $this->user->id,
                 ]);
+                if ($modification) {
+                    $card->modification()->create($modification->toArray());
+                }
                 $card->priceCard()->create([
                     'price_nz_wholesale' => $originCard->price_nz_wholesale,
                     'price_nz_retail' => $originCard->price_nz_retail,
@@ -235,26 +251,7 @@ class CreateNewCarAction
 
     private function modificationMatch(NomenclatureBaseItemPdrPosition $position): bool
     {
-        $modificationMatch = false;
-        foreach($position->nomenclatureBaseItemModifications as $mod)
-        {
-        if (
-                $mod->restyle === $this->request->input('modification.restyle') &&
-                strcasecmp($mod->body_type, $this->request->input('modification.body_type')) === 0 &&
-                strcasecmp($mod->chassis, $this->request->input('modification.chassis')) === 0 &&
-                strcasecmp($mod->generation, $this->request->input('modification.generation')) === 0 &&
-                strcasecmp($mod->engine_size, $this->request->input('modification.engine_size')) === 0 &&
-                strcasecmp($mod->drive_train, $this->request->input('modification.drive_train')) === 0 &&
-                strcasecmp($mod->header, $this->request->input('modification.header')) === 0 &&
-                strcasecmp($mod->month_from, $this->request->input('modification.month_from')) === 0 &&
-                strcasecmp($mod->month_to, $this->request->input('modification.month_to')) === 0 &&
-                strcasecmp($mod->doors, $this->request->input('modification.doors')) === 0 &&
-                strcasecmp($mod->transmission, $this->request->input('modification.transmission')) === 0&&
-                strcasecmp($mod->year_from, $this->request->input('modification.year_from')) === 0&&
-                strcasecmp($mod->year_to, $this->request->input('modification.year_to')) === 0) {
-                $modificationMatch = true;
-            }
-        }
-        return $modificationMatch;
+        $selectedModification = $this->request->input('modification');
+        return $position->modifications()->where('inner_id', $selectedModification)->exists();
     }
 }

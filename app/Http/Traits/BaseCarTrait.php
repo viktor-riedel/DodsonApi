@@ -119,16 +119,6 @@ trait BaseCarTrait
         string $modification
     ): \Illuminate\Http\JsonResponse
     {
-        $baseItem = NomenclatureBaseItem::with(
-            'baseItemPDR',
-            'nomenclaturePositions',
-            'nomenclaturePositions.nomenclatureBaseItemPdrCard',
-            'nomenclaturePositions.modifications')
-            ->where('make', $make)
-            ->where('model', $model)
-            ->where('generation', $generation)
-            ->first();
-
         $cards = \DB::table('nomenclature_base_item_pdr_positions')
             ->selectRaw('nomenclature_base_item_pdr_positions.id,
                                    nomenclature_base_item_pdrs.item_name_eng,
@@ -143,6 +133,7 @@ trait BaseCarTrait
                 '=', 'nomenclature_base_item_pdr_positions.id')
             ->join('nomenclature_base_item_pdrs', 'nomenclature_base_item_pdrs.id',
             '=', 'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id')
+            ->whereNull('nomenclature_modifications.deleted_at')
             ->where('nomenclature_modifications.inner_id', $modification)
             ->where('nomenclature_base_item_pdr_positions.is_virtual', false)
             ->whereNull('nomenclature_base_item_pdr_cards.deleted_at')
@@ -153,6 +144,16 @@ trait BaseCarTrait
             });
 
         return response()->json($cards);
+
+        $baseItem = NomenclatureBaseItem::with(
+            'baseItemPDR',
+            'nomenclaturePositions',
+            'nomenclaturePositions.nomenclatureBaseItemPdrCard',
+            'nomenclaturePositions.modifications')
+            ->where('make', $make)
+            ->where('model', $model)
+            ->where('generation', $generation)
+            ->first();
 
         $query = NomenclatureBaseItem::query();
         $query->where(['make' => $make, 'model' => $model, 'generation' => $generation]);
