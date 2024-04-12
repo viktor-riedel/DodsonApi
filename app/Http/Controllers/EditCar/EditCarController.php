@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\EditCar;
 
+use App\Actions\CreateCar\AddMiscPartsAction;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\CarPdrTrait;
 use App\Models\Car;
@@ -149,5 +150,14 @@ class EditCarController extends Controller
     {
         $card->update($request->except('car_pdr_position_id', 'id'));
         return response()->json([], 202);
+    }
+
+    public function addMiscParts(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    {
+        app()->make(AddMiscPartsAction::class)->handle($car, $request->user()->id, $request->all());
+        $car->load('images', 'carAttributes', 'modification', 'createdBy');
+        $partsList = $this->getPartsList($car);
+        $car->unsetRelation('pdrs');
+        return response()->json($partsList);
     }
 }

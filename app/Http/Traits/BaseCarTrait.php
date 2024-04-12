@@ -8,6 +8,7 @@ use App\Models\NomenclatureBaseItemPdr;
 use App\Models\NomenclatureBaseItemPdrCard;
 use App\Models\NomenclatureBaseItemPdrPosition;
 use App\Models\NomenclatureBaseItemPdrPositionPhoto;
+use App\Models\PartList;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -150,37 +151,12 @@ trait BaseCarTrait
         return response()->json($cards);
     }
 
-    public function miscPartsList(Request $request)
+    public function miscPartsList(): \Illuminate\Http\JsonResponse
     {
-        $miscParts = [];
-        $miscFolder = \DB::table('part_lists')
-            ->selectRaw('id, parent_id, item_name_eng, item_name_ru')
-            ->where('item_name_eng', 'like', '%MISC%')
-            ->where('is_folder', 1)
-            ->whereNull('deleted_at')
-            ->first();
+        $list = PartList::where("is_folder", 0)
+            ->where("is_virtual", 0)
+            ->get(["id", "parent_id", "item_name_eng", "item_name_ru"]);
 
-        if ($miscFolder) {
-            $this->buildPartsList($miscParts, $miscFolder->id);
-        }
-
-        return response()->json($miscParts);
-    }
-
-    private function buildPartsList(array &$parts = [], $parent_id = 0): array
-    {
-        $items = \DB::table('part_lists')
-            ->selectRaw('id, parent_id, item_name_eng, item_name_ru, is_folder')
-            ->whereNull('deleted_at')
-            ->where('parent_id', $parent_id)
-            ->get();
-        foreach ($items as $item) {
-            if (!$item->is_folder) {
-                $parts[] = $item;
-            } else {
-                $this->buildPartsList($parts, $item->id);
-            }
-        }
-        return $parts;
+        return response()->json($list);
     }
 }
