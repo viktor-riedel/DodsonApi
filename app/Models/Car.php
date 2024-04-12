@@ -26,6 +26,7 @@ class Car extends Model
         'parent_inner_id',
         'make',
         'model',
+        'chassis',
         'car_status',
         'generation',
         'created_by',
