@@ -15,6 +15,7 @@ class CarResource extends JsonResource
             'parent_inner_id' => $this->parent_inner_id,
             'make' => $this->make,
             'model' => $this->model,
+            'year' => $this->carAttributes?->year,
             'car_status' => Car::CAR_STATUSES[$this->car_status],
             'generation' => $this->generation,
             'created_by' => $this->createdBy->name,
