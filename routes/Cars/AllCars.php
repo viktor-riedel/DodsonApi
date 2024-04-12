@@ -16,5 +16,6 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
         Route::delete('/delete-part/{card}', [EditCarController::class, 'deletePart']);
         Route::post('/upload-part-photo/{card}', [EditCarController::class, 'uploadPartPhoto']);
         Route::patch('/update-attributes/{card}', [EditCarController::class, 'updateAttributes']);
+        Route::put('/add-misc-parts', [EditCarController::class, 'addMiscParts']);
     });
 });
