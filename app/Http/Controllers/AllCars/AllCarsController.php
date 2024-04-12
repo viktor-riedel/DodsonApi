@@ -17,7 +17,7 @@ class AllCarsController extends Controller
         $make = $request->get('make', '');
         $model = $request->get('model', '');
         $generation = $request->get('generation', '');
-        $cars = Car::with('images', 'carAttributes', 'modification', 'positions')
+        $cars = Car::with('images', 'carAttributes', 'modification', 'positions', 'positions.card')
             ->when($make, function ($query, $make) {
                 return $query->where('make', $make);
             })
