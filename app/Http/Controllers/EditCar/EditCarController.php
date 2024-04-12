@@ -82,7 +82,7 @@ class EditCarController extends Controller
             'mileage' => $request->integer('mileage'),
             'engine' => strtoupper(trim($request->input('engine'))),
             'chassis' => strtoupper(trim($request->input('chassis'))),
-            'year' => $request->integer('chassis'),
+            'year' => $request->integer('year'),
         ]);
         $car->update([
             'generation' => strtoupper(trim($request->input('generation'))),
