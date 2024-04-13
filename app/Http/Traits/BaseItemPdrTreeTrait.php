@@ -2,8 +2,6 @@
 
 namespace App\Http\Traits;
 
-use App\Models\NomenclatureBaseItem;
-
 trait BaseItemPdrTreeTrait
 {
     private function buildPdrTree($pdr): array

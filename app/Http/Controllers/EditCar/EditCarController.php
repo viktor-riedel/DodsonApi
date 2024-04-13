@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\EditCar;
 
+use App\Actions\CreateCar\AddListPartsAction;
 use App\Actions\CreateCar\AddMiscPartsAction;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\CarPdrTrait;
@@ -18,7 +19,7 @@ class EditCarController extends Controller
     public function edit(Car $car): \Illuminate\Http\JsonResponse
     {
         $car->load('images', 'carAttributes', 'modification', 'createdBy');
-        $parts = $this->buildPdrTreeWithoutEmpty($car);
+        $parts = $this->buildPdrTreeWithoutEmpty($car, false);
         $partsList = $this->getPartsList($car);
         $car->unsetRelation('pdrs');
 
@@ -160,9 +161,15 @@ class EditCarController extends Controller
         return response()->json($partsList);
     }
 
+    public function addListParts(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    {
+        app()->make(AddListPartsAction::class)->handle($car, $request->user()->id, $request->all());
+        return response()->json([], 201);
+    }
+
     public function parts(Car $car): \Illuminate\Http\JsonResponse
     {
-        $pdr = $this->buildPdrTreeWithoutEmpty($car);
+        $pdr = $this->buildDefaultPdrTreeByCar($car);
         return response()->json($pdr);
     }
 }
