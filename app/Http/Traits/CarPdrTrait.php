@@ -5,18 +5,19 @@ namespace App\Http\Traits;
 use App\Models\Car;
 use App\Models\CarPdrPosition;
 use App\Models\CarPdrPositionCard;
+use App\Models\NomenclatureBaseItem;
 use Illuminate\Support\Collection;
 
 trait CarPdrTrait
 {
-    private function buildCardPdrTree(Car $car): array
+    private function buildCardPdrTree(Car $car, bool $defaultIcon = true): array
     {
         $pdr = $car->pdrs;
         $pdr->load('positions');
-        return $this->recursivePDRTree($pdr->toArray());
+        return $this->recursivePDRTree($pdr->toArray(), 0, $defaultIcon);
     }
 
-    private function recursivePDRTree(array $elements, $parent_id = 0): array
+    private function recursivePDRTree(array $elements, $parent_id = 0, bool $default_icon = true): array
     {
         $branch = [];
         foreach ($elements as $el) {
@@ -48,13 +49,13 @@ trait CarPdrTrait
                                     'id' => $position->card->id,
                                     'is_folder' => true,
                                     'key' => $el['key'] = $el['parent_id'] . '-'. $el['id'] . '-' . $position->card->id,
-                                    'icon' => 'pi pi-pw pi-book',
+                                    'icon' => $default_icon ? 'pi pi-fw pi-cog' : 'pi pi-pw pi-book',
                                     'positions' => [],
                                     'is_card' =>  true,
                                     'ic_number' => $position->card->ic_number,
                                     'ic_description' => $position->card->description,
-                                    'name_eng' => $position->card->name_ru,
-                                    'name_ru' => $position->card->name_eng,
+                                    'name_eng' => $position->card->name_eng,
+                                    'name_ru' => $position->card->name_ru,
                                     'card' => $position->card->load('priceCard', 'partAttributesCard', 'images'),
                                 ];
                         }
@@ -68,10 +69,81 @@ trait CarPdrTrait
         return $branch;
     }
 
-    private function buildPdrTreeWithoutEmpty(Car $car): array
+    private function buildPdrTreeWithoutEmpty(Car $car, bool $defaultIcon = true): array
     {
-        $tree = $this->buildCardPdrTree($car);
+        $tree = $this->buildCardPdrTree($car, $defaultIcon);
         return $this->deleteEmptyItemsFromTree($tree);
+    }
+
+    private function buildDefaultPdrTreeByCar(Car $car): array
+    {
+        $baseCar = NomenclatureBaseItem::where('inner_id', $car->parent_inner_id)->first();
+        $pdr = $baseCar->baseItemPDR;
+        return $this->buildDefaultPdrTree($pdr);
+    }
+
+    private function buildDefaultPdrTree($pdr): array
+    {
+        $pdr->load('nomenclatureBaseItemPdrPositions');
+        return $this->recursiveDefaultPDRTree($pdr->toArray());
+    }
+
+    private function recursiveDefaultPDRTree(array $elements, $parent_id = 0): array
+    {
+        $branch = [];
+        foreach ($elements as $el) {
+            if ($el['parent_id'] === $parent_id) {
+                $children = $this->recursiveDefaultPDRTree($elements, $el['id']);
+                if (count($children)) {
+                    $el['children'] = $children;
+                }
+                if ($el['is_folder']) {
+                    $el['icon'] = 'pi pi-pw pi-folder';
+                    $el['photos'] = $this->getPhotos([$el]);
+                } else {
+                    $el['icon'] = 'pi pi-fw pi-cog';
+                }
+                $count = 0;
+                foreach($el['nomenclature_base_item_pdr_positions'] as $element) {
+                    if (!$element['is_virtual']) {
+                        $count++;
+                    }
+                }
+                $el['key'] = $el['parent_id'] . '-'. $el['id'];
+                $el['positions_count'] = $count;
+                $branch[] = $el;
+            }
+        }
+
+        return $branch;
+    }
+
+    private function deleteDefaultEmptyItemsFromTree(array &$elements, int $parent_id = 0): array
+    {
+        $branch = [];
+        foreach ($elements as $i => &$el) {
+            if ($el['is_folder'] && isset($el['children']) && count($el['children'])) {
+                $this->deleteDefaultEmptyItemsFromTree($el['children'], $el['id']);
+            }
+            if (!$el['is_folder'] && !count($el['nomenclature_base_item_pdr_positions'])) {
+                unset($elements[$i]);
+            } else if ($el['is_folder'] && isset($el['children']) && !count($el['children'])) {
+                if (!count($el['nomenclature_base_item_pdr_positions'])) {
+                    unset($elements[$i]);
+                }
+            } else if ($el['is_folder'] && !isset($el['children']) && count($el['nomenclature_base_item_pdr_positions']) === 1) {
+                if ($el['nomenclature_base_item_pdr_positions'][0]['is_virtual']) {
+                    unset($elements[$i]);
+                }
+            } else {
+                $el['key'] = $parent_id . '-'. $el['id'];
+                if (isset($el['children'])) {
+                    $el['children'] = array_values($el['children']);
+                }
+                $branch[] = $el;
+            }
+        }
+        return $branch;
     }
 
     private function deleteEmptyItemsFromTree(array &$elements, $parent_id = 0): array
@@ -100,6 +172,22 @@ trait CarPdrTrait
             }
         }
         return $branch;
+    }
+
+    private function getPhotos(array $elements, &$photos = []): array
+    {
+        foreach ($elements as $el) {
+            if (isset($el['children']) && count($el['children'])) {
+                $photos = $this->getPhotos($el['children'], $photos);
+            }
+            if (isset($el['nomenclature_base_item_virtual_position'])) {
+                if (count($el['nomenclature_base_item_virtual_position']['photos'])) {
+                    $photos = $el['nomenclature_base_item_virtual_position']['photos'];
+                }
+            }
+        }
+
+        return $photos;
     }
 
     private function loadPhotos(array $elements, &$photos = []): array
