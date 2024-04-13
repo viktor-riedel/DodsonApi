@@ -6,7 +6,6 @@ use App\Actions\CreateCar\AddMiscPartsAction;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\CarPdrTrait;
 use App\Models\Car;
-use App\Models\CarPdrPosition;
 use App\Models\CarPdrPositionCard;
 use App\Models\CarPdrPositionCardAttribute;
 use App\Models\MediaFile;
@@ -159,5 +158,11 @@ class EditCarController extends Controller
         $partsList = $this->getPartsList($car);
         $car->unsetRelation('pdrs');
         return response()->json($partsList);
+    }
+
+    public function parts(Car $car): \Illuminate\Http\JsonResponse
+    {
+        $pdr = $this->buildPdrTreeWithoutEmpty($car);
+        return response()->json($pdr);
     }
 }

@@ -47,7 +47,7 @@ class CreateNewCarAction
 
         if (count($includeParts) && !$request->input('use_default_parts')) {
             $this->copyOriginalPdr($baseCar, $car, $includeParts);
-        } else {
+        } else if (count($request->input('parts'))) {
             $this->copyOriginalPdr($baseCar, $car);
         }
 

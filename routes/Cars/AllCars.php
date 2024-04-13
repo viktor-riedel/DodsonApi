@@ -10,6 +10,7 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
     Route::get('/{make}/models', [AllCarsController::class, 'models']);
     Route::get('/{make}/{model}/generations', [AllCarsController::class, 'generations']);
     Route::prefix('/{car}')->group(function() {
+        Route::get('/car-default-parts-list', [EditCarController::class, 'parts']);
         Route::get('/edit', [EditCarController::class, 'edit']);
         Route::delete('/delete', [EditCarController::class, 'delete']);
         Route::post('/upload-car-photo', [EditCarController::class, 'uploadCarPhoto']);
