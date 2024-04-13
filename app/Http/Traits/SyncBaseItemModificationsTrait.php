@@ -11,6 +11,7 @@ trait SyncBaseItemModificationsTrait
         $mods = \DB::table('nomenclature_base_items')
             ->selectRaw('distinct
                 nomenclature_base_item_modifications.inner_id,
+                nomenclature_base_item_modifications.chassis,
                 nomenclature_base_item_modifications.header,
                 nomenclature_base_item_modifications.generation,
                 nomenclature_base_item_modifications.engine_name,
