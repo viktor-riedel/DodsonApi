@@ -37,7 +37,7 @@ class CreateCarFromCatalogController extends Controller
 
     public function modifications(int $model): \Illuminate\Http\JsonResponse
     {
-        $modifications = $this->catalogApiHelper->loadModifications($model);
+        $modifications = $this->catalogApiHelper->modificationsByGeneration($model);
         return response()->json($modifications);
     }
 
@@ -45,5 +45,11 @@ class CreateCarFromCatalogController extends Controller
     {
         $id = app()->make(CreateNewCarFromCatalogAction::class)->handle($request->all(), $request->user()->id);
         return response()->json(['id' => $id]);
+    }
+
+    public function modificationsByGeneration(string $model_id, string $generation): \Illuminate\Http\JsonResponse
+    {
+        $generations = $this->catalogApiHelper->modificationsByGeneration((int) $model_id, $generation);
+        return response()->json($generations);
     }
 }
