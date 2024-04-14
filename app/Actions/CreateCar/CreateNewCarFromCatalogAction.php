@@ -3,11 +3,14 @@
 namespace App\Actions\CreateCar;
 
 use App\Http\ExternalApiHelpers\CatalogApiHelper;
+use App\Http\Traits\InnerIdTrait;
 use App\Models\Car;
 use App\Models\NomenclatureBaseItem;
 
 class CreateNewCarFromCatalogAction
 {
+    use InnerIdTrait;
+
     private int $userId = 0;
 
     public function handle(array $request, int $userId): int
@@ -69,6 +72,10 @@ class CreateNewCarFromCatalogAction
             'year_to' => $mvr['year_stop'],
             'years_string' => $mvr['years_string'],
         ]);
+
+        $modification->update(['inner_id' => $this->generateInnerId(
+            $modification->header . $modification->generation . $modification->chassis
+        )]);
 
         $car->modifications()->create($modification->toArray());
 

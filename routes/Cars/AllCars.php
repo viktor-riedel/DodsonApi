@@ -22,5 +22,6 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
         Route::patch('/update-attributes/{card}', [EditCarController::class, 'updateAttributes']);
         Route::put('/add-misc-parts', [EditCarController::class, 'addMiscParts']);
         Route::put('/add-parts-from-list', [EditCarController::class, 'addListParts']);
+        Route::put('/add-parts-from-mod-list', [EditCarController::class, 'addModListParts']);
     });
 });
