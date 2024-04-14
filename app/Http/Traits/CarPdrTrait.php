@@ -6,6 +6,7 @@ use App\Models\Car;
 use App\Models\CarPdrPosition;
 use App\Models\CarPdrPositionCard;
 use App\Models\NomenclatureBaseItem;
+use App\Models\PartList;
 use Illuminate\Support\Collection;
 
 trait CarPdrTrait
@@ -75,11 +76,50 @@ trait CarPdrTrait
         return $this->deleteEmptyItemsFromTree($tree);
     }
 
+    private function loadAddDefaultList(array $elements, $parentId = 0): array
+    {
+        $branch = [];
+        foreach ($elements as $el) {
+            if ($el['parent_id'] === $parentId) {
+                $children = $this->loadAddDefaultList($elements, $el['id']);
+                if (count($children)) {
+                    $el['children'] = $children;
+                }
+                $el['icon'] = $el['icon_name'];
+                $branch[] = $el;
+            }
+        }
+        return $branch;
+    }
+
     private function buildDefaultPdrTreeByCar(Car $car): array
     {
         $baseCar = NomenclatureBaseItem::where('inner_id', $car->parent_inner_id)->first();
         $pdr = $baseCar->baseItemPDR;
-        return $this->buildDefaultPdrTree($pdr);
+        $pdr = $this->buildDefaultPdrTree($pdr);
+        if (count($pdr)) {
+            return $pdr;
+        } else {
+            $list = PartList::all();
+            $pdr = $this->loadDefaultList($list->toArray());
+        }
+        return $pdr;
+    }
+
+    private function loadDefaultList(array $elements, $parentId = 0): array
+    {
+        $branch = [];
+        foreach ($elements as $el) {
+            if ($el['parent_id'] === $parentId) {
+                $children = $this->loadDefaultList($elements, $el['id']);
+                if (count($children)) {
+                    $el['children'] = $children;
+                }
+                $el['icon'] = $el['icon_name'];
+                $branch[] = $el;
+            }
+        }
+        return $branch;
     }
 
     private function buildDefaultPdrTree($pdr): array
