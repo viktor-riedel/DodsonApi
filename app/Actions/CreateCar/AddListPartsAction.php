@@ -26,7 +26,6 @@ class AddListPartsAction
 
     private function createPartsRecursive(array $parts, Car $car, int $parentId = 0): void
     {
-        $pdr = null;
         foreach ($parts as $part) {
             if (isset($part['nomenclature_base_item_pdr_positions'])) {
                 $pdr = $car->pdrs()->create([
@@ -106,7 +105,38 @@ class AddListPartsAction
                     ]);
                     $this->createCardStructures($card, $originCard);
                 }
-
+            } else {
+                $pdr = $car->pdrs()->create([
+                    'parent_id' => $parentId,
+                    'item_name_eng' => $part['item_name_eng'],
+                    'item_name_ru' => $part['item_name_ru'] ?? '',
+                    'is_folder' => $part['is_folder'],
+                    'is_deleted' => false,
+                    'parts_list_id' => $part['id'],
+                    'created_by' => $this->userId,
+                ]);
+                $position = $pdr->positions()->create([
+                    'item_name_ru' => $part['item_name_ru'] ?? '',
+                    'item_name_eng' => $part['item_name_eng'],
+                    'ic_number' => '',
+                    'oem_number' => '',
+                    'ic_description' => '',
+                    'is_virtual' => false,
+                    'created_by' => $this->userId,
+                ]);
+                $card = $position->card()->create([
+                    'car_pdr_position_id' => $position->id,
+                    'parent_inner_id' => null,
+                    'name_eng' => $part['item_name_eng'],
+                    'name_ru' => $part['item_name_ru'] ?? '',
+                    'comment' => null,
+                    'description' => '',
+                    'ic_number' => '',
+                    'oem_number' => '',
+                    'created_by' => $this->userId,
+                ]);
+                $this->createCardStructures($card);
+                $position->modification()->create($this->modification->toArray());
             }
             if (isset($part['children'])) {
                 $this->createPartsRecursive($part['children'], $car, $pdr->id ?? $parentId);
