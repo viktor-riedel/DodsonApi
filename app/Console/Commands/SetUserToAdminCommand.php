@@ -16,7 +16,7 @@ class SetUserToAdminCommand extends Command
     {
         $user = User::find($this->argument('user'));
         if ($user) {
-            if (!$user->has('Admin')) {
+            if (!$user->hasRole('Admin')) {
                 $user->removeRole('USER');
                 $user->assignRole(['ADMIN']);
                 $this->info('done');
