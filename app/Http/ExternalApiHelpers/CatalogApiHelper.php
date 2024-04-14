@@ -60,6 +60,18 @@ class CatalogApiHelper
         return response()->json([]);
     }
 
+    public function modificationsByGeneration(int $model_id, string $generation)
+    {
+        $token = $this->authorize_client();
+        $response = Http::withToken($token)
+            ->get(config('api_helpers.catalog_api_url') . "/catalog/model/$model_id/$generation/modifications");
+        if ($response->ok()) {
+            return $response->json()['data'];
+        }
+
+        return response()->json([]);
+    }
+
     public function loadModificationsByHeader(int $model_id, int $header_id)
     {
         $token = $this->authorize_client();
