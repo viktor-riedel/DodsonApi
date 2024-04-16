@@ -59,6 +59,10 @@ class UsersController extends Controller
         }
         if ($request->input('roles')) {
             $role = Role::where('name', $request->input('roles'))->first();
+            $roles = $user->roles;
+            foreach ($roles as $assignedRole) {
+                $user->removeRole($assignedRole);
+            }
             $user->assignRole($role);
         }
         $user->userCard()->update([
