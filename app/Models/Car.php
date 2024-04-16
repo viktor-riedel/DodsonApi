@@ -29,6 +29,8 @@ class Car extends Model
         'chassis',
         'car_status',
         'generation',
+        'car_mvr',
+        'comment',
         'created_by',
         'deleted_by',
     ];

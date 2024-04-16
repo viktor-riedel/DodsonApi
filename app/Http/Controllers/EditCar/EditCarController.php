@@ -79,6 +79,11 @@ class EditCarController extends Controller
 
     public function updateCar(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
+        $car->update([
+            'generation' => strtoupper(trim($request->input('generation'))),
+            'car_mvr' => trim($request->input('car_mvr')),
+            'comment' => trim($request->input('comment')),
+        ]);
         $car->carAttributes()->update([
             'color' => strtoupper(trim($request->input('color'))),
             'mileage' => $request->integer('mileage'),
