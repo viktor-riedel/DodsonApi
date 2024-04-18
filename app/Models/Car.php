@@ -99,4 +99,9 @@ class Car extends Model
         return $this->hasOne(ImportedCar::class);
     }
 
+    public function importItem(): MorphOne
+    {
+        return $this->morphOne(ImportItem::class, 'importable');
+    }
+
 }

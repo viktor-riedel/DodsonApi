@@ -2,53 +2,116 @@
 
 namespace App\Actions\Import;
 
+use App\Http\ExternalApiHelpers\CatalogApiHelper;
+use App\Http\Traits\InnerIdTrait;
+use App\Models\Car;
 use App\Models\NomenclatureBaseItem;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 
 class ImportFromCapartsAction
 {
-    public function handle(Request $request): int
+    use InnerIdTrait;
+
+    public function handle(Request $request, int $userId): int
     {
-        ray($request->all());
+        $helper = new CatalogApiHelper();
+        $mvr = $helper->loadPDRWithModificationsByMvrId($request->input('mvr')['catalog_mvr_id']);
+        $id = $request->input('id');
+
+        $exist = Car::whereHas("importItem", function ($q) use ($id) {
+            $q->where("imported_id", $id);
+        })->first();
+
+        if ($exist) {
+            return 0;
+        }
+
         if ($request->input('mvr') && is_array($request->input('mvr'))) {
             $make = $request->input('mvr.make');
             $model = $request->input('mvr.model');
-            $year = $request->input('mvr.year');
-            $volume = $request->input('mvr.engine_size');
             $generation = $request->input('mvr.generation_number');
-            $transmission_name = $request->input('mvr.transmission_name');
-            $drive = $request->input('mvr.drive');
-            $doors = $request->input('mvr.doors');
-            $engine_type = $request->input('mvr.engine_type');
-            $year_start = $request->input('period_start');
-            $year_stop = $request->input('period_end');
-            $body_type = $request->input('configuration');
+            $chassis = $request->input('bid_info')['chassis'];
 
-            $baseCar = NomenclatureBaseItem::where([
-                'make' => $make,
-                'model' => $model,
-            ])->first();
+            if ($generation) {
+                $baseCar = NomenclatureBaseItem::where([
+                    'make' => $make,
+                    'model' => $model,
+                    'generation' => $generation
+                ])->first();
 
-            if ($baseCar) {
-                $modifications = $this->findModifications($baseCar->id);
-                ray($modifications);
+                if (!$baseCar) {
+                    $baseCar = NomenclatureBaseItem::create([
+                        'make' => strtoupper(trim($request['make'])),
+                        'model' => strtoupper(trim($request['model'])),
+                        'generation' => $mvr['catalog_header']['generation_number'],
+                        'preview_image' => $mvr['catalog_header']['model_image_url'],
+                    ]);
+
+                    $inner_id = $baseCar->make .
+                        $baseCar->model .
+                        $baseCar->generation .
+                        $baseCar->created_at;
+                    $baseCar->setInnerId($inner_id);
+
+                    $car = Car::create([
+                        'parent_inner_id' => $baseCar->inner_id,
+                        'make' => $make,
+                        'model' => $model,
+                        'generation' => $generation,
+                        'chassis' => $chassis,
+                        'created_by' => $userId,
+                    ]);
+
+                    $car->importItem()->create([
+                        'imported_id' => $request->input('id'),
+                        'imported_from' => 'Caparts',
+                        'imported_by' => $userId,
+                    ]);
+
+                    $car->carAttributes()->create([
+                        'chassis' => $chassis,
+                        'engine' => $request->input('mvr.engine_type'),
+                        'year' => $request->input('mvr.year'),
+                        'mileage' => $request->input('mvr.mileage'),
+                        'color' => $request->input('mvr.color'),
+                    ]);
+
+                    $modification = $car->modification()->create([
+                        'body_type' => $request->input('mvr.configuration'),
+                        'chassis' => $mvr['catalog_modification']['chassis'][0],
+                        'generation' => $request->input('mvr.generation_number'),
+                        'engine_size' => $request->input('mvr.engine_size'),
+                        'drive_train' => $request->input('mvr.drive'),
+                        'header' => $mvr['mvr_header'],
+                        'month_from' => $mvr['month_start'],
+                        'month_to' => $mvr['month_stop'],
+                        'restyle' => $mvr['catalog_generation']['restyle'],
+                        'doors' => $mvr['catalog_generation']['doors'],
+                        'transmission' => $mvr['catalog_modification']['transmission_type'],
+                        'year_from' => $mvr['year_start'],
+                        'year_to' => $mvr['year_stop'],
+                        'years_string' => $mvr['years_string'],
+                    ]);
+
+                    $modification->update(['inner_id' => $this->generateInnerId(
+                        $modification->header . $modification->generation . $modification->chassis
+                    )]);
+
+                    if (is_array($request->input('images')) && count($request->input('images'))) {
+                        foreach ($request->input('images') as $image) {
+                            $car->images()->create([
+                               'url' => $image,
+                                'created_by' => $userId,
+                            ]);
+                        }
+                    }
+
+                    $car->modifications()->create($modification->toArray());
+
+                    return $car->id;
+                }
             }
         }
         return -1;
-    }
-
-    public function findModifications(int $baseItemId): Collection
-    {
-        return \DB::table('nomenclature_base_items')
-            ->selectRaw('nomenclature_base_item_modifications.*')
-            ->join('nomenclature_base_item_pdrs',
-                'nomenclature_base_item_pdrs.nomenclature_base_item_id', '=', 'nomenclature_base_items.id')
-            ->join('nomenclature_base_item_pdr_positions', 'nomenclature_base_item_pdrs.id', '=',
-            'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id')
-            ->join('nomenclature_base_item_modifications', 'nomenclature_base_item_modifications.nomenclature_base_item_pdr_position_id', '=',
-            'nomenclature_base_item_pdr_positions.id')
-            ->where('nomenclature_base_items.id', $baseItemId)
-            ->get();
     }
 }

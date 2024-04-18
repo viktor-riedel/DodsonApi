@@ -127,6 +127,7 @@ trait BaseCarTrait
                                    nomenclature_base_item_pdr_positions.ic_number,
                                    nomenclature_base_item_pdr_positions.oem_number,
                                    nomenclature_base_item_pdr_positions.ic_description,
+                                   null as comment,
                                    nomenclature_modifications.generation')
             ->join('nomenclature_modifications', 'nomenclature_modifications.modificationable_id',
                 '=', 'nomenclature_base_item_pdr_positions.id')

@@ -1,24 +1,40 @@
 <table>
+    <tr>
+        <td>
+            <strong>{{$car->make}} {{$car->model}}</strong>
+        </td>
+    </tr>
+    <tr>
+        <strong>Chassis: {{$car->carAttributes->chassis}}</strong>
+    </tr>
+    <tr>
+        <td>
+            <strong>MVR: {{$car->car_mvr ?? '-'}}</strong>
+        </td>
+    </tr>
+</table>
+<table>
     <thead>
         <tr>
-            <th>IC number</th>
-            <th>IC description</th>
-            <th>Name ENG</th>
-            <th>Name RU</th>
-            <th>Comment</th>
-            <th>QTY</th>
+            <th style="background-color: #7ECFE7; border: 2px solid black;">#</th>
+            <th style="background-color: #7ECFE7; border: 2px solid black;">IC number</th>
+            <th style="background-color: #7ECFE7; border: 2px solid black;">IC description</th>
+            <th style="background-color: #7ECFE7; border: 2px solid black;">Name ENG</th>
+            <th style="background-color: #7ECFE7; border: 2px solid black;">Name RU</th>
+            <th style="background-color: #7ECFE7; border: 2px solid black;">Comment</th>
         </tr>
     </thead>
     <tbody>
-        @foreach($parts as $part)
-            <tr>
-                <td>{{$part->ic_number}}</td>
-                <td>{{$part->ic_description}}</td>
-                <td>{{$part->name_eng}}</td>
-                <td>{{$part->name_ru}}</td>
-                <td>{{$part->comment}}</td>
-                <td>{{$part->card->part_attributes_card?->amount}}</td>
-            </tr>
-        @endforeach
+    @foreach($parts as $count => $part)
+        <tr>
+            <td style="border: 2px solid black;">{{$count + 1}}</td>
+            <td style="border: 2px solid black;">{{$part->ic_number}}</td>
+            <td style="border: 2px solid black;">{{$part->ic_description}}</td>
+            <td style="border: 2px solid black;">{{$part->name_eng}}</td>
+            <td style="border: 2px solid black;">{{$part->name_ru}}</td>
+            <td style="border: 2px solid black;">{{$part->comment}}</td>
+        </tr>
+    @endforeach
     </tbody>
+
 </table>

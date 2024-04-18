@@ -20,7 +20,7 @@ class CarController extends Controller implements Importable
 
     public function importEntity(Request $request): \Illuminate\Http\JsonResponse
     {
-        $result = app()->make(ImportFromCapartsAction::class)->handle($request);
+        $result = app()->make(ImportFromCapartsAction::class)->handle($request, $request->user()->id);
         return response()->json(['id' => $result]);
     }
 }

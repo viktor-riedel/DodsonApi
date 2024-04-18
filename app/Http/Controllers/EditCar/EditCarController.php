@@ -193,7 +193,7 @@ class EditCarController extends Controller
             $car->model . '_' . $car->generation . '_' .
             $car->created_at->toDateTimeString() . '.xlsx';
         $partsList = $this->getPartsList($car);
-        Excel::store(new CreatedCarPartsExcelExport($partsList), $filename, 's3', null, ['visibility' => 'public']);
+        Excel::store(new CreatedCarPartsExcelExport($car, $partsList), $filename, 's3', null, ['visibility' => 'public']);
         $url = \Storage::disk('s3')->url($filename);
         return response()->json(['link' => $url]);
     }
