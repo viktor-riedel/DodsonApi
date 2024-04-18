@@ -23,5 +23,6 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
         Route::put('/add-misc-parts', [EditCarController::class, 'addMiscParts']);
         Route::put('/add-parts-from-list', [EditCarController::class, 'addListParts']);
         Route::put('/add-parts-from-mod-list', [EditCarController::class, 'addModListParts']);
+        Route::get('/export-parts-list', [EditCarController::class, 'exportPartsListToExcel']);
     });
 });
