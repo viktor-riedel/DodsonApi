@@ -7,6 +7,7 @@ use App\Http\Traits\InnerIdTrait;
 use App\Models\Car;
 use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemPdrPosition;
+use Illuminate\Support\Collection;
 
 class AddPartsFromModificationListAction
 {
@@ -15,12 +16,14 @@ class AddPartsFromModificationListAction
 
     public int $userId = 0;
     public string $innerId = '';
+    public Collection $choseParts;
 
     public function handle(Car $car, array $parts, int $user): void
     {
         $this->userId = $user;
         $this->innerId = $car->modifications->inner_id;
-        $partIds = collect($parts)->pluck('id')->toArray();
+        $this->choseParts = collect($parts);
+        $partIds = $this->choseParts->pluck('id')->toArray();
         $baseCar = NomenclatureBaseItem::where('make', $car->make)
             ->where('model', $car->model)
             ->where('generation', $car->generation)
@@ -64,7 +67,6 @@ class AddPartsFromModificationListAction
                 ->where('ic_description', $origin->ic_description)
                 ->exists();
             if ($exists) {
-                ray(1);
                 continue;
             }
             //check match modification
@@ -92,11 +94,13 @@ class AddPartsFromModificationListAction
 
             if ($modificationMatch && $position) {
                 $originCard = $origin->nomenclatureBaseItemPdrCard;
+                //find a comment if provided
+                $comment = $this->choseParts->where('id', $origin->id)->first();
                 $card = $position->card()->create([
                     'parent_inner_id' => $originCard->inner_id,
                     'name_eng' => $originCard->name_eng,
                     'name_ru' => $originCard->name_ru,
-                    'comment' => $originCard->comment,
+                    'comment' => $comment ? $comment['comment'] : $originCard->comment,
                     'description' => $originCard->description,
                     'ic_number' => $originCard->ic_number,
                     'oem_number' => $originCard->oem_number,
