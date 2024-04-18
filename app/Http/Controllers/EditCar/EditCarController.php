@@ -5,6 +5,7 @@ namespace App\Http\Controllers\EditCar;
 use App\Actions\CreateCar\AddListPartsAction;
 use App\Actions\CreateCar\AddMiscPartsAction;
 use App\Actions\CreateCar\AddPartsFromModificationListAction;
+use App\Exports\Excel\CreatedCarPartsExcelExport;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\CarPdrTrait;
 use App\Models\Car;
@@ -12,6 +13,7 @@ use App\Models\CarPdrPositionCard;
 use App\Models\CarPdrPositionCardAttribute;
 use App\Models\MediaFile;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EditCarController extends Controller
 {
@@ -183,5 +185,16 @@ class EditCarController extends Controller
     {
         app()->make(AddPartsFromModificationListAction::class)->handle($car, $request->all(), $request->user()->id);
         return response()->json([], 201);
+    }
+
+    public function exportPartsListToExcel(Car $car): \Illuminate\Http\JsonResponse
+    {
+        $filename = 'exports/parts/'. $car->id . '/' .$car->make . '_' .
+            $car->model . '_' . $car->generation . '_' .
+            $car->created_at->toDateTimeString() . '.xlsx';
+        $partsList = $this->getPartsList($car);
+        Excel::store(new CreatedCarPartsExcelExport($partsList), $filename, 's3', null, ['visibility' => 'public']);
+        $url = \Storage::disk('s3')->url($filename);
+        return response()->json(['link' => $url]);
     }
 }
