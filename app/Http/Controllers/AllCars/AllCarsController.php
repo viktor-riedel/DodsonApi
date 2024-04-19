@@ -17,6 +17,7 @@ class AllCarsController extends Controller
         $make = $request->get('make', '');
         $model = $request->get('model', '');
         $generation = $request->get('generation', '');
+        $status = $request->get('status', '');
         $cars = Car::with('images', 'carAttributes', 'modification', 'positions', 'positions.card')
             ->when($make, function ($query, $make) {
                 return $query->where('make', $make);
@@ -26,6 +27,9 @@ class AllCarsController extends Controller
             })
             ->when($generation, function ($query, $generation) {
                 return $query->where('generation', $generation);
+            })
+            ->when($status, function ($query, $status) {
+                return $query->where('car_status', $status);
             })
             ->orderBy('created_at', 'desc')
             ->paginate(20);
@@ -46,12 +50,17 @@ class AllCarsController extends Controller
         return ModelResource::collection($models);
     }
 
-    public function generations(string $make, string $model)
+    public function generations(string $make, string $model): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $generations = Car::where('make', $make)
             ->where('model', $model)
             ->orderBy('generation')
             ->get()->pluck('generation')->unique();
         return GenerationResource::collection($generations);
+    }
+
+    public function statusList(): \Illuminate\Http\JsonResponse
+    {
+        return response()->json(['status' => Car::getStatusesJson()]);
     }
 }
