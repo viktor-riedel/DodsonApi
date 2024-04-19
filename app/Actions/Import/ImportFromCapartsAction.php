@@ -25,7 +25,7 @@ class ImportFromCapartsAction
         if ($exist) {
             return 0;
         }
-
+        \Log::debug(is_array($request->input('mvr')));
         if ($request->input('mvr') && is_array($request->input('mvr'))) {
             $make = $request->input('mvr.make');
             $model = $request->input('mvr.model');
