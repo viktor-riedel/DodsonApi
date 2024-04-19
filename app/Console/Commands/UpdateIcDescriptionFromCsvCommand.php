@@ -18,25 +18,41 @@ class UpdateIcDescriptionFromCsvCommand extends Command
         $generation = $this->argument('generation');
         $fileName = $this->argument('filename');
 
-        $baseItem = NomenclatureBaseItem::with('nomenclaturePositions')
-        ->where([
-            'make' => strtoupper($make),
-            'model' => strtoupper($model),
-            'generation' => (int) $generation
-        ])->first();
+        $log = fopen(sprintf(storage_path('files') . '/%s_%s_%s.log', $make, $model, $generation), 'ab');
+        $count = 1;
+        try {
+            $baseItem = NomenclatureBaseItem::with('nomenclaturePositions')
+                ->where([
+                    'make' => strtoupper($make),
+                    'model' => strtoupper($model),
+                    'generation' => (int) $generation
+                ])->first();
 
-        $records = file(storage_path('files/' . $fileName));
-        foreach($records as $record) {
-            $data = str_getcsv($record);
-            $ic_number = $data[1] ?? '';
-            $description = $data[2] ?? '';
+            $records = file(storage_path('files/' . $fileName));
+            foreach($records as $record) {
+                $data = str_getcsv($record);
+                $ic_number = $data[1] ?? '';
+                $description = $data[2] ?? '';
 
-            $positions = $baseItem->nomenclaturePositions()->where('ic_number', $ic_number)->get();
-            if ($positions->count() > 1) {
-                dump($positions);
+                $positions = $baseItem->nomenclaturePositions()->where('ic_number', $ic_number)->get();
+                if ($positions->count() > 1) {
+                    fwrite($log, $ic_number . ' ' . $description . ' has more than 1 position' . PHP_EOL);
+                } else if ($positions->count() === 1) {
+                    $positions->first()->nomenclatureBaseItemPdrCard->update([
+                        'description' => $description,
+                    ]);
+                    $positions->first()->update([
+                       'ic_description' => $description,
+                    ]);
+                    $count++;
+                }
             }
+        } catch (\Exception $e) {
+            $this->error($e->getMessage() . ' ' . $e->getLine());
+        } finally {
+            fclose($log);
         }
 
-        $this->info('done');
+        $this->info('updated ' . $count . ' cards and positions');
     }
 }
