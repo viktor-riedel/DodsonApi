@@ -25,13 +25,14 @@ class ImportFromCapartsAction
         if ($exist) {
             return 0;
         }
-        \Log::debug(is_array($request->input('mvr')));
+
         if ($request->input('mvr') && is_array($request->input('mvr'))) {
             $make = $request->input('mvr.make');
             $model = $request->input('mvr.model');
             $generation = $request->input('mvr.generation_number');
-            $chassis = $request->input('bid_info')['chassis'];
+            $chassis = $request->input('bid_info.chassis');
 
+            \Log::debug($generation);
             if ($generation) {
                 $baseCar = NomenclatureBaseItem::where([
                     'make' => $make,
