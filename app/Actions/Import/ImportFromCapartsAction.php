@@ -30,7 +30,7 @@ class ImportFromCapartsAction
             $make = $request->input('mvr.make');
             $model = $request->input('mvr.model');
             $generation = $request->input('mvr.generation_number');
-            $chassis = $request->input('bid_info')['chassis'];
+            $chassis = $request->input('bid_info.chassis');
 
             if ($generation) {
                 $baseCar = NomenclatureBaseItem::where([
@@ -47,11 +47,13 @@ class ImportFromCapartsAction
                         'preview_image' => $mvr['catalog_header']['model_image_url'],
                     ]);
 
-                    $inner_id = $baseCar->make .
-                        $baseCar->model .
-                        $baseCar->generation .
+
+                    $inner_id = $baseCar->make.
+                        $baseCar->model.
+                        $baseCar->generation.
                         $baseCar->created_at;
                     $baseCar->setInnerId($inner_id);
+                }
 
                     $car = Car::create([
                         'parent_inner_id' => $baseCar->inner_id,
@@ -111,7 +113,6 @@ class ImportFromCapartsAction
                     return $car->id;
                 }
             }
-        }
         return -1;
     }
 }
