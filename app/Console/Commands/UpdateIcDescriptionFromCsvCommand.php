@@ -28,6 +28,11 @@ class UpdateIcDescriptionFromCsvCommand extends Command
                     'generation' => (int) $generation
                 ])->first();
 
+            if (!$baseItem) {
+                $this->error('Base car not found');
+                return;
+            }
+
             $records = file(storage_path('files/' . $fileName));
             foreach($records as $record) {
                 $data = str_getcsv($record);
