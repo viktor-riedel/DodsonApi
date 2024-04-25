@@ -17,19 +17,19 @@ class AllCarsController extends Controller
         $make = $request->get('make', '');
         $model = $request->get('model', '');
         $generation = $request->get('generation', '');
-        $status = $request->get('status', '');
+        $car_status = $request->get('status', -1);
         $cars = Car::with('images', 'carAttributes', 'modification', 'positions', 'positions.card')
-            ->when($make, function ($query, $make) {
+            ->when($make, function ($query) use ($make) {
                 return $query->where('make', $make);
             })
-            ->when($model, function ($query, $model) {
+            ->when($model, function ($query) use ($model) {
                 return $query->where('model', $model);
             })
-            ->when($generation, function ($query, $generation) {
+            ->when($generation, function ($query) use ($generation) {
                 return $query->where('generation', $generation);
             })
-            ->when($status, function ($query, $status) {
-                return $query->where('car_status', $status);
+            ->when($car_status >= 0, function ($query) use ($car_status) {
+                return $query->where('car_status', $car_status);
             })
             ->orderBy('created_at', 'desc')
             ->paginate(20);
