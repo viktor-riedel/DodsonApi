@@ -121,7 +121,7 @@ trait BaseCarTrait
     ): \Illuminate\Http\JsonResponse
     {
         $cards = \DB::table('nomenclature_base_item_pdr_positions')
-            ->selectRaw('nomenclature_base_item_pdr_positions.id,
+            ->selectRaw('distinct nomenclature_base_item_pdr_positions.id,
                                    nomenclature_base_item_pdrs.item_name_eng,
                                    nomenclature_base_item_pdrs.item_name_ru,
                                    nomenclature_base_item_pdr_positions.ic_number,
