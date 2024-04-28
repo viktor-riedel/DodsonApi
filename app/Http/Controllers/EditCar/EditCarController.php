@@ -243,4 +243,11 @@ class EditCarController extends Controller
         $card->update(['comment' => trim($request->input('comment'))]);
         return response()->json([], 204);
     }
+
+    public function updateIcDescription(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    {
+        $card->update(['description' => strtoupper(trim($request->input('ic_description')))]);
+        $card->position()->update(['ic_description' => strtoupper(trim($request->input('ic_description')))]);
+        return response()->json([], 204);
+    }
 }

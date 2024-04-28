@@ -46,6 +46,7 @@ class AddMiscPartsAction
                     'created_by' => $userId,
                 ]);
                 $card->priceCard()->create([
+                    'price_currency' => 'JPY',
                     'price_nz_wholesale' => null,
                     'price_nz_retail' => null,
                     'price_ru_wholesale' => null,
