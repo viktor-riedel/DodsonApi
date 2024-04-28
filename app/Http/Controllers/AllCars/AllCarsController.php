@@ -8,6 +8,7 @@ use App\Http\Resources\AvailableCars\MakeResource;
 use App\Http\Resources\AvailableCars\ModelResource;
 use App\Http\Resources\Car\CarResource;
 use App\Models\Car;
+use App\Models\CarPdrPositionCardPrice;
 use Illuminate\Http\Request;
 
 class AllCarsController extends Controller
@@ -18,7 +19,8 @@ class AllCarsController extends Controller
         $model = $request->get('model', '');
         $generation = $request->get('generation', '');
         $car_status = $request->get('status', -1);
-        $cars = Car::with('images', 'carAttributes', 'modification', 'positions', 'positions.card')
+        $cars = Car::with('images', 'carAttributes',
+            'modification', 'positions', 'positions.card', 'positions.card.priceCard')
             ->when($make, function ($query) use ($make) {
                 return $query->where('make', $make);
             })
@@ -34,6 +36,11 @@ class AllCarsController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(20);
         return CarResource::collection($cars);
+    }
+
+    public function currencyList(): \Illuminate\Http\JsonResponse
+    {
+        return response()->json(CarPdrPositionCardPrice::getCurrenciesJson());
     }
 
     public function makes(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection

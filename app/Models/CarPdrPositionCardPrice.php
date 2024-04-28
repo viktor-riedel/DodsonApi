@@ -9,6 +9,14 @@ class CarPdrPositionCardPrice extends Model
 {
     use SoftDeletes;
 
+    public const PRICE_CURRENCIES = [
+       'JPY' => '¥',
+       'USD' => '$',
+       'NZD' => 'NZD',
+       'RUB' => '₽',
+       'MNT' => '₮'
+    ];
+
     protected $fillable = [
         'car_pdr_position_card_id',
         'price_nz_wholesale',
@@ -24,7 +32,23 @@ class CarPdrPositionCardPrice extends Model
         'delivery_price_nz',
         'delivery_price_ru',
         'pinnacle_price',
+        'price_currency',
+        'approximate_price',
+        'real_price',
     ];
 
     protected $hidden = ['updated_at', 'deleted_at', 'created_at'];
+
+    public static function getCurrenciesJson(): array
+    {
+        $currencies = [];
+        foreach (self::PRICE_CURRENCIES as $currency => $symbol) {
+            $currencies[] = [
+                'code' => $currency,
+                'symbol' => $symbol,
+            ];
+        }
+
+        return $currencies;
+    }
 }
