@@ -148,6 +148,7 @@ class AddListPartsAction
     {
             $card->modification()->create($this->modification->toArray());
             $card->priceCard()->create([
+                'price_currency' => 'JPY',
                 'price_nz_wholesale' => $originCard?->price_nz_wholesale,
                 'price_nz_retail' => $originCard?->price_nz_retail,
                 'price_ru_wholesale' => $originCard?->price_ru_wholesale,
