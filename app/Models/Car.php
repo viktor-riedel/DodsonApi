@@ -19,7 +19,9 @@ class Car extends Model
         0 => 'virtual',
         1 => 'in work',
         2 => 'done',
-        3 => 'problem',
+        3 => 'dismantling',
+        4 => 'dismantled',
+        5 => 'problem',
     ];
 
     protected $fillable = [
@@ -104,4 +106,8 @@ class Car extends Model
         return $this->morphOne(ImportItem::class, 'importable');
     }
 
+    public function statusLogs(): HasMany
+    {
+        return $this->hasMany(StatusUpdateLog::class);
+    }
 }

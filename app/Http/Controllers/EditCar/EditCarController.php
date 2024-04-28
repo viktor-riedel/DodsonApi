@@ -34,7 +34,7 @@ class EditCarController extends Controller
         ]);
     }
 
-    public function delete(Request $request, Car $car)
+    public function delete(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
         $car->update(['deleted_by' => $request->user()->id]);
         $car->delete();
@@ -104,6 +104,11 @@ class EditCarController extends Controller
     public function updateCarStatus(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
         if ((int) $request->input('car_status') >= 0) {
+            $car->statusLogs()->create([
+                'old_status' => $car->car_status,
+                'new_status' => (int) $request->input('car_status'),
+                'user_id' => $request->user()->id,
+            ]);
             $car->update(['car_status' => (int) $request->input('car_status')]);
             return response()->json([], 202);
         }
@@ -196,5 +201,46 @@ class EditCarController extends Controller
         Excel::store(new CreatedCarPartsExcelExport($car, $partsList), $filename, 's3', null, ['visibility' => 'public']);
         $url = \Storage::disk('s3')->url($filename);
         return response()->json(['link' => $url]);
+    }
+
+    public function updateICNumber(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    {
+        $card->update(['ic_number' => strtoupper(trim($request->input('ic_number')))]);
+        $card->position()->update(['ic_number' => strtoupper(trim($request->input('ic_number')))]);
+        return response()->json([], 204);
+    }
+
+    public function updatePriceCurrency(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    {
+        $card->priceCard()->update([
+            'price_currency' => strtoupper(trim($request->input('price_currency')))
+        ]);
+        return response()->json([], 204);
+    }
+
+    public function updateApproxPrice(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    {
+        $currency = $card->priceCard->price_currency ?: 'JPY';
+        $card->priceCard()->update([
+            'approximate_price' => (int) $request->input('approx_price'),
+            'price_currency' => $currency,
+        ]);
+        return response()->json([], 204);
+    }
+
+    public function updateRealPrice(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    {
+        $currency = $card->priceCard->price_currency ?: 'JPY';
+        $card->priceCard()->update([
+            'real_price' => (int) $request->input('real_price'),
+            'price_currency' => $currency,
+        ]);
+        return response()->json([], 204);
+    }
+
+    public function updateComment(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    {
+        $card->update(['comment' => trim($request->input('comment'))]);
+        return response()->json([], 204);
     }
 }
