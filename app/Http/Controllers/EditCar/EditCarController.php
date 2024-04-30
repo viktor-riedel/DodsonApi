@@ -71,7 +71,7 @@ class EditCarController extends Controller
 
     public function deleteCarPhoto(Request $request, Car $car, MediaFile $photo): \Illuminate\Http\JsonResponse
     {
-        $photo = $car->images->where('id', $photo->id)->first();
+        $photo = $car->images()->where('id', $photo->id)->first();
         if ($photo) {
             $photo->update(['deleted_by' => $request->user()->id]);
             $photo->delete();
@@ -249,5 +249,22 @@ class EditCarController extends Controller
         $card->update(['description' => strtoupper(trim($request->input('ic_description')))]);
         $card->position()->update(['ic_description' => strtoupper(trim($request->input('ic_description')))]);
         return response()->json([], 204);
+    }
+
+    public function setPartsPrice(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    {
+        $partIds = $request->input('partIds', []);
+        $price = $request->integer('price', []);
+        if (count($partIds)) {
+            CarPdrPositionCard::with('priceCard')->whereIn('id', $partIds)
+                ->get()->each(function ($card) use ($price) {
+                    $currency = $card->priceCard->price_currency ?: 'JPY';
+                    $card->priceCard()->update([
+                        'real_price' => $price,
+                        'price_currency' => $currency,
+                    ]);
+                });
+        }
+        return response()->json($partIds, 202);
     }
 }
