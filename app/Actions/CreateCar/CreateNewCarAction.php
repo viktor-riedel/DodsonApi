@@ -43,6 +43,7 @@ class CreateNewCarAction
             'generation' => trim($request->input('generation')),
             'chassis' => ($modification->chassis) . '-',
             'created_by' => $request->user()->id,
+            'contr_agent_name' => trim($request->input('contr_agent_name'))
         ]);
 
         if (count($includeParts) && !$request->input('use_default_parts')) {
