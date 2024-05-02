@@ -35,6 +35,7 @@ class Car extends Model
         'comment',
         'created_by',
         'deleted_by',
+        'contr_agent_name',
     ];
 
     protected $casts = [

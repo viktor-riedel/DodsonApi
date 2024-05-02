@@ -19,6 +19,7 @@ class AllCarsController extends Controller
         $model = $request->get('model', '');
         $generation = $request->get('generation', '');
         $car_status = $request->get('status', -1);
+        $text = $request->get('text', '');
         $cars = Car::with('images', 'carAttributes',
             'modification', 'positions', 'positions.card', 'positions.card.priceCard')
             ->when($make, function ($query) use ($make) {
@@ -32,6 +33,12 @@ class AllCarsController extends Controller
             })
             ->when($car_status >= 0, function ($query) use ($car_status) {
                 return $query->where('car_status', $car_status);
+            })
+            ->when($text, function ($query) use ($text) {
+                return $query->where('make', 'like', "%$text")
+                    ->orWhere('model', 'like', "%$text")
+                    ->orWhere('chassis', 'like', "%$text")
+                    ->orWhere('car_mvr', 'like', "%$text");
             })
             ->orderBy('created_at', 'desc')
             ->paginate(20);

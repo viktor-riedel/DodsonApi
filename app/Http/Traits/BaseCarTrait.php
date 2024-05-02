@@ -2,6 +2,8 @@
 
 namespace App\Http\Traits;
 
+use App\Http\Resources\ContrAgents\ContrAgentResource;
+use App\Models\ContrAgent;
 use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemModification;
 use App\Models\NomenclatureBaseItemPdr;
@@ -150,6 +152,11 @@ trait BaseCarTrait
             });
 
         return response()->json($cards);
+    }
+
+    public function contrAgents(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    {
+        return ContrAgentResource::collection(ContrAgent::orderBy('name')->get());
     }
 
     public function miscPartsList(): \Illuminate\Http\JsonResponse

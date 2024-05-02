@@ -63,4 +63,8 @@ class CarPdrPositionCard extends Model
         return $this->belongsTo(User::class, 'deleted_by', 'id')->withTrashed();
     }
 
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(PartComment::class, 'commentable');
+    }
 }

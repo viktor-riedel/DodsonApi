@@ -268,7 +268,7 @@ trait CarPdrTrait
             ->where('cars.id', $car->id)
             ->whereNull('car_pdr_positions.deleted_at')
             ->get()->each(function($position) {
-                $card = CarPdrPositionCard::with('images', 'priceCard', 'partAttributesCard')
+                $card = CarPdrPositionCard::with('images', 'priceCard', 'partAttributesCard', 'comments', 'comments.createdBy')
                     ->find($position->id);
                 $position->images = $card->images ?? [];
                 $position->card = $card ?? null;
