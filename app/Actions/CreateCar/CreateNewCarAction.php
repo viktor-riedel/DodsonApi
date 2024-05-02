@@ -46,6 +46,10 @@ class CreateNewCarAction
             'contr_agent_name' => trim($request->input('contr_agent_name'))
         ]);
 
+        $car->carFinance()->create([
+            'purchase_price' => $request->input('purchase_price', null),
+        ]);
+
         if (count($includeParts) && !$request->input('use_default_parts')) {
             $this->copyOriginalPdr($baseCar, $car, $includeParts);
         } else if (count($request->input('parts'))) {
