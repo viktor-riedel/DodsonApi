@@ -27,28 +27,30 @@ class AddMiscPartsAction
 
             foreach ($parts as $part) {
                 $position = $folder->positions()->create([
-                    'item_name_ru' => $part['part_name_eng'],
-                    'item_name_eng' => $part['part_name_ru'] ?? null,
+                    'item_name_ru' => $part['part_name_eng'] ?? $part['item_name_eng'],
+                    'item_name_eng' => $part['part_name_ru'] ?? $part['item_name_ru'],
                     'ic_number' => $part['ic_number'] ?? '',
                     'oem_number' => null,
-                    'ic_description' => $part['description'],
+                    'ic_description' => $part['description'] ?? null,
                     'is_virtual' => false,
                     'created_by' => $userId,
                 ]);
                 $card = $position->card()->create([
                     'parent_inner_id' => $this->generateInnerId(\Str::random(10) . now()),
-                    'name_eng' => $part['part_name_eng'],
-                    'name_ru' => $part['part_name_ru'] ?? null,
-                    'comment' => $part['comment'],
-                    'description' => $part['description'],
+                    'name_eng' => $part['part_name_eng'] ?? $part['item_name_eng'],
+                    'name_ru' => $part['part_name_ru'] ?? $part['item_name_ru'],
+                    'comment' => $part['comment'] ?? null,
+                    'description' => $part['description'] ?? null,
                     'ic_number' => $part['ic_number'] ?? '',
                     'oem_number' => null,
                     'created_by' => $userId,
                 ]);
-                $card->comments()->create([
-                    'comment' => $part['comment'],
-                    'user_id' => $userId,
-                ]);
+                if (isset($part['comment'])) {
+                    $card->comments()->create([
+                        'comment' => $part['comment'],
+                        'user_id' => $userId,
+                    ]);
+                }
                 $card->priceCard()->create([
                     'price_currency' => 'JPY',
                     'price_nz_wholesale' => null,
@@ -69,7 +71,7 @@ class AddMiscPartsAction
                     'color' => null,
                     'weight' => null,
                     'volume' => null,
-                    'amount' => (int) $part['amount'],
+                    'amount' => isset($part['amount']) ? (int) $part['amount'] : 1,
                     'ordered_for_user_id' => $misc_part['ordered_for'] ?? null,
                 ]);
             }
