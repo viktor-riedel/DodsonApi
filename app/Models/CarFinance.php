@@ -11,6 +11,8 @@ class CarFinance extends Model
         'purchase_price',
     ];
 
+    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
+
     public function car(): BelongsTo
     {
         return $this->belongsTo(Car::class);

@@ -21,7 +21,7 @@ class EditCarController extends Controller
 
     public function edit(Car $car): \Illuminate\Http\JsonResponse
     {
-        $car->load('images', 'carAttributes', 'modification', 'modifications', 'createdBy');
+        $car->load('images', 'carAttributes', 'modification', 'modifications', 'createdBy', 'carFinance');
         $parts = $this->buildPdrTreeWithoutEmpty($car, false);
         $partsList = $this->getPartsList($car);
         $car->unsetRelation('pdrs');
