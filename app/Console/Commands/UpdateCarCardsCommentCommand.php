@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Car;
 use App\Models\CarPdrPositionCard;
 use Illuminate\Console\Command;
 
@@ -13,13 +14,21 @@ class UpdateCarCardsCommentCommand extends Command
 
     public function handle(): void
     {
-        $cards = CarPdrPositionCard::all();
+        $cards = CarPdrPositionCard::with('comments')->get();
         foreach($cards as $card) {
-            $card->comments()->create([
-               'comment' => $card->comment,
-               'user_id' => $card->created_by,
-               'created_at' => $card->updated_at,
-            ]);
+            if (!$card->comments) {
+                $card->comments()->create([
+                    'comment' => $card->comment,
+                    'user_id' => $card->created_by,
+                    'created_at' => $card->updated_at,
+                ]);
+            }
+        }
+        $cars = Car::with('carFinance')->get();
+        foreach($cars as $car) {
+            if (!$car->carFinance) {
+                $car->carFinance()->create([]);
+            }
         }
         $this->info('done');
     }

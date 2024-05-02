@@ -49,6 +49,11 @@ class CreateNewCarFromCatalogAction
             'generation' => trim($request['generation_num']),
             'chassis' => is_array($chassis) && isset($chassis[0]) ? ($chassis[0] . '-') : '',
             'created_by' => $this->userId,
+            'contr_agent_name' => $request['contr_agent_name'],
+        ]);
+
+        $car->carFinance()->create([
+           'purchase_price' => $request['car_price'] ?? null,
         ]);
 
         $car->carAttributes()->create([

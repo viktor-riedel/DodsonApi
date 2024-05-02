@@ -111,4 +111,9 @@ class Car extends Model
     {
         return $this->hasMany(StatusUpdateLog::class);
     }
+
+    public function carFinance(): HasOne
+    {
+        return $this->hasOne(CarFinance::class);
+    }
 }
