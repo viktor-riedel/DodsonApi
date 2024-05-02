@@ -240,8 +240,11 @@ class EditCarController extends Controller
 
     public function updateComment(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
     {
-        $card->update(['comment' => trim($request->input('comment'))]);
-        return response()->json([], 204);
+        $card->comments()->create([
+           'comment' => trim($request->input('comment')),
+           'user_id' => $request->user()->id,
+        ]);
+        return response()->json(['comments' => $card->comments()->with('createdBy')->get()], 201);
     }
 
     public function updateIcDescription(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse

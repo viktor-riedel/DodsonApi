@@ -45,6 +45,10 @@ class AddMiscPartsAction
                     'oem_number' => null,
                     'created_by' => $userId,
                 ]);
+                $card->comments()->create([
+                    'comment' => $part['comment'],
+                    'user_id' => $userId,
+                ]);
                 $card->priceCard()->create([
                     'price_currency' => 'JPY',
                     'price_nz_wholesale' => null,
