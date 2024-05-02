@@ -43,7 +43,7 @@ class CreateNewCarAction
             'generation' => trim($request->input('generation')),
             'chassis' => ($modification->chassis) . '-',
             'created_by' => $request->user()->id,
-            'contr_agent_name' => trim($request->input('contr_agent_name'))
+            'contr_agent_name' => ucwords(trim($request->input('contr_agent_name'))),
         ]);
 
         $car->carFinance()->create([
