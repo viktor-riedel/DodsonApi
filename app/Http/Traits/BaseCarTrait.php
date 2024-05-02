@@ -163,6 +163,7 @@ trait BaseCarTrait
     {
         $list = PartList::where("is_folder", 0)
             ->where("is_virtual", 0)
+            ->orderBy('item_name_eng')
             ->get(["id", "parent_id", "item_name_eng", "item_name_ru"]);
 
         return response()->json($list);
