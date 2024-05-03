@@ -168,4 +168,39 @@ trait BaseCarTrait
 
         return response()->json($list);
     }
+
+    public function slicedMiscPartsList(): \Illuminate\Http\JsonResponse
+    {
+        ray()->queries();
+        $parts = [
+            'BONNET',
+            'BOOTLID/TAILGATE',
+            'ENGINE WITH GEARBOX',
+            'FRONT BUMPER',
+            'FRONT END ASSY',
+            'GRILLE',
+            'LEFT DOOR MIRROR',
+            'LEFT FRONT DOOR',
+            'LEFT GUARD',
+            'LEFT GUARD LINER',
+            'LEFT HEADLAMP',
+            'LEFT REAR DOOR',
+            'LEFT TAILLIGHT',
+            'REAR BUMPER',
+            'RIGHT DOOR MIRROR',
+            'RIGHT FRONT DOOR',
+            'RIGHT GUARD',
+            'RIGHT GUARD LINER',
+            'RIGHT HEADLAMP',
+            'RIGHT REAR DOOR',
+            'RIGHT TAILLIGHT',
+            'WASHER BOTTLE',
+        ];
+        $list = PartList::where('is_folder', 0)
+            ->where("is_virtual", 0)
+            ->whereIn('item_name_eng', $parts)
+            ->orderBy('item_name_eng')
+            ->get(["id", "is_folder", "parent_id", "item_name_eng", "item_name_ru"]);
+        return response()->json($list);
+    }
 }
