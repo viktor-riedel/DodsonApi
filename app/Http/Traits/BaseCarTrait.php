@@ -171,7 +171,6 @@ trait BaseCarTrait
 
     public function slicedMiscPartsList(): \Illuminate\Http\JsonResponse
     {
-        ray()->queries();
         $parts = [
             'BONNET',
             'BOOTLID/TAILGATE',
