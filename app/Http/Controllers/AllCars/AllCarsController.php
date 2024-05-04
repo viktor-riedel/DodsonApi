@@ -13,15 +13,17 @@ use Illuminate\Http\Request;
 
 class AllCarsController extends Controller
 {
-    public function list(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function list(Request $request)//: \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $make = $request->get('make', '');
         $model = $request->get('model', '');
         $generation = $request->get('generation', '');
         $car_status = $request->get('status', -1);
         $text = $request->get('text', '');
-        $cars = Car::with('images', 'carAttributes',
-            'modification', 'positions', 'positions.card', 'positions.card.priceCard')
+
+        $cars = Car::with(['images', 'carAttributes', 'carFinance',
+            'modification', 'positions', 'positions.card',
+            'positions.card.priceCard'])
             ->when($make, function ($query) use ($make) {
                 return $query->where('make', $make);
             })
@@ -42,6 +44,11 @@ class AllCarsController extends Controller
             })
             ->orderBy('created_at', 'desc')
             ->paginate(20);
+
+        $cars->getCollection()->each(function ($car) {
+            $car->parts_price = $car->positions->sum('card.priceCard.real_price');
+        });
+
         return CarResource::collection($cars);
     }
 
