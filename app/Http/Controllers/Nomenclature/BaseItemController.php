@@ -10,6 +10,7 @@ use App\Http\Resources\BaseItem\BaseItemModelResource;
 use App\Http\Resources\BaseItem\BaseItemResource;
 use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemPdrPosition;
+use http\Env\Response;
 use Illuminate\Http\Request;
 
 class BaseItemController extends Controller
@@ -19,6 +20,8 @@ class BaseItemController extends Controller
     {
          $result = collect();
          $makes = array_unique(NomenclatureBaseItem::orderBy('make')
+             ->where('make', '!=', '')
+             ->whereNotNull('make')
              ->pluck('make')->toArray()
          );
          foreach($makes as $make) {

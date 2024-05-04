@@ -35,6 +35,17 @@ class CarPdrPositionCardPrice extends Model
         'price_currency',
         'approximate_price',
         'real_price',
+        'price_mng_wholesale',
+        'price_mng_retail',
+        'price_jp_retail',
+        'price_jp_wholesale',
+        'nz_team_price',
+        'nz_team_needs',
+        'nz_needs',
+        'ru_needs',
+        'jp_needs',
+        'mng_needs',
+        'needs',
     ];
 
     protected $hidden = ['updated_at', 'deleted_at', 'created_at'];
