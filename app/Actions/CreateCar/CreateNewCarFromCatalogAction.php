@@ -11,12 +11,8 @@ class CreateNewCarFromCatalogAction
 {
     use InnerIdTrait;
 
-    private int $userId = 0;
-
     public function handle(array $request, int $userId): int
     {
-        $this->userId = $userId;
-
         $helper = new CatalogApiHelper();
 
         $mvr = $helper->loadModelMvr($request['model_id'], $request['mvr_id']);
@@ -48,7 +44,7 @@ class CreateNewCarFromCatalogAction
             'model' => strtoupper(trim($request['model'])),
             'generation' => trim($request['generation_num']),
             'chassis' => is_array($chassis) && isset($chassis[0]) ? ($chassis[0] . '-') : '',
-            'created_by' => $this->userId,
+            'created_by' => $userId,
             'contr_agent_name' => ucwords($request['contr_agent_name']),
         ]);
 

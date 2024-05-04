@@ -11,6 +11,7 @@ use App\Http\Traits\CarPdrTrait;
 use App\Models\Car;
 use App\Models\CarPdrPositionCard;
 use App\Models\CarPdrPositionCardAttribute;
+use App\Models\CarPdrPositionCardPrice;
 use App\Models\MediaFile;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -159,9 +160,25 @@ class EditCarController extends Controller
         return response()->json($card->images);
     }
 
+    public function deletePartPhoto(Request $request, Car $car, CarPdrPositionCard $card, MediaFile $photo): \Illuminate\Http\JsonResponse
+    {
+        $photo = $card->images()->where('id', $photo->id)->first();
+        if ($photo) {
+            $photo->update(['deleted_by' => $request->user()->id]);
+            $photo->delete();
+        }
+        return response()->json($card->images);
+    }
+
     public function updateAttributes(Request $request, Car $car, CarPdrPositionCardAttribute $card): \Illuminate\Http\JsonResponse
     {
         $card->update($request->except('car_pdr_position_id', 'id'));
+        return response()->json([], 202);
+    }
+
+    public function updatePriceCard(Request $request, Car $car, CarPdrPositionCardPrice $card): \Illuminate\Http\JsonResponse
+    {
+        $card->update($request->except('car_pdr_position_card_id', 'id'));
         return response()->json([], 202);
     }
 

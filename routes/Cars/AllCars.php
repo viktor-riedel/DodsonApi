@@ -21,7 +21,9 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
         Route::patch('/update-car-status', [EditCarController::class, 'updateCarStatus']);
         Route::delete('/delete-part/{card}', [EditCarController::class, 'deletePart']);
         Route::post('/upload-part-photo/{card}', [EditCarController::class, 'uploadPartPhoto']);
+        Route::delete('/delete-part-photo/{card}/{photo}', [EditCarController::class, 'deletePartPhoto']);
         Route::patch('/update-attributes/{card}', [EditCarController::class, 'updateAttributes']);
+        Route::patch('/update-card-price/{card}', [EditCarController::class, 'updatePriceCard']);
         Route::put('/add-misc-parts', [EditCarController::class, 'addMiscParts']);
         Route::put('/add-parts-from-list', [EditCarController::class, 'addListParts']);
         Route::put('/add-parts-from-mod-list', [EditCarController::class, 'addModListParts']);

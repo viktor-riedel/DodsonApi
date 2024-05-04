@@ -13,6 +13,9 @@ class BaseItemsSearchController extends Controller
     {
         $makes = \DB::table(self::TABLE_NAME)
                     ->selectRaw('distinct(make)')
+                    ->where('make', '!=', '')
+                    ->whereNull('deleted_at')
+                    ->whereNotNull('make')
                     ->orderBy('make')
                     ->get();
         return response()->json($makes);
