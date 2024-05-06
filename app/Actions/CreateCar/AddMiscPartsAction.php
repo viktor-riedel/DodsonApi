@@ -26,9 +26,23 @@ class AddMiscPartsAction
             }
 
             foreach ($parts as $part) {
+                $name_eng = '';
+                $name_ru = '';
+                if (isset($part['part_name_eng'])) {
+                    $name_eng = $part['part_name_eng'];
+                }
+                if (isset($part['part_name_ru'])) {
+                    $name_ru = $part['part_name_ru'];
+                }
+                if (!$name_eng && isset($part['item_name_eng'])) {
+                    $name_eng = $part['item_name_eng'];
+                }
+                if (!$name_ru && isset($part['item_name_ru'])) {
+                    $name_ru = $part['item_name_ru'];
+                }
                 $position = $folder->positions()->create([
-                    'item_name_ru' => $part['part_name_eng'] ?? $part['item_name_eng'],
-                    'item_name_eng' => $part['part_name_ru'] ?? $part['item_name_ru'],
+                    'item_name_ru' => $name_eng,
+                    'item_name_eng' => $name_ru,
                     'ic_number' => $part['ic_number'] ?? '',
                     'oem_number' => null,
                     'ic_description' => $part['description'] ?? null,
@@ -37,8 +51,8 @@ class AddMiscPartsAction
                 ]);
                 $card = $position->card()->create([
                     'parent_inner_id' => $this->generateInnerId(\Str::random(10) . now()),
-                    'name_eng' => $part['part_name_eng'] ?? $part['item_name_eng'],
-                    'name_ru' => $part['part_name_ru'] ?? $part['item_name_ru'],
+                    'name_eng' => $name_eng,
+                    'name_ru' => $name_ru,
                     'comment' => $part['comment'] ?? null,
                     'description' => $part['description'] ?? null,
                     'ic_number' => $part['ic_number'] ?? '',
