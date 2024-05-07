@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Events\User\LoginSuccessEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\AuthRequest;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\RestorePasswordRequest;
-use App\Mail\ResetPasswordMail;
+use App\Jobs\Auth\ResetPasswordJob;
 use App\Models\User;
-use http\Env\Response;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
@@ -25,6 +26,12 @@ class AuthController extends Controller
             abort(401, 'Users login is not allowed at the moment');
         }
         $token = $user->createToken('auth_token')->plainTextToken;
+        event(new LoginSuccessEvent(
+            $request->user()->id, 'Login',
+            'Login successful '.PHP_EOL.'Last login was: ' . Carbon::parse($request->user()->last_login)->format('d/m/Y'),
+            'success')
+        );
+        $user->update(['last_login' => now()]);
         return response()->json([
            'name' => $user->name,
            'email' => $user->email,
@@ -37,6 +44,7 @@ class AuthController extends Controller
     {
         if ($request->user()) {
             return response()->json([
+                'id' => $request->user()->id,
                 'name' => $request->user()->name,
                 'email' => $request->user()->email,
                 'role' => $request->user()->getRoleNames()->first(),
@@ -53,7 +61,7 @@ class AuthController extends Controller
         $user = User::where('email', $email)->first();
         if ($user) {
             $user->update(['reset_code' => $resetCode]);
-            \Mail::to($user->email)->send(new ResetPasswordMail($user));
+            ResetPasswordJob::dispatch($user);
         }
         return response()->json($email);
     }
