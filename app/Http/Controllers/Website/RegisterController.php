@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Website\RegisterRequest;
-use App\Mail\UserRegisteredMail;
+use App\Jobs\Auth\RegistrationJob;
 use App\Models\User;
 
 class RegisterController extends Controller
@@ -19,7 +19,7 @@ class RegisterController extends Controller
 
         $user->assignRole(['USER']);
 
-        \Mail::to($user->email)->send(new UserRegisteredMail($user));
+        RegistrationJob::dispatch($user);
 
         return response()->json(['success' => true], 201);
     }
