@@ -28,6 +28,7 @@ class CarResource extends JsonResource
             'parts_count' => $this->positions ? $this->positions->whereNotNull('card')->count() : 0,
             'parts_price' => $this->parts_price,
             'car_price' => $this->carFinance->purchase_price,
+            'agent' => $this->contr_agent_name,
         ];
     }
 }
