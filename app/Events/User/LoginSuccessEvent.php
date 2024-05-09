@@ -12,10 +12,10 @@ class LoginSuccessEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $message;
-    public $title;
-    private $user_id;
-    public $message_type;
+    public string $message;
+    public string $title;
+    private string $user_id;
+    public string $message_type;
 
     public function __construct(int $user_id, string $title = '', string $message = '', string $type = 'success')
     {
@@ -32,7 +32,7 @@ class LoginSuccessEvent implements ShouldBroadcast
         ];
     }
 
-    public function broadcastAs()
+    public function broadcastAs(): string
     {
         return 'user-login-event';
     }
