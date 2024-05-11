@@ -86,6 +86,7 @@ class EditCarController extends Controller
             'generation' => strtoupper(trim($request->input('generation'))),
             'car_mvr' => trim($request->input('car_mvr')),
             'comment' => trim($request->input('comment')),
+            'contr_agent_name' => ucwords(trim($request->input('contr_agent_name'))),
         ]);
         $car->carAttributes()->update([
             'color' => strtoupper(trim($request->input('color'))),
@@ -97,6 +98,13 @@ class EditCarController extends Controller
         $car->update([
             'generation' => strtoupper(trim($request->input('generation'))),
             'chassis' => strtoupper(trim($request->input('chassis'))),
+        ]);
+
+        $car->carFinance()->update([
+            'purchase_price' => $request->integer('purchase_price'),
+            'price_with_engine' => $request->integer('price_with_engine'),
+            'price_without_engine' => $request->integer('price_without_engine'),
+            'car_is_for_sale' => (bool) $request->input('car_is_for_sale'),
         ]);
 
         return response()->json([], 202);

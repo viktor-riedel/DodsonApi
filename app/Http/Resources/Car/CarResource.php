@@ -29,6 +29,9 @@ class CarResource extends JsonResource
             'parts_price' => $this->parts_price,
             'car_price' => $this->carFinance->purchase_price,
             'agent' => $this->contr_agent_name,
+            'sale' => $this->carFinance->car_is_for_sale,
+            'price_with_engine' => $this->carFinance->price_with_engine,
+            'price_without_engine' => $this->carFinance->price_without_engine,
         ];
     }
 }
