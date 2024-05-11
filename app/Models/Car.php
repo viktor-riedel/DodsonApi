@@ -36,11 +36,15 @@ class Car extends Model
         'created_by',
         'deleted_by',
         'contr_agent_name',
+        'price_with_engine',
+        'price_without_engine',
+        'car_is_for_sale',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
+        'car_is_for_sale' => 'boolean',
     ];
 
     protected $hidden = ['updated_at', 'deleted_at'];
