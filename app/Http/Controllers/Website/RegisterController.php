@@ -15,6 +15,7 @@ class RegisterController extends Controller
             'name' => $request->validated('first_name') . ' ' . $request->validated('last_name'),
             'email' => $request->validated('user_email'),
             'password' => bcrypt($request->validated('password')),
+            'last_login_at' => now(),
         ]);
 
         $user->assignRole(['USER']);

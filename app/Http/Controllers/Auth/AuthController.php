@@ -21,17 +21,26 @@ class AuthController extends Controller
         if (!auth()->attempt(['email' => $email, 'password' => $password])) {
             return response()->json(['message' => 'invalid credentials'], 401);
         }
+
         $user = User::where('email', $email)->firstOrFail();
-        if ($user->hasRole('USER')) {
-            abort(401, 'Users login is not allowed at the moment');
-        }
+
+//        if ($user->hasRole('USER')) {
+//            abort(401, 'Users login is not allowed at the moment');
+//        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
         event(new LoginSuccessEvent(
             $request->user()->id, 'Login',
-            'Login successful '.PHP_EOL.'Last login was: ' . Carbon::parse($request->user()->last_login)->format('d/m/Y'),
+            'Login successful '.PHP_EOL.'Last login was: ' .
+            (
+                $request->user()->last_login_at ?
+                Carbon::parse($request->user()->last_login_at)->format('d/m/Y')
+                : now()->format('d/m/Y')
+            ),
             'success')
         );
-        $user->update(['last_login' => now()]);
+        $user->update(['last_login_at' => now(),]);
+
         return response()->json([
            'name' => $user->name,
            'email' => $user->email,

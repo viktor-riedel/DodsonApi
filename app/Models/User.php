@@ -27,6 +27,7 @@ class User extends Authenticatable
         'email',
         'password',
         'reset_code',
+        'last_login_at',
     ];
 
     /**
@@ -49,6 +50,7 @@ class User extends Authenticatable
         'created_at' => 'datetime',
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'last_login_at' => 'datetime',
     ];
 
     public function userCard(): HasOne
