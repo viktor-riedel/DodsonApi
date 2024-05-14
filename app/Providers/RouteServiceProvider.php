@@ -44,6 +44,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('/routes/Directories/ContrAgentRoutes.php'))
                 ->group(base_path('/routes/SettingsRoutes/SettingsRoutes.php'))
                 //user part
+                ->group(base_path('/routes/UserPanel/DashboardRoutes.php'))
                 //public
                 ->group(base_path('/routes/Auth/auth.php'))
                 ->group(base_path('/routes/Public/Nomenclature/PublicNomenclatureRoutes.php'))

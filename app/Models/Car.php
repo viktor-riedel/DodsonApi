@@ -120,4 +120,9 @@ class Car extends Model
     {
         return $this->hasOne(CarFinance::class);
     }
+
+    public function wished(): MorphOne
+    {
+        return $this->morphOne(WishList::class, 'wishable');
+    }
 }

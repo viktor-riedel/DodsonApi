@@ -24,7 +24,7 @@ class StockCarResource extends JsonResource
                 'price_without_engine' => number_format($this->carFinance?->price_without_engine),
             ],
             'images' => $this->whenLoaded('images', PhotoResource::collection($this->images), []),
-            'modifications' => $this->whenLoaded('modifications',
+            'modification' => $this->whenLoaded('modifications',
                     new ModificationResource($this->modifications),
                 null),
         ];
