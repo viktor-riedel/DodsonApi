@@ -24,10 +24,6 @@ class AuthController extends Controller
 
         $user = User::where('email', $email)->firstOrFail();
 
-//        if ($user->hasRole('USER')) {
-//            abort(401, 'Users login is not allowed at the moment');
-//        }
-
         $token = $user->createToken('auth_token')->plainTextToken;
         event(new LoginSuccessEvent(
             $request->user()->id, 'Login',
@@ -39,7 +35,11 @@ class AuthController extends Controller
             ),
             'success')
         );
-        $user->update(['last_login_at' => now(),]);
+        $user->update(['last_login_at' => now()]);
+        $userRole = $user->getRoleNames()->first();
+        if (!$userRole) {
+            $user->assignRole('USER');
+        }
 
         return response()->json([
            'name' => $user->name,
