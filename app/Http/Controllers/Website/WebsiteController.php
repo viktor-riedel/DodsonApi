@@ -28,16 +28,17 @@ class WebsiteController extends Controller
     public function sendEnquiry(EnquiryRequest $request)
     {
         $data = [
-            'name' => $request->validated('name'),
+            'name' => ucwords($request->validated('name')),
             'email' => $request->validated('email'),
             'phone' => $request->validated('phone'),
             'order' => $request->validated('order'),
         ];
         $lead = Lead::create([
             'lead_name' => 'Website Enquiry',
-            'from' => $request->validated('name'),
+            'from' =>ucwords($request->validated('name')),
             'lead_type' => Lead::LEAD_TYPES['ENQUIRY'],
             'lead_status' => 0,
+            'lead_description' => $request->validated('order'),
         ]);
         \Mail::to(config('misc.info_email'))->send(new EnquiryMail($data));
     }

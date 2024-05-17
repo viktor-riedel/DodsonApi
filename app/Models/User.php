@@ -28,6 +28,7 @@ class User extends Authenticatable
         'password',
         'reset_code',
         'last_login_at',
+        'country_code',
     ];
 
     /**
@@ -39,6 +40,9 @@ class User extends Authenticatable
         'password',
         'remember_token',
         'reset_code',
+        'updated_at',
+        'deleted_at',
+        'email_verified_at',
     ];
 
     /**

@@ -37,8 +37,25 @@ class Lead extends Model
         'accepted_by',
     ];
 
+    protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
+
     public function acceptedBy(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getLeadTypeStringAttribute(): string
+    {
+        foreach (self::LEAD_TYPES as $key => $type) {
+            if ($type === $this->lead_type) {
+                return $key;
+            }
+        }
+        return 'OTHER';
+    }
+
+    public function getLeadStatusStringAttribute(): string
+    {
+        return self::LEAD_STATUS[$this->lead_status];
     }
 }

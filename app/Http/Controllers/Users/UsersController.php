@@ -35,6 +35,11 @@ class UsersController extends Controller
         return new UserResource($user);
     }
 
+    public function countriesList(): \Illuminate\Http\JsonResponse
+    {
+        return response()->json(getCountriesForJson());
+    }
+
     public function blockUser(int $user): \Illuminate\Http\JsonResponse
     {
         $user = User::withTrashed()->find($user);
@@ -53,6 +58,7 @@ class UsersController extends Controller
         $user->update([
            'name' => $request->input('name'),
            'email' => $request->input('email'),
+           'country_code' => $request->input('country_code'),
         ]);
         if ($request->input('password')) {
             $user->update(['password' => bcrypt(trim($request->input('password')))]);

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('users')->middleware('auth:sanctum')->group(function() {
     Route::get('/', [UsersController::class, 'list']);
+    Route::get('/countries-list', [UsersController::class, 'countriesList']);
     Route::prefix('edit/{user}')->group(function() {
         Route::get('/', [UsersController::class, 'edit']);
         Route::patch('/block', [UsersController::class, 'blockUser']);

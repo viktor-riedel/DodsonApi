@@ -19,6 +19,8 @@ class UserResource extends JsonResource
             'inactive' => $this->trashed(),
             'card' => $this->whenLoaded('userCard', new UserCardResource($this->userCard), null),
             'available_roles' => Role::get(),
+            'country_name' => findCountryByCode($this->country_code ?? ''),
+            'country_code' => $this->country_code,
         ];
     }
 }
