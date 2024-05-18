@@ -71,9 +71,10 @@ class StockCarsController extends Controller
         return StockCarResource::collection($cars);
     }
 
-    public function view()
+    public function view(Car $car): StockCarResource
     {
-        return response()->json([]);
+        $car->load('carFinance', 'images', 'carAttributes', 'modifications');
+        return new StockCarResource($car);
     }
 
     public function makes(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
