@@ -87,6 +87,7 @@ class EditCarController extends Controller
             'car_mvr' => trim($request->input('car_mvr')),
             'comment' => trim($request->input('comment')),
             'contr_agent_name' => ucwords(trim($request->input('contr_agent_name'))),
+            'chassis' => strtoupper(trim($request->input('chassis'))),
         ]);
         $car->carAttributes()->update([
             'color' => strtoupper(trim($request->input('color'))),

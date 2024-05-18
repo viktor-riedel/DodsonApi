@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\StockCars\WishList;
+namespace App\Http\Controllers\WishList;
 
 use App\Events\StockCars\AddedToWishListEvent;
 use App\Events\StockCars\RemovedFromWishListEvent;

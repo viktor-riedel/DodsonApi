@@ -72,7 +72,7 @@ class LeadsController extends Controller
             'lead_type' => $request->validated('lead_type'),
             'lead_status' => $request->validated('lead_status'),
             'lead_description' => $request->validated('lead_description'),
-            'accepted_by' =>$request->validated('accepted_by'),
+            'accepted_by' => $request->input('accepted_by'),
         ]);
         return response()->json(['accepted' => true], 202);
     }

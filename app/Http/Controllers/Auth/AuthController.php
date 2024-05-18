@@ -57,6 +57,7 @@ class AuthController extends Controller
                 'name' => $request->user()->name,
                 'email' => $request->user()->email,
                 'role' => $request->user()->getRoleNames()->first(),
+                'country_code' => $request->user()->country_code,
                 'permissions' => $request->user()->getPermissionsViaRoles()->pluck('name')->toArray(),
             ]);
         }

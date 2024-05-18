@@ -41,7 +41,7 @@ class Lead extends Model
 
     public function acceptedBy(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'accepted_by');
     }
 
     public function getLeadTypeStringAttribute(): string
