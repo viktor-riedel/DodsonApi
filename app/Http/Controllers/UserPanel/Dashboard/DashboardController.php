@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\UserPanel;
+namespace App\Http\Controllers\UserPanel\Dashboard;
 
 use App\Http\Controllers\Controller;
 

@@ -16,8 +16,8 @@ Route::prefix('stock-cars')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function() {
         Route::prefix('/wish-list')->group(function() {
-            Route::get('/wished/{car}', [WishListController::class, 'carWished'])->name('user.wish-list.car-wished');
             Route::put('/add/{car}', [WishListController::class, 'addWishList'])->name('user.wish-list.add');
+            Route::get('/', [WishListController::class, 'list'])->name('user.wish-list');
         });
         Route::prefix('/cart')->group(function() {
             Route::get('/items', [CartController::class, 'items'])->name('cart.items');
