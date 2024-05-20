@@ -9,8 +9,7 @@ return new class extends Migration {
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')
-                ->constrained('users');
+            $table->unsignedInteger('user_id');
             $table->string('order_number')->index();
             $table->smallInteger('order_status')->default(0);
             $table->integer('order_total')->nullable();
@@ -18,6 +17,11 @@ return new class extends Migration {
             $table->string('invoice_url')->nullable();
             $table->softDeletes();
             $table->timestamps();
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users');
+
         });
     }
 

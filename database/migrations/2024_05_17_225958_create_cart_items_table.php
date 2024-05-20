@@ -9,12 +9,20 @@ return new class extends Migration {
     {
         Schema::create('cart_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('cart_id')->constrained('carts');
-            $table->foreignId('user_id')->constrained('users');
+            $table->unsignedInteger('cart_id');
+            $table->unsignedInteger('user_id');
             $table->unsignedInteger('car_id')->nullable()->index();
             $table->string('part_id')->nullable()->index();
             $table->softDeletes();
             $table->timestamps();
+
+            $table->foreign('cart_id')
+                ->references('id')
+                ->on('carts');
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users');
         });
     }
 

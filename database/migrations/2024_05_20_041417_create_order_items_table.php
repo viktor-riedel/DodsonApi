@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->constrained('orders');
+            $table->unsignedInteger('order_id');
             $table->unsignedInteger('car_id')->nullable()->index();
             $table->unsignedInteger('part_id')->nullable()->index();
             $table->boolean('with_engine')->default(false);
@@ -18,6 +18,11 @@ return new class extends Migration {
             $table->integer('price_without_engine')->nullable();
             $table->softDeletes();
             $table->timestamps();
+
+            $table->foreign('order_id')
+                ->references('id')
+                ->on('orders');
+
         });
     }
 
