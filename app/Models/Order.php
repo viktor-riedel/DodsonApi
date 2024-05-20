@@ -33,6 +33,10 @@ class Order extends Model
         'country_code',
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+    ];
+
     public static function getNextOrderNumber(): int
     {
         $ordersCount = self::all()->count();
