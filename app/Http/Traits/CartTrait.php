@@ -9,7 +9,7 @@ trait CartTrait
     private function checkCartExist(User $user): void
     {
         if (!$user->cart) {
-            $user->cart()->create();
+            $user->cart()->create([]);
             $user->refresh();
         }
     }

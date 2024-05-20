@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\StockCars;
 
+use App\Models\Car;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -29,7 +30,10 @@ class StockCarResource extends JsonResource
                 'price_with_engine_jp' => number_format($this->carFinance?->price_with_engine_jp),
                 'price_without_engine_jp' => number_format($this->carFinance?->price_without_engine_jp),
             ],
-            'images' => $this->whenLoaded('images', PhotoResource::collection($this->images), []),
+            'buy_with_engine' => $this->buy_with_engine ?? Car::WITH_ENGINE,
+            'images' => $this->whenLoaded('images',
+                $this->images->count() ? PhotoResource::collection($this->images) : [['url' => '/no_photo.png']]
+                , [['url' => '/no_photo.png']]),
             'modification' => $this->whenLoaded('modifications',
                     new ModificationResource($this->modifications),
                 null),

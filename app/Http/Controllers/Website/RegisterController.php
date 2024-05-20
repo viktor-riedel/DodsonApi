@@ -19,6 +19,7 @@ class RegisterController extends Controller
         ]);
 
         $user->assignRole(['USER']);
+        $user->cart()->create([]);
 
         RegistrationJob::dispatch($user);
 

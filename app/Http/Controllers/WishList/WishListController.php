@@ -12,9 +12,9 @@ use Illuminate\Http\Request;
 
 class WishListController extends Controller
 {
-    public function list(): \Illuminate\Http\JsonResponse
+    public function list(Request $request): \Illuminate\Http\JsonResponse
     {
-        return response()->json($this->getUserWishList());
+        return response()->json($this->getUserWishList($request));
     }
 
     public function addWishList(Request $request, Car $car): \Illuminate\Http\JsonResponse
@@ -27,12 +27,12 @@ class WishListController extends Controller
             event(new RemovedFromWishListEvent($request->user()));
         }
 
-        return response()->json($this->getUserWishList());
+        return response()->json($this->getUserWishList($request));
     }
 
-    private function getUserWishList(): array
+    private function getUserWishList($request): array
     {
-        $cars = Car::whereIn('id', WishList::where("user_id", 68)
+        $cars = Car::whereIn('id', WishList::where("user_id", $request->user()->id)
             ->get()
             ->pluck("wishable_id")
             ->toArray()

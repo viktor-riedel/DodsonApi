@@ -15,6 +15,9 @@ class Car extends Model
 {
     use SoftDeletes;
 
+    public const WITH_ENGINE = 'WITH_ENGINE';
+    public const WITHOUT_ENGINE = 'WITHOUT_ENGINE';
+
     public const CAR_STATUSES = [
         0 => 'virtual',
         1 => 'in work',

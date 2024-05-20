@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\AuthRequest;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\RestorePasswordRequest;
+use App\Http\Traits\CartTrait;
 use App\Jobs\Auth\ResetPasswordJob;
 use App\Models\User;
 use Carbon\Carbon;
@@ -14,6 +15,8 @@ use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
+    use CartTrait;
+
     public function login(AuthRequest $request): \Illuminate\Http\JsonResponse
     {
         $email = $request->validated('email');
@@ -23,6 +26,8 @@ class AuthController extends Controller
         }
 
         $user = User::where('email', $email)->firstOrFail();
+
+        $this->checkCartExist($user);
 
         $token = $user->createToken('auth_token')->plainTextToken;
         event(new LoginSuccessEvent(
