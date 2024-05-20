@@ -9,9 +9,9 @@ return new class extends Migration {
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('order_id');
-            $table->unsignedInteger('car_id')->nullable()->index();
-            $table->unsignedInteger('part_id')->nullable()->index();
+            $table->unsignedBigInteger('order_id');
+            $table->unsignedBigInteger('car_id')->nullable()->index();
+            $table->unsignedBigInteger('part_id')->nullable()->index();
             $table->boolean('with_engine')->default(false);
             $table->boolean('without_engine')->default(false);
             $table->integer('price_with_engine')->nullable();

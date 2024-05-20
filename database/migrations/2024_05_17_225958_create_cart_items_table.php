@@ -9,8 +9,8 @@ return new class extends Migration {
     {
         Schema::create('cart_items', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('cart_id');
-            $table->unsignedInteger('user_id');
+            $table->unsignedBigInteger('cart_id');
+            $table->unsignedBigInteger('user_id');
             $table->unsignedInteger('car_id')->nullable()->index();
             $table->string('part_id')->nullable()->index();
             $table->softDeletes();
