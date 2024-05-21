@@ -28,11 +28,6 @@ class StockCarsController extends Controller
         $sortByPrice = $request->get('sortByPrice', null);
 
         $cars = Car::with('carFinance', 'images', 'carAttributes', 'modifications')
-                ->when($searchText, function ($query, $searchText) {
-                    return $query->where('make', 'like', '%' . $searchText . '%')
-                        ->orWhere('model', 'like', '%' . $searchText . '%')
-                        ->orWhere('chassis', 'like', '%' . $searchText . '%');
-                })
                 ->when($make, function ($query, $make) {
                     return $query->where('make', $make);
                 })
@@ -41,9 +36,6 @@ class StockCarsController extends Controller
                 })
                 ->when($generation, function ($query, $generation) {
                     return $query->where('generation', $generation);
-                })
-                ->whereHas('carFinance', function ($query) {
-                    return $query->where('car_is_for_sale', 1);
                 })
                 ->when($sortByMake, function ($query, $sortByMake) {
                     return $query->orderBy('make', $sortByMake);
@@ -67,7 +59,15 @@ class StockCarsController extends Controller
                     ])
                     ->whereColumn('car_id', 'cars.id'), $sortByPrice);
                 })
-                ->paginate(20);
+                ->whereHas('carFinance', function ($query) {
+                    return $query->where('car_is_for_sale', 1);
+                })->when($searchText, function ($query, $searchText) {
+                return $query->where('make', 'like', '%' . $searchText . '%')
+                    ->orWhere('model', 'like', '%' . $searchText . '%')
+                    ->orWhere('chassis', 'like', '%' . $searchText . '%');
+            })
+
+            ->paginate(20);
         return StockCarResource::collection($cars);
     }
 
