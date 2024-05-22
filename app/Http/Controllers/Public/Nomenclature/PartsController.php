@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Public\Nomenclature;
 
+use App\Actions\Api\PartsListAction;
 use App\Actions\ReadyCars\ReadyCarsPartsListAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\AvailableCars\PartApiResource;
@@ -19,5 +20,11 @@ class PartsController extends Controller
         }
         $parts = app()->make(ReadyCarsPartsListAction::class)->handle($make, $model, $generation, $header, $restyle);
         return PartApiResource::collection($parts);
+    }
+
+    public function defaults()
+    {
+        $list = app()->make(PartsListAction::class)->handle();
+        return response()->json($list);
     }
 }
