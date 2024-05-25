@@ -73,7 +73,7 @@ class StockCarsController extends Controller
 
     public function view(Car $car): StockCarResource
     {
-        $car->load('carFinance', 'images', 'carAttributes', 'modifications');
+        $car->load('carFinance', 'images', 'links', 'carAttributes', 'modifications');
         return new StockCarResource($car);
     }
 

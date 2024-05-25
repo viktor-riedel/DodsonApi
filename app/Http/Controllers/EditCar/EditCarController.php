@@ -7,11 +7,13 @@ use App\Actions\CreateCar\AddMiscPartsAction;
 use App\Actions\CreateCar\AddPartsFromModificationListAction;
 use App\Exports\Excel\CreatedCarPartsExcelExport;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Cart\LinkResource;
 use App\Http\Traits\CarPdrTrait;
 use App\Models\Car;
 use App\Models\CarPdrPositionCard;
 use App\Models\CarPdrPositionCardAttribute;
 use App\Models\CarPdrPositionCardPrice;
+use App\Models\Link;
 use App\Models\MediaFile;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -22,7 +24,7 @@ class EditCarController extends Controller
 
     public function edit(Car $car): \Illuminate\Http\JsonResponse
     {
-        $car->load('images', 'carAttributes', 'modification', 'modifications', 'createdBy', 'carFinance');
+        $car->load('images', 'links', 'carAttributes', 'modification', 'modifications', 'createdBy', 'carFinance');
         $parts = $this->buildPdrTreeWithoutEmpty($car, false);
         $partsList = $this->getPartsList($car);
         $car->unsetRelation('pdrs');
@@ -301,5 +303,27 @@ class EditCarController extends Controller
                 });
         }
         return response()->json($partIds, 202);
+    }
+
+    public function linksList(Request $request, Car $car): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    {
+        return LinkResource::collection($car->links()->with('createdBy')->get());
+    }
+
+    public function addLink(Request $request, Car $car): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    {
+        $car->links()->create([
+            'url' => $request->input('url'),
+            'type' => $request->input('type'),
+            'created_by' => $request->user()->id,
+        ]);
+        return LinkResource::collection($car->links()->with('createdBy')->get());
+    }
+
+    public function deleteLink(Request $request, Car $car, Link $link): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    {
+        $link->update(['deleted_by' => $request->user()->id]);
+        $link->delete();
+        return LinkResource::collection($car->links()->with('createdBy')->get());
     }
 }

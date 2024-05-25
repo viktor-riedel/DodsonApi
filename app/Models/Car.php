@@ -65,6 +65,11 @@ class Car extends Model
         return $this->morphMany(MediaFile::class, 'mediable');
     }
 
+    public function links(): MorphMany
+    {
+        return $this->morphMany(Link::class, 'linkable');
+    }
+
     public function carAttributes(): HasOne
     {
         return $this->hasOne(CarAttribute::class);
