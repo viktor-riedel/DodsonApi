@@ -33,20 +33,19 @@ trait BaseItemModificationsTrait
     private function loadAvailableModificationByBaseItemPosition(NomenclatureBaseItemPdrPosition $baseItemPosition, CatalogApiHelper $apiHelper): array
     {
         $key = 'modifications-' . $baseItemPosition->id;
-        if (Cache::has($key)) {
-            $data = Cache::get($key);
-        } else {
+//        if (Cache::has($key)) {
+//            $data = Cache::get($key);
+//        } else {
             $make = $baseItemPosition->nomenclatureBaseItemPdr->nomenclatureBaseItem->make;
             $model = $baseItemPosition->nomenclatureBaseItemPdr->nomenclatureBaseItem->model;
             $generation = $baseItemPosition->nomenclatureBaseItemPdr->nomenclatureBaseItem->generation;
             $data = $apiHelper->findMvrHeadersByMakeModelGeneration(
                 $make,
                 $model,
-                $generation,
-                false
+                $generation
             );
-            Cache::put($key, $data, now()->addHours(3));
-        }
+//            Cache::put($key, $data, now()->addHours(3));
+//        }
 
         return $this->fillUpModificationsArray($data);
     }

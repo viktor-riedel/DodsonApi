@@ -34,8 +34,8 @@ class CreateOrderAction
         if (is_array($cars) && count($cars) > 0) {
             foreach ($cars as $car) {
                 $currentCar = Car::with('carFinance')->find($car['id']);
-                $withEngine = $car['buy_with_engine'] === Car::WITH_ENGINE;
-                $withoutEngine = $car['buy_with_engine'] === Car::WITHOUT_ENGINE;
+                $withEngine = $car['buy_with_engine'];
+                $withoutEngine = $car['buy_without_engine'];
                 $item = $order->items()->create([
                     'car_id' => $car['id'],
                     'part_id' => null,
@@ -43,6 +43,7 @@ class CreateOrderAction
                     'without_engine' => $withoutEngine,
                     'price_with_engine' => 0,
                     'price_without_engine' => 0,
+                    'comment' => $car['comment'],
                 ]);
                 $carIds[] = $car['id'];
                 switch ($user->country_code) {

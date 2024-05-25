@@ -66,6 +66,9 @@
         <li>
            MVR: {{$car->car_mvr}}
         </li>
+        <li>
+            Comment: {{$item->comment}}
+        </li>
         @endif
     @endif
     </ul>

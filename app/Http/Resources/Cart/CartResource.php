@@ -15,6 +15,7 @@ class CartResource extends JsonResource
             'is_part' => $this->part_id !== null,
             'car_id' => $this->car_id,
             'part_id' => $this->part_id,
+            'comment' => $this->comment,
         ];
     }
 }

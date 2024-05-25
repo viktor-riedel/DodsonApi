@@ -17,5 +17,6 @@ class OrderItem extends Model
         'without_engine',
         'price_with_engine',
         'price_without_engine',
+        'comment',
     ];
 }

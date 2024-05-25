@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Http\Resources\StockCars;
+namespace App\Http\Resources\Cart;
 
+use App\Http\Resources\StockCars\ModificationResource;
+use App\Http\Resources\StockCars\PhotoResource;
 use App\Models\Car;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class StockCarResource extends JsonResource
+class CarItemResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
@@ -30,12 +32,14 @@ class StockCarResource extends JsonResource
                 'price_with_engine_jp' => number_format($this->carFinance?->price_with_engine_jp),
                 'price_without_engine_jp' => number_format($this->carFinance?->price_without_engine_jp),
             ],
+            'buy_with_engine' => (bool) $this->buy_with_engine,
+            'buy_without_engine' => (bool) $this->buy_without_engine,
+            'comment' => $this->comment,
             'images' => $this->whenLoaded('images',
                 $this->images->count() ? PhotoResource::collection($this->images) : [['url' => '/no_photo.png']]
                 , [['url' => '/no_photo.png']]),
             'modification' => $this->whenLoaded('modifications',
-                    new ModificationResource($this->modifications),
+                new ModificationResource($this->modifications),
                 null),
-        ];
-    }
+        ];    }
 }

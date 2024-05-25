@@ -11,15 +11,17 @@ class Order extends Model
     use SoftDeletes;
 
     public const ORDER_STATUS_STRING = [
-        0 => 'CREATED',
-        1 => 'PROCESSING',
-        2 => 'COMPLETE',
+        0 => 'PENDING',
+        1 => 'CONFIRMED',
+        2 => 'PROCESSING',
+        3 => 'COMPLETE',
     ];
 
     public const ORDER_STATUS_INT = [
-        'CREATED' => 0,
-        'PROCESSING' => 1,
-        'COMPLETE' => 2,
+        'PENDING' => 0,
+        'CONFIRMED' => 1,
+        'PROCESSING' => 2,
+        'COMPLETE' => 3,
     ];
 
     public const ORDER_START_NUMBER = 1000;

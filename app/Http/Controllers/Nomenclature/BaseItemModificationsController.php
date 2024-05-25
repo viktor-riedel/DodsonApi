@@ -12,7 +12,6 @@ use App\Http\Controllers\Controller;
 use App\Http\ExternalApiHelpers\CatalogApiHelper;
 use App\Http\Resources\ItemPdrPositionListResource;
 use App\Models\NomenclatureBaseItem;
-use App\Models\NomenclatureBaseItemPdr;
 use App\Models\NomenclatureBaseItemPdrPosition;
 use Illuminate\Http\Request;
 

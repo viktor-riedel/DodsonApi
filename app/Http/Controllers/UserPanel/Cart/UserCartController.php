@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\UserPanel\Cart;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Cart\CarItemResource;
 use App\Http\Resources\StockCars\StockCarResource;
 use App\Http\Traits\CartTrait;
 use App\Models\Car;
@@ -21,11 +22,19 @@ class UserCartController extends Controller
                     $request->user()->cart->cartItems->pluck('car_id')->toArray()
                 )
                 ->with('carFinance', 'images', 'carAttributes', 'modifications')
-                ->get()->each(function($car) {
-                    $car->buy_with_engine = Car::WITH_ENGINE;
-                });
+                ->get()->each(function($car) use ($request) {
+                    $car->buy_with_engine =
+                        $request->user()->cart->cartItems->where('car_id', $car->id)
+                            ->first()?->with_engine;
+                    $car->buy_without_engine =
+                        $request->user()->cart->cartItems->where('car_id', $car->id)
+                            ->first()?->without_engine;
+                    $car->comment =
+                        $request->user()->cart->cartItems->where('car_id', $car->id)
+                            ->first()?->comment;
+            });
         return response()->json([
-            'cars' => StockCarResource::collection($cartCars),
+            'cars' => CarItemResource::collection($cartCars),
             'parts' => [],
         ]);
     }

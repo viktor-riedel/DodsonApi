@@ -21,6 +21,9 @@ class CartController extends Controller
             'cart_id'=> $request->user()->cart->id,
             'user_id' => $request->user()->id,
             'car_id' => $car->id,
+            'with_engine' => $request->input('with_engine') === Car::WITH_ENGINE,
+            'without_engine' => $request->input('with_engine') === Car::WITHOUT_ENGINE,
+            'comment' => $request->input('comment'),
         ]);
         event(new ItemAddedToCartEvent($request->user(), $item));
         return CartResource::collection($request->user()->cart->cartItems);
