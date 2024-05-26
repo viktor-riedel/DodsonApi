@@ -15,6 +15,7 @@ class ViewOrderResource extends JsonResource
             'country_code' => $this->country_code,
             'created_by' => $this->createdBy->name,
             'order_status' => Order::ORDER_STATUS_STRING[$this->order_status],
+            'order_status_id' => $this->order_status,
             'created' => $this->created_at->format('d/m/Y'),
             'order_number' => $this->order_number,
             'invoice' => $this->invoice_url,

@@ -15,10 +15,24 @@ class OrdersController extends Controller
     {
         $orders = Order::with('items', 'createdBy')
             ->withCount('items')
+            ->orderBy('created_at', 'desc')
             ->paginate(20);
         return OrderResource::collection($orders);
     }
 
+    public function statuses(): \Illuminate\Http\JsonResponse
+    {
+        $statuses = [];
+        foreach(Order::ORDER_STATUS_STRING as $key => $value) {
+            $statuses[] = [
+                'id' => $key,
+                'name' => $value,
+            ];
+        }
+
+        return response()->json($statuses);
+    }
+    
     public function view(Request $request, Order $order): ViewOrderResource
     {
         $order->load('carItems', 'createdBy');
