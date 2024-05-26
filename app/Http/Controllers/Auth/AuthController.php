@@ -30,6 +30,9 @@ class AuthController extends Controller
         $this->checkCartExist($user);
 
         $token = $user->createToken('auth_token')->plainTextToken;
+
+        $request->session()->regenerate();
+
         event(new LoginSuccessEvent(
             $request->user()->id, 'Login',
             'Login successful '.PHP_EOL.'Last login was: ' .
