@@ -95,4 +95,12 @@ class AuthController extends Controller
 
         return response()->json([], 203);
     }
+
+    public function logout(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->user()->tokens()->delete();
+        session()->regenerate();
+        auth()->guard('web')->logout();
+        return response()->json([], 204);
+    }
 }
