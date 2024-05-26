@@ -32,7 +32,6 @@ class RouteServiceProvider extends ServiceProvider
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')
-                //->group(base_path('routes/api.php'))
                 //admin part
                 ->group(base_path('/routes/UserRoutes/UserRoutes.php'))
                 ->group(base_path('/routes/Nomenclature/NomenclatureRoutes.php'))
@@ -53,9 +52,6 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('/routes/Public/StockCars/StockCarsRoutes.php'))
                 ->group(base_path('/routes/Public/StockParts/StockPartsRoutes.php'))
                 ->group(base_path('/routes/Website/WebsiteRoutes.php'));
-
-//            Route::middleware('web')
-//                ->group(base_path('routes/web.php'));
         });
     }
 }
