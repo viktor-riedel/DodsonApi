@@ -22,6 +22,7 @@ return [
     'allowed_origins' => [
         env('FRONTEND_URL', 'http://localhost:9000'),
         'staging.dodsonparts.online',
+        'apistaging.dodsonparts.online',
         'dodsonparts.online',
     ],
 
