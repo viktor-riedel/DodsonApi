@@ -30,6 +30,7 @@ class User extends Authenticatable
         'reset_code',
         'last_login_at',
         'country_code',
+        'is_api_user',
     ];
 
     /**

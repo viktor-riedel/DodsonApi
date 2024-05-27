@@ -21,6 +21,7 @@ class UserResource extends JsonResource
             'available_roles' => Role::get(),
             'country_name' => findCountryByCode($this->country_code ?? ''),
             'country_code' => $this->country_code,
+            'is_api_user' => (bool) $this->is_api_user,
         ];
     }
 }

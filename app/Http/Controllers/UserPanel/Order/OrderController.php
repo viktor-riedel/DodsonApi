@@ -11,7 +11,10 @@ class OrderController extends Controller
 {
     public function list(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $orders = $request->user()->orders()->with('items')->paginate(20);
+        $orders = $request->user()->orders()
+            ->with('items')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
         return OrderResource::collection($orders);
     }
 

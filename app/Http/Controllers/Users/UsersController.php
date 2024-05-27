@@ -59,6 +59,7 @@ class UsersController extends Controller
            'name' => $request->input('name'),
            'email' => $request->input('email'),
            'country_code' => $request->input('country_code'),
+           'is_api_user' => (bool) $request->input('is_api_user'),
         ]);
         if ($request->input('password')) {
             $user->update(['password' => bcrypt(trim($request->input('password')))]);
