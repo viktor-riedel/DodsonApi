@@ -62,6 +62,7 @@ class AuthController extends Controller
         if ($request->user()) {
             return response()->json([
                 'id' => $request->user()->id,
+                'api_user' => $request->user()->is_api_user,
                 'name' => $request->user()->name,
                 'email' => $request->user()->email,
                 'role' => $request->user()->getRoleNames()->first(),
