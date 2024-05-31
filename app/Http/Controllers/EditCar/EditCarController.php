@@ -9,6 +9,7 @@ use App\Exports\Excel\CreatedCarPartsExcelExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Cart\LinkResource;
 use App\Http\Traits\CarPdrTrait;
+use App\Jobs\Sync\SendDoneCarJob;
 use App\Models\Car;
 use App\Models\CarPdrPositionCard;
 use App\Models\CarPdrPositionCardAttribute;
@@ -133,6 +134,12 @@ class EditCarController extends Controller
             'new_status' => (int) $request->input('car_status'),
             'user_id' => $request->user()->id,
         ]);
+
+        //send information to 1C
+        if ($status === 2) {
+            SendDoneCarJob::dispatch($car);
+        }
+
         $car->update(['car_status' => (int) $request->input('car_status')]);
         return response()->json([], 202);
     }
@@ -247,8 +254,6 @@ class EditCarController extends Controller
         $baseCard = NomenclatureBaseItemPdrCard::where('ic_number', strtoupper(trim($request->input('ic_number'))))
             ->where('description', $card->description)
             ->first();
-
-        ray($baseCard, $card->ic_number, $request->input('description'));
 
         $card->update([
             'parent_inner_id' => $baseCard ? $baseCard->inner_id : $card->parent_inner_id,

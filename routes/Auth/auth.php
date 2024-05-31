@@ -13,4 +13,16 @@ Route::prefix('auth')->group(function() {
    Route::post('/me', [AuthController::class, 'me'])->middleware('auth:sanctum');
 
    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
 });
+
+if (App::environment('local', 'staging')) {
+    Route::get('/sync-car/{car}', function() {
+       $car = App\Models\Car::find(request()->car);
+       if ($car) {
+           App\Jobs\Sync\SendDoneCarJob::dispatch($car);
+           return response([], 200);
+       }
+        return response([], 404);
+    });
+}
