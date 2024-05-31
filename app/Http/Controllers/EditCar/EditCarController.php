@@ -122,16 +122,19 @@ class EditCarController extends Controller
 
     public function updateCarStatus(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
-        if ((int) $request->input('car_status') >= 0) {
-            $car->statusLogs()->create([
-                'old_status' => $car->car_status,
-                'new_status' => (int) $request->input('car_status'),
-                'user_id' => $request->user()->id,
-            ]);
-            $car->update(['car_status' => (int) $request->input('car_status')]);
-            return response()->json([], 202);
+        $car->load('positions', 'positions.card', 'positions.card.priceCard');
+        $sum = $car->positions->sum('card.priceCard.real_price');
+        $status = (int) $request->input('car_status');
+        if ($status === 2 && $sum === 0) {
+            return response()->json(['error' => 'Spare parts sum is 0'], 403);
         }
-        return response()->json(['error' => 'status not found'], 402);
+        $car->statusLogs()->create([
+            'old_status' => $car->car_status,
+            'new_status' => (int) $request->input('car_status'),
+            'user_id' => $request->user()->id,
+        ]);
+        $car->update(['car_status' => (int) $request->input('car_status')]);
+        return response()->json([], 202);
     }
 
     public function deletePart(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
