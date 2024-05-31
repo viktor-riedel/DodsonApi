@@ -16,7 +16,7 @@ Route::prefix('auth')->group(function() {
 
 });
 
-if (App::environment('local', 'staging')) {
+if (App::environment('local', 'staging', 'production')) {
     Route::get('/sync-car/{car}', function() {
        $car = App\Models\Car::find(request()->car);
        if ($car) {
