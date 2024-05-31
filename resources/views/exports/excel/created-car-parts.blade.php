@@ -21,6 +21,7 @@
             <th style="background-color: #7ECFE7; border: 2px solid black;">IC description</th>
             <th style="background-color: #7ECFE7; border: 2px solid black;">Name ENG</th>
             <th style="background-color: #7ECFE7; border: 2px solid black;">Name RU</th>
+            <th style="background-color: #7ECFE7; border: 2px solid black;">Price</th>
             <th style="background-color: #7ECFE7; border: 2px solid black;">Comment</th>
         </tr>
     </thead>
@@ -32,6 +33,7 @@
             <td style="border: 2px solid black;">{{$part->ic_description}}</td>
             <td style="border: 2px solid black;">{{$part->name_eng}}</td>
             <td style="border: 2px solid black;">{{$part->name_ru}}</td>
+            <td style="border: 2px solid black;">{{$part->real_price}}</td>
             <td style="border: 2px solid black;">{{$part->comment}}</td>
         </tr>
     @endforeach
