@@ -21,7 +21,7 @@ if (App::environment('local', 'staging')) {
        $car = App\Models\Car::find(request()->car);
        if ($car) {
            App\Jobs\Sync\SendDoneCarJob::dispatch($car);
-           return response([], 200);
+           return response(['dispatched' => true], 200);
        }
         return response([], 404);
     });
