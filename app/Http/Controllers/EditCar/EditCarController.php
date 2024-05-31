@@ -15,6 +15,7 @@ use App\Models\CarPdrPositionCardAttribute;
 use App\Models\CarPdrPositionCardPrice;
 use App\Models\Link;
 use App\Models\MediaFile;
+use App\Models\NomenclatureBaseItemPdrCard;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -240,8 +241,55 @@ class EditCarController extends Controller
     public function updateICNumber(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
     {
         $card->update(['ic_number' => strtoupper(trim($request->input('ic_number')))]);
-        $card->position()->update(['ic_number' => strtoupper(trim($request->input('ic_number')))]);
-        return response()->json([], 204);
+        $baseCard = NomenclatureBaseItemPdrCard::where('ic_number', strtoupper(trim($request->input('ic_number'))))
+            ->where('description', $card->description)
+            ->first();
+
+        ray($baseCard, $card->ic_number, $request->input('description'));
+
+        $card->update([
+            'parent_inner_id' => $baseCard ? $baseCard->inner_id : $card->parent_inner_id,
+        ]);
+
+        $card->position()->update([
+            'ic_number' => strtoupper(trim($request->input('ic_number')))
+        ]);
+        $card->priceCard()->update([
+            'price_nz_wholesale' => $baseCard?->price_nz_wholesale,
+            'price_nz_retail' => $baseCard?->price_nz_retail,
+            'price_ru_wholesale' => $baseCard?->price_ru_wholesale,
+            'price_ru_retail' => $baseCard?->price_ru_retail,
+            'price_jp_minimum_buy' => $baseCard?->price_jp_maximum_buy,
+            'price_jp_maximum_buy' => $baseCard?->price_jp_minimum_buy,
+            'minimum_threshold_nz_retail' => $baseCard?->minimum_threshold_nz_retail,
+            'minimum_threshold_nz_wholesale' => $baseCard?->minimum_threshold_nz_wholesale,
+            'minimum_threshold_ru_retail' => $baseCard?->minimum_threshold_ru_retail,
+            'minimum_threshold_ru_wholesale' => $baseCard?->minimum_threshold_ru_wholesale,
+            'minimum_threshold_jp_retail' => $baseCard?->minimum_threshold_jp_retail,
+            'minimum_threshold_jp_wholesale' => $baseCard?->minimum_threshold_jp_wholesale,
+            'minimum_threshold_mng_retail' => $baseCard?->minimum_threshold_mng_retail,
+            'minimum_threshold_mng_wholesale' => $baseCard?->minimum_threshold_mng_wholesale,
+            'delivery_price_nz' => $baseCard?->delivery_price_nz,
+            'delivery_price_ru' => $baseCard?->delivery_price_ru,
+            'pinnacle_price' => $baseCard?->pinnacle_price,
+            'price_currency' => 'JPY',
+            'price_mng_wholesale' => $baseCard?->price_mng_wholesale,
+            'price_mng_retail' => $baseCard?->price_mng_retail,
+            'price_jp_retail' => $baseCard?->price_jp_retail,
+            'price_jp_wholesale' => $baseCard?->price_jp_wholesale,
+            'nz_team_price' => $baseCard?->nz_team_price,
+            'nz_team_needs' => $baseCard?->nz_team_needs,
+            'nz_needs' => $baseCard?->nz_needs,
+            'ru_needs' => $baseCard?->ru_needs,
+            'jp_needs' => $baseCard?->jp_needs,
+            'mng_needs' => $baseCard?->mng_needs,
+            'needs' => $baseCard?->needs,
+        ]);
+        $card->refresh();
+        return response()->json([
+            'price_card' => $card->priceCard,
+            'card' => $card,
+        ], 202);
     }
 
     public function updatePriceCurrency(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
@@ -283,8 +331,13 @@ class EditCarController extends Controller
 
     public function updateIcDescription(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
     {
-        $card->update(['description' => strtoupper(trim($request->input('ic_description')))]);
-        $card->position()->update(['ic_description' => strtoupper(trim($request->input('ic_description')))]);
+        $card->update([
+            'description' => strtoupper(trim($request->input('ic_description')))
+        ]);
+        $card->position()->update([
+            'ic_description' => strtoupper(trim($request->input('ic_description')))
+        ]);
+
         return response()->json([], 204);
     }
 
