@@ -62,11 +62,12 @@ class ImportFromCapartsAction
                     'generation' => $generation,
                     'chassis' => $chassis,
                     'created_by' => $userId,
-                    'contr_agent_name' => $request->input('auction_info.auction')
+                    'contr_agent_name' => 'Carsbeck',//$request->input('auction_info.auction')
+                    'car_mvr' => $request->input('mvr.car_mvr'),
                 ]);
 
                 $car->carFinance()->create([
-                   'purchase_price' => $request->input('finance.data.price_company'),
+                   'purchase_price' => $request->input('finance.data.price_client'),
                 ]);
 
                 $car->importItem()->create([
