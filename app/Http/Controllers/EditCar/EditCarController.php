@@ -26,7 +26,13 @@ class EditCarController extends Controller
 
     public function edit(Car $car): \Illuminate\Http\JsonResponse
     {
-        $car->load('images', 'links', 'carAttributes', 'modification', 'modifications', 'createdBy', 'carFinance');
+        $car->load('images',
+            'links',
+            'carAttributes',
+            'modification',
+            'modifications',
+            'createdBy',
+            'carFinance');
         $parts = $this->buildPdrTreeWithoutEmpty($car, false);
         $partsList = $this->getPartsList($car);
         $car->unsetRelation('pdrs');
@@ -106,7 +112,6 @@ class EditCarController extends Controller
         ]);
 
         $car->carFinance()->update([
-            'purchase_price' => $request->integer('purchase_price'),
             'price_with_engine_nz' => $request->integer('price_with_engine_nz'),
             'price_without_engine_nz' => $request->integer('price_without_engine_nz'),
             'price_without_engine_ru' => $request->integer('price_without_engine_ru'),
@@ -126,6 +131,16 @@ class EditCarController extends Controller
         $car->load('positions', 'positions.card', 'positions.card.priceCard');
         $sum = $car->positions->sum('card.priceCard.real_price');
         $status = (int) $request->input('car_status');
+        if (($status === 3 || $status === 4) && !$car->car_mvr) {
+            return response()->json(['error' => 'MVR not set'], 403);
+        }
+        $notAllIc = $car->positions->filter(function ($position) {
+           return $position->ic_number === null || $position->ic_number === '';
+        });
+
+        if ($notAllIc) {
+            return response()->json(['error' => 'Not all IC set'], 403);
+        }
         if ($status === 2 && $sum === 0) {
             return response()->json(['error' => 'Spare parts sum is 0'], 403);
         }

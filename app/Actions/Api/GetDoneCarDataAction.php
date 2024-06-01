@@ -17,6 +17,8 @@ class GetDoneCarDataAction
             'modifications',
             'positions',
             'positions.card',
+            'positions.card.comments',
+            'positions.card.comments.createdBy',
             'positions.card.priceCard');
 
         $baseCar = NomenclatureBaseItem::
@@ -62,7 +64,9 @@ class GetDoneCarDataAction
                 ],
                 'finance' => [
                     'contr_agent' => $car->contr_agent_name,
-                    'purchase_price' => $car->carFinance->purchase_price,
+                    'purchase_price' => $car->positions->sum(function ($item) {
+                        return $item->card->priceCard->real_price;
+                    }),
                     'price_without_engine_nz' => $car->carFinance->price_without_engine_nz,
                     'price_with_engine_nz' => $car->carFinance->price_with_engine_nz,
                     'price_without_engine_ru' => $car->carFinance->price_without_engine_ru,
@@ -117,6 +121,13 @@ class GetDoneCarDataAction
                     'minimum_threshold_mng_retail' => $position->card->priceCard->minimum_threshold_mng_retail,
                     'minimum_threshold_mng_wholesale' => $position->card->priceCard->minimum_threshold_mng_wholesale,
                 ],
+                'comments' => $position->card->comments->transform(function ($comment) {
+                    return [
+                      'user' => $comment->createdBy->name,
+                      'comment' => $comment->comment,
+                      'created_at' => $comment->created_at->format('d/m/Y'),
+                    ];
+                })->toArray(),
             ];
         }
 

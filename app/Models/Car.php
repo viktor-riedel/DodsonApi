@@ -21,10 +21,10 @@ class Car extends Model
     public const CAR_STATUSES = [
         0 => 'virtual',
         1 => 'in work',
-        2 => 'done',
         3 => 'dismantling',
         4 => 'dismantled',
-        5 => 'problem',
+        5 => 'car for parts',
+        2 => 'done',
     ];
 
     protected $fillable = [
