@@ -138,7 +138,7 @@ class EditCarController extends Controller
            return $position->ic_number === null || $position->ic_number === '';
         });
 
-        if ($notAllIc) {
+        if ($status === 2 && $notAllIc) {
             return response()->json(['error' => 'Not all IC set'], 403);
         }
         if ($status === 2 && $sum === 0) {
@@ -236,6 +236,7 @@ class EditCarController extends Controller
 
     public function addListParts(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
+        dd(1);
         app()->make(AddListPartsAction::class)->handle($car, $request->user()->id, $request->all());
         return response()->json([], 201);
     }
