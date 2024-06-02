@@ -138,7 +138,7 @@ class EditCarController extends Controller
            return $position->ic_number === null || $position->ic_number === '';
         });
 
-        if ($status === 2 && $notAllIc) {
+        if ($status === 2 && $notAllIc->count() > 0) {
             return response()->json(['error' => 'Not all IC set'], 403);
         }
         if ($status === 2 && $sum === 0) {
