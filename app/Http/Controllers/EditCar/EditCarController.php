@@ -140,7 +140,7 @@ class EditCarController extends Controller
     }
 
 
-    public function uploadPartPhoto(Request $request, Car $car, CarPdrPositionCard $card)
+    public function uploadPartPhoto(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
     {
         if ($request->file('uploadPartPhotos')) {
             $storage = \Storage::disk('s3');
