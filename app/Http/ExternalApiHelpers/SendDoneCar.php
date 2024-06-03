@@ -10,7 +10,7 @@ class SendDoneCar
     public function sendData(array $data)
     {
         try {
-            $url = $this->buildUrl();
+            $url = $this->buildUrl('SetInventoryReceipt');
             $response = $this->prepareRequest($url)
                 ->accept('application/json')
                 ->withBasicAuth(config('russian_system_config.one_s_system_credentials.login'),
@@ -26,8 +26,11 @@ class SendDoneCar
         return null;
     }
 
-    private function buildUrl(): string
+    private function buildUrl(string $apiPoint = ''): string
     {
+        if ($apiPoint) {
+            return config('russian_system_config.one_s_system_credentials.car_done') . '/' . $apiPoint;
+        }
         return config('russian_system_config.one_s_system_credentials.car_done');
     }
 
