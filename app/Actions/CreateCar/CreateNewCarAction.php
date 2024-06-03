@@ -109,8 +109,8 @@ class CreateNewCarAction
             // add misc parts under MISC folder
             foreach($request->misc as $misc_part) {
                 $position = $miscPdr->positions()->create([
-                    'item_name_ru' => $misc_part['part_name_eng'],
-                    'item_name_eng' => $misc_part['part_name_ru'] ?? null,
+                    'item_name_ru' => $misc_part['part_name_ru'],
+                    'item_name_eng' => $misc_part['part_name_eng'] ?? null,
                     'ic_number' => $misc_part['ic_number'] ?? '',
                     'oem_number' => null,
                     'ic_description' => $misc_part['description'],
