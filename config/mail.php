@@ -33,6 +33,8 @@ return [
     |
     */
 
+    'info_email' => env('INFO_EMAIL'),
+
     'mailers' => [
         'smtp' => [
             'transport' => 'smtp',

@@ -7,12 +7,16 @@ use App\Actions\CreateCar\AddMiscPartsAction;
 use App\Actions\CreateCar\AddPartsFromModificationListAction;
 use App\Exports\Excel\CreatedCarPartsExcelExport;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Cart\LinkResource;
 use App\Http\Traits\CarPdrTrait;
+use App\Jobs\Sync\SendDoneCarJob;
 use App\Models\Car;
 use App\Models\CarPdrPositionCard;
 use App\Models\CarPdrPositionCardAttribute;
 use App\Models\CarPdrPositionCardPrice;
+use App\Models\Link;
 use App\Models\MediaFile;
+use App\Models\NomenclatureBaseItemPdrCard;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -22,7 +26,13 @@ class EditCarController extends Controller
 
     public function edit(Car $car): \Illuminate\Http\JsonResponse
     {
-        $car->load('images', 'carAttributes', 'modification', 'modifications', 'createdBy', 'carFinance');
+        $car->load('images',
+            'links',
+            'carAttributes',
+            'modification',
+            'modifications',
+            'createdBy',
+            'carFinance');
         $parts = $this->buildPdrTreeWithoutEmpty($car, false);
         $partsList = $this->getPartsList($car);
         $car->unsetRelation('pdrs');
@@ -87,6 +97,7 @@ class EditCarController extends Controller
             'car_mvr' => trim($request->input('car_mvr')),
             'comment' => trim($request->input('comment')),
             'contr_agent_name' => ucwords(trim($request->input('contr_agent_name'))),
+            'chassis' => strtoupper(trim($request->input('chassis'))),
         ]);
         $car->carAttributes()->update([
             'color' => strtoupper(trim($request->input('color'))),
@@ -101,9 +112,14 @@ class EditCarController extends Controller
         ]);
 
         $car->carFinance()->update([
-            'purchase_price' => $request->integer('purchase_price'),
-            'price_with_engine' => $request->integer('price_with_engine'),
-            'price_without_engine' => $request->integer('price_without_engine'),
+            'price_with_engine_nz' => $request->integer('price_with_engine_nz'),
+            'price_without_engine_nz' => $request->integer('price_without_engine_nz'),
+            'price_without_engine_ru' => $request->integer('price_without_engine_ru'),
+            'price_with_engine_ru' => $request->integer('price_with_engine_ru'),
+            'price_with_engine_mn' => $request->integer('price_with_engine_mn'),
+            'price_without_engine_mn' => $request->integer('price_without_engine_mn'),
+            'price_with_engine_jp' => $request->integer('price_with_engine_jp'),
+            'price_without_engine_jp' => $request->integer('price_without_engine_jp'),
             'car_is_for_sale' => (bool) $request->input('car_is_for_sale'),
         ]);
 
@@ -112,16 +128,35 @@ class EditCarController extends Controller
 
     public function updateCarStatus(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
-        if ((int) $request->input('car_status') >= 0) {
-            $car->statusLogs()->create([
-                'old_status' => $car->car_status,
-                'new_status' => (int) $request->input('car_status'),
-                'user_id' => $request->user()->id,
-            ]);
-            $car->update(['car_status' => (int) $request->input('car_status')]);
-            return response()->json([], 202);
+        $car->load('positions', 'positions.card', 'positions.card.priceCard');
+        $sum = $car->positions->sum('card.priceCard.real_price');
+        $status = (int) $request->input('car_status');
+        if (($status === 3 || $status === 4) && !$car->car_mvr) {
+            return response()->json(['error' => 'MVR not set'], 403);
         }
-        return response()->json(['error' => 'status not found'], 402);
+        $notAllIc = $car->positions->filter(function ($position) {
+           return $position->ic_number === null || $position->ic_number === '';
+        });
+
+        if ($status === 2 && $notAllIc->count() > 0) {
+            return response()->json(['error' => 'Not all IC set'], 403);
+        }
+        if ($status === 2 && $sum === 0) {
+            return response()->json(['error' => 'Spare parts sum is 0'], 403);
+        }
+        $car->statusLogs()->create([
+            'old_status' => $car->car_status,
+            'new_status' => (int) $request->input('car_status'),
+            'user_id' => $request->user()->id,
+        ]);
+
+        //send information to 1C
+        if ($status === 2) {
+            SendDoneCarJob::dispatch($car);
+        }
+
+        $car->update(['car_status' => (int) $request->input('car_status')]);
+        return response()->json([], 202);
     }
 
     public function deletePart(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
@@ -201,6 +236,7 @@ class EditCarController extends Controller
 
     public function addListParts(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
+        dd(1);
         app()->make(AddListPartsAction::class)->handle($car, $request->user()->id, $request->all());
         return response()->json([], 201);
     }
@@ -231,8 +267,53 @@ class EditCarController extends Controller
     public function updateICNumber(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
     {
         $card->update(['ic_number' => strtoupper(trim($request->input('ic_number')))]);
-        $card->position()->update(['ic_number' => strtoupper(trim($request->input('ic_number')))]);
-        return response()->json([], 204);
+        $baseCard = NomenclatureBaseItemPdrCard::where('ic_number', strtoupper(trim($request->input('ic_number'))))
+            ->where('description', $card->description)
+            ->first();
+
+        $card->update([
+            'parent_inner_id' => $baseCard ? $baseCard->inner_id : $card->parent_inner_id,
+        ]);
+
+        $card->position()->update([
+            'ic_number' => strtoupper(trim($request->input('ic_number')))
+        ]);
+        $card->priceCard()->update([
+            'price_nz_wholesale' => $baseCard?->price_nz_wholesale,
+            'price_nz_retail' => $baseCard?->price_nz_retail,
+            'price_ru_wholesale' => $baseCard?->price_ru_wholesale,
+            'price_ru_retail' => $baseCard?->price_ru_retail,
+            'price_jp_minimum_buy' => $baseCard?->price_jp_maximum_buy,
+            'price_jp_maximum_buy' => $baseCard?->price_jp_minimum_buy,
+            'minimum_threshold_nz_retail' => $baseCard?->minimum_threshold_nz_retail,
+            'minimum_threshold_nz_wholesale' => $baseCard?->minimum_threshold_nz_wholesale,
+            'minimum_threshold_ru_retail' => $baseCard?->minimum_threshold_ru_retail,
+            'minimum_threshold_ru_wholesale' => $baseCard?->minimum_threshold_ru_wholesale,
+            'minimum_threshold_jp_retail' => $baseCard?->minimum_threshold_jp_retail,
+            'minimum_threshold_jp_wholesale' => $baseCard?->minimum_threshold_jp_wholesale,
+            'minimum_threshold_mng_retail' => $baseCard?->minimum_threshold_mng_retail,
+            'minimum_threshold_mng_wholesale' => $baseCard?->minimum_threshold_mng_wholesale,
+            'delivery_price_nz' => $baseCard?->delivery_price_nz,
+            'delivery_price_ru' => $baseCard?->delivery_price_ru,
+            'pinnacle_price' => $baseCard?->pinnacle_price,
+            'price_currency' => 'JPY',
+            'price_mng_wholesale' => $baseCard?->price_mng_wholesale,
+            'price_mng_retail' => $baseCard?->price_mng_retail,
+            'price_jp_retail' => $baseCard?->price_jp_retail,
+            'price_jp_wholesale' => $baseCard?->price_jp_wholesale,
+            'nz_team_price' => $baseCard?->nz_team_price,
+            'nz_team_needs' => $baseCard?->nz_team_needs,
+            'nz_needs' => $baseCard?->nz_needs,
+            'ru_needs' => $baseCard?->ru_needs,
+            'jp_needs' => $baseCard?->jp_needs,
+            'mng_needs' => $baseCard?->mng_needs,
+            'needs' => $baseCard?->needs,
+        ]);
+        $card->refresh();
+        return response()->json([
+            'price_card' => $card->priceCard,
+            'card' => $card,
+        ], 202);
     }
 
     public function updatePriceCurrency(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
@@ -274,8 +355,13 @@ class EditCarController extends Controller
 
     public function updateIcDescription(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
     {
-        $card->update(['description' => strtoupper(trim($request->input('ic_description')))]);
-        $card->position()->update(['ic_description' => strtoupper(trim($request->input('ic_description')))]);
+        $card->update([
+            'description' => strtoupper(trim($request->input('ic_description')))
+        ]);
+        $card->position()->update([
+            'ic_description' => strtoupper(trim($request->input('ic_description')))
+        ]);
+
         return response()->json([], 204);
     }
 
@@ -294,5 +380,27 @@ class EditCarController extends Controller
                 });
         }
         return response()->json($partIds, 202);
+    }
+
+    public function linksList(Request $request, Car $car): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    {
+        return LinkResource::collection($car->links()->with('createdBy')->get());
+    }
+
+    public function addLink(Request $request, Car $car): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    {
+        $car->links()->create([
+            'url' => $request->input('url'),
+            'type' => $request->input('type'),
+            'created_by' => $request->user()->id,
+        ]);
+        return LinkResource::collection($car->links()->with('createdBy')->get());
+    }
+
+    public function deleteLink(Request $request, Car $car, Link $link): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    {
+        $link->update(['deleted_by' => $request->user()->id]);
+        $link->delete();
+        return LinkResource::collection($car->links()->with('createdBy')->get());
     }
 }

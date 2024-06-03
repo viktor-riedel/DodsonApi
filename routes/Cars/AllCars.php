@@ -38,5 +38,11 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
             Route::patch('/ic-description/{card}', [EditCarController::class, 'updateIcDescription']);
             Route::patch('/set-parts-price', [EditCarController::class, 'setPartsPrice']);
         });
+
+        Route::prefix('/links')->group(function() {
+           Route::get('/', [EditCarController::class, 'linksList']);
+           Route::post('/add-link', [EditCarController::class, 'addLink']);
+           Route::delete('/{link}/delete', [EditCarController::class, 'deleteLink']);
+        });
     });
 });

@@ -15,13 +15,16 @@ class Car extends Model
 {
     use SoftDeletes;
 
+    public const WITH_ENGINE = 'WITH_ENGINE';
+    public const WITHOUT_ENGINE = 'WITHOUT_ENGINE';
+
     public const CAR_STATUSES = [
         0 => 'virtual',
         1 => 'in work',
-        2 => 'done',
         3 => 'dismantling',
         4 => 'dismantled',
-        5 => 'problem',
+        5 => 'car for parts',
+        2 => 'done',
     ];
 
     protected $fillable = [
@@ -36,15 +39,11 @@ class Car extends Model
         'created_by',
         'deleted_by',
         'contr_agent_name',
-        'price_with_engine',
-        'price_without_engine',
-        'car_is_for_sale',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'car_is_for_sale' => 'boolean',
     ];
 
     protected $hidden = ['updated_at', 'deleted_at'];
@@ -64,6 +63,11 @@ class Car extends Model
     public function images(): MorphMany
     {
         return $this->morphMany(MediaFile::class, 'mediable');
+    }
+
+    public function links(): MorphMany
+    {
+        return $this->morphMany(Link::class, 'linkable');
     }
 
     public function carAttributes(): HasOne
@@ -119,5 +123,10 @@ class Car extends Model
     public function carFinance(): HasOne
     {
         return $this->hasOne(CarFinance::class);
+    }
+
+    public function wished(): MorphOne
+    {
+        return $this->morphOne(WishList::class, 'wishable');
     }
 }

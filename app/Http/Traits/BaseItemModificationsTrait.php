@@ -42,8 +42,7 @@ trait BaseItemModificationsTrait
             $data = $apiHelper->findMvrHeadersByMakeModelGeneration(
                 $make,
                 $model,
-                $generation,
-                false
+                $generation
             );
             Cache::put($key, $data, now()->addHours(3));
         }

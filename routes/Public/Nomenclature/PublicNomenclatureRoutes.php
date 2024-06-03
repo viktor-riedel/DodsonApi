@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::namespace('Public')->middleware('auth:sanctum')->group(function() {
     Route::prefix('nomenclature')->group(function() {
+        Route::get('/defaults', [PartsController::class, 'defaults']);
         Route::get('/makes', [MakesController::class, 'list']);
         Route::get('/makes/{make}/models', [ModelsController::class, 'list']);
         Route::get('/makes/{make}/models/{model}/parts', [PartsController::class, 'list']);

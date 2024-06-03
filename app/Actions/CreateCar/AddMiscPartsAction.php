@@ -80,6 +80,10 @@ class AddMiscPartsAction
                     'delivery_price_nz' => null,
                     'delivery_price_ru' => null,
                     'pinnacle_price' => null,
+                    'minimum_threshold_jp_retail' => null,
+                    'minimum_threshold_jp_wholesale' => null,
+                    'minimum_threshold_mng_retail' => null,
+                    'minimum_threshold_mng_wholesale' => null,
                 ]);
                 $card->partAttributesCard()->create([
                     'color' => null,

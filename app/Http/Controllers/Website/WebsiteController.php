@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Website\ContactUsRequest;
+use App\Http\Requests\Website\EnquiryRequest;
 use App\Mail\ContactUsMail;
+use App\Mail\EnquiryMail;
+use App\Models\Lead;
 
 class WebsiteController extends Controller
 {
@@ -20,5 +23,23 @@ class WebsiteController extends Controller
         \Mail::to(config('misc.info_email'))->send(new ContactUsMail($data));
 
         return response()->json([], 202);
+    }
+
+    public function sendEnquiry(EnquiryRequest $request)
+    {
+        $data = [
+            'name' => ucwords($request->validated('name')),
+            'email' => $request->validated('email'),
+            'phone' => $request->validated('phone'),
+            'order' => $request->validated('order'),
+        ];
+        $lead = Lead::create([
+            'lead_name' => 'Website Enquiry',
+            'from' =>ucwords($request->validated('name')),
+            'lead_type' => Lead::LEAD_TYPES['ENQUIRY'],
+            'lead_status' => 0,
+            'lead_description' => $request->validated('order'),
+        ]);
+        \Mail::to(config('misc.info_email'))->send(new EnquiryMail($data));
     }
 }

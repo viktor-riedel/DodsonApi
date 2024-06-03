@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\AuthRequest;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\RestorePasswordRequest;
+use App\Http\Traits\CartTrait;
 use App\Jobs\Auth\ResetPasswordJob;
 use App\Models\User;
 use Carbon\Carbon;
@@ -14,6 +15,8 @@ use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
+    use CartTrait;
+
     public function login(AuthRequest $request): \Illuminate\Http\JsonResponse
     {
         $email = $request->validated('email');
@@ -21,17 +24,31 @@ class AuthController extends Controller
         if (!auth()->attempt(['email' => $email, 'password' => $password])) {
             return response()->json(['message' => 'invalid credentials'], 401);
         }
+
         $user = User::where('email', $email)->firstOrFail();
-        if ($user->hasRole('USER')) {
-            abort(401, 'Users login is not allowed at the moment');
-        }
+
+        $this->checkCartExist($user);
+
         $token = $user->createToken('auth_token')->plainTextToken;
+
+        $request->session()->regenerate();
+
         event(new LoginSuccessEvent(
             $request->user()->id, 'Login',
-            'Login successful '.PHP_EOL.'Last login was: ' . Carbon::parse($request->user()->last_login)->format('d/m/Y'),
+            'Login successful '.PHP_EOL.'Last login was: ' .
+            (
+                $request->user()->last_login_at ?
+                Carbon::parse($request->user()->last_login_at)->format('d/m/Y')
+                : now()->format('d/m/Y')
+            ),
             'success')
         );
-        $user->update(['last_login' => now()]);
+        $user->update(['last_login_at' => now()]);
+        $userRole = $user->getRoleNames()->first();
+        if (!$userRole) {
+            $user->assignRole('USER');
+        }
+
         return response()->json([
            'name' => $user->name,
            'email' => $user->email,
@@ -45,9 +62,11 @@ class AuthController extends Controller
         if ($request->user()) {
             return response()->json([
                 'id' => $request->user()->id,
+                'api_user' => $request->user()->is_api_user,
                 'name' => $request->user()->name,
                 'email' => $request->user()->email,
                 'role' => $request->user()->getRoleNames()->first(),
+                'country_code' => $request->user()->country_code,
                 'permissions' => $request->user()->getPermissionsViaRoles()->pluck('name')->toArray(),
             ]);
         }
@@ -76,5 +95,13 @@ class AuthController extends Controller
         }
 
         return response()->json([], 203);
+    }
+
+    public function logout(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->user()->tokens()->delete();
+        auth()->guard('web')->logout();
+        $request->session()->invalidate();
+        return response()->json([], 204);
     }
 }

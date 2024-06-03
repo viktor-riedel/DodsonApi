@@ -14,12 +14,14 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'last_login' => null,
             'roles' => $this->getRoleNames()->first(),
-            'created' => $this->created_at ? $this->created_at->format('d/m/Y') : null,
+            'last_login' => $this->last_login_at ? $this->last_login_at->format('d/m/Y H:i') : null,
             'inactive' => $this->trashed(),
             'card' => $this->whenLoaded('userCard', new UserCardResource($this->userCard), null),
             'available_roles' => Role::get(),
+            'country_name' => findCountryByCode($this->country_code ?? ''),
+            'country_code' => $this->country_code,
+            'is_api_user' => (bool) $this->is_api_user,
         ];
     }
 }
