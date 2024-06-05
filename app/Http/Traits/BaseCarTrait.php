@@ -122,7 +122,6 @@ trait BaseCarTrait
         string $modification
     ): \Illuminate\Http\JsonResponse
     {
-        ray()->queries();
         $cards = \DB::table('nomenclature_base_item_pdr_positions')
             ->selectRaw('distinct nomenclature_base_item_pdr_positions.id,
                                    nomenclature_base_item_pdrs.item_name_eng,
