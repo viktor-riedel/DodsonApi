@@ -150,13 +150,17 @@ class EditCarController extends Controller
             'user_id' => $request->user()->id,
         ]);
 
-        //send information to 1C
-        if ($status === 2) {
-            SendDoneCarJob::dispatch($car);
-        }
-
         $car->update(['car_status' => (int) $request->input('car_status')]);
         return response()->json([], 202);
+    }
+
+    public function syncCar(Car $car): \Illuminate\Http\JsonResponse
+    {
+        if ($car->car_status === 2) {
+            SendDoneCarJob::dispatch($car);
+            return response()->json([], 202);
+        }
+        return response()->json(['error' => 'Car status is not DONE'], 403);
     }
 
     public function deletePart(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
