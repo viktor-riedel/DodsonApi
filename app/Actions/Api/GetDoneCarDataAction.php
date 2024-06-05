@@ -123,6 +123,7 @@ class GetDoneCarDataAction
                 ],
                 'comments' => $position->card->comments->transform(function ($comment) {
                     return [
+                      'email' => $comment->createdBy->email,
                       'user' => $comment->createdBy->name,
                       'comment' => $comment->comment,
                       'created_at' => $comment->created_at->format('d/m/Y'),

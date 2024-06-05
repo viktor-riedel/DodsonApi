@@ -28,7 +28,8 @@ class SendDoneCarJob implements ShouldQueue
         try {
             $data = app()->make(GetDoneCarDataAction::class)->handle($this->car);
             $this->httpHelper = new SendDoneCar();
-            $this->httpHelper->sendData($data);
+            $response = $this->httpHelper->sendData($data);
+            // update db with server response
         } catch (\Exception $e) {
             dump($e);
             \Log::error('SYNC DONE CAR: ' . $e->getMessage());
