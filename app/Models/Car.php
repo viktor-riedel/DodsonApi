@@ -85,6 +85,16 @@ class Car extends Model
         return $this->morphOne(NomenclatureModification::class, 'modificationable');
     }
 
+    public function syncedPartsData(): MorphMany
+    {
+        return $this->morphMany(SyncData::class, 'syncable');
+    }
+
+    public function latestSyncData(): MorphOne
+    {
+        return $this->morphOne(SyncData::class, 'syncable')->latest();
+    }
+
     public function pdrs(): HasMany
     {
         return $this->hasMany(CarPdr::class);
