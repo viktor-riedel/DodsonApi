@@ -84,8 +84,8 @@ class GetDoneCarDataAction
         foreach($car->positions as $position) {
             $result['car']['items'][] = [
                 'inner_id' => $position->card?->parent_inner_id,
-                'item_name_ru' => $position->item_name_ru,
-                'item_name_eng' => $position->item_name_eng,
+                'item_name_ru' => $position->card?->name_ru,
+                'item_name_eng' => $position->card?->name_eng,
                 'ic_number' => $position->ic_number,
                 'ic_description' => $position->ic_description,
                 'finance' => [
