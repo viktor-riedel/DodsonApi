@@ -9,8 +9,6 @@ class GetDoneCarDataAction
 {
     public function handle(Car $car): array
     {
-        $result = [];
-
         $car->load('images',
             'carAttributes',
             'carFinance',
@@ -19,6 +17,8 @@ class GetDoneCarDataAction
             'positions.card',
             'positions.card.comments',
             'positions.card.comments.createdBy',
+            'latestSyncData',
+            'latestSyncData.createdBy',
             'positions.card.priceCard');
 
         $baseCar = NomenclatureBaseItem::
@@ -61,6 +61,15 @@ class GetDoneCarDataAction
                 'engine' => $car->carAttributes->engine,
                 'mvr' => [
                     'mvr' => $car->car_mvr,
+                ],
+                'synced_data' => [
+                  'number' => $car->latestSyncData?->document_number,
+                  'date' => $car->latestSyncData?->document_date,
+                  'synced_by' => [
+                      'name' => $car->latestSyncData?->createdBy?->name,
+                      'email' => $car->latestSyncData?->createdBy?->email,
+                      'date' => $car->latestSyncData?->created_at?->fromat('d/m/Y H:i'),
+                  ],
                 ],
                 'finance' => [
                     'contr_agent' => $car->contr_agent_name,

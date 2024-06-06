@@ -32,6 +32,7 @@ class EditCarController extends Controller
             'modification',
             'modifications',
             'createdBy',
+            'latestSyncData',
             'carFinance');
         $parts = $this->buildPdrTreeWithoutEmpty($car, false);
         $partsList = $this->getPartsList($car);
@@ -154,10 +155,10 @@ class EditCarController extends Controller
         return response()->json([], 202);
     }
 
-    public function syncCar(Car $car): \Illuminate\Http\JsonResponse
+    public function syncCar(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
         if ($car->car_status === 2) {
-            SendDoneCarJob::dispatch($car);
+            SendDoneCarJob::dispatch($car, $request->user());
             return response()->json([], 202);
         }
         return response()->json(['error' => 'Car status is not DONE'], 403);
