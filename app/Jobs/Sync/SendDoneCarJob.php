@@ -33,11 +33,12 @@ class SendDoneCarJob implements ShouldQueue
             $data = app()->make(GetDoneCarDataAction::class)->handle($this->car);
             $this->httpHelper = new SendDoneCar();
             $response = $this->httpHelper->sendData($data);
+            ray($response);
             if ($response) {
                 $this->car->syncedPartsData()->create([
                     'document_number' => $response['Number'] ?? null,
                     'document_date' => $response['Date'] ?
-                        Carbon::createFromFormat('d/m/Y H:i:s a', $response['Date'])->format('d/m/Y H:i:s') :
+                        Carbon::createFromFormat('d-m-Y', $response['Date'])->format('d/m/Y') :
                         null,
                     'created_by' => $this->user->id,
                 ]);
