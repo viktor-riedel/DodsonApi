@@ -15,6 +15,7 @@ class RegisterController extends Controller
             'name' => $request->validated('first_name') . ' ' . $request->validated('last_name'),
             'email' => $request->validated('user_email'),
             'password' => bcrypt($request->validated('password')),
+            'country_code' => $request->validated('user_country'),
             'last_login_at' => now(),
         ]);
 

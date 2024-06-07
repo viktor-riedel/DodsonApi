@@ -5,7 +5,9 @@
         </td>
     </tr>
     <tr>
-        <strong>Chassis: {{$car->carAttributes->chassis}}</strong>
+        <td>
+            <strong>Chassis: {{$car->carAttributes->chassis}}</strong>
+        </td>
     </tr>
     <tr>
         <td>
@@ -32,7 +34,13 @@
             <td style="border: 2px solid black;">{{$part->ic_description}}</td>
             <td style="border: 2px solid black;">{{$part->name_eng}}</td>
             <td style="border: 2px solid black;">{{$part->name_ru}}</td>
-            <td style="border: 2px solid black;">{{$part->comment}}</td>
+            <td style="border: 2px solid black;">
+                @if($part->card->comments->count())
+                    @foreach($part->card->comments as $comment)
+                        <p>{{$comment->createdBy->name}}: {{$comment->comment}}</p>
+                    @endforeach
+                @endif
+            </td>
         </tr>
     @endforeach
     </tbody>

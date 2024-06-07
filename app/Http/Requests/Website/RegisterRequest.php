@@ -14,6 +14,7 @@ class RegisterRequest extends FormRequest
             'user_email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'min:6'],
             'repeat_password' => ['required', 'min:6', 'same:password'],
+            'user_country' => ['required'],
         ];
     }
 
