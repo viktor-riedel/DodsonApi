@@ -68,7 +68,7 @@ class GetDoneCarDataAction
                   'synced_by' => [
                       'name' => $car->latestSyncData?->createdBy?->name,
                       'email' => $car->latestSyncData?->createdBy?->email,
-                      'date' => $car->latestSyncData?->created_at?->fromat('d/m/Y H:i'),
+                      'date' => $car->latestSyncData?->created_at?->format('d/m/Y H:i'),
                   ],
                 ],
                 'finance' => [
