@@ -129,7 +129,7 @@ function install_font_family($dompdf, $fontname, $normal, $bold = null, $italic 
     // Copy the files to the font directory.
     foreach ($fonts as $var => $src) {
         if ( is_null($src) ) {
-            $entry[$var] = $dompdf->getOptions()->get('fontDir') . '/' . mb_substr(basename($normal), 0, -4);
+            $entry[$var] = $dompdf->getOptions()->get('fontDir').'load_font.php/'. mb_substr(basename($normal), 0, -4);
             continue;
         }
 
@@ -137,7 +137,7 @@ function install_font_family($dompdf, $fontname, $normal, $bold = null, $italic 
         if ( !is_readable($src) )
             throw new Exception("Requested font '$src' is not readable");
 
-        $dest = $dompdf->getOptions()->get('fontDir') . '/' . basename($src);
+        $dest = $dompdf->getOptions()->get('fontDir').'load_font.php/'. basename($src);
 
         if ( !is_writeable(dirname($dest)) )
             throw new Exception("Unable to write to destination '$dest'.");
