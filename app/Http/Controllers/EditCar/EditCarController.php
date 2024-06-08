@@ -19,6 +19,7 @@ use App\Models\MediaFile;
 use App\Models\NomenclatureBaseItemPdrCard;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class EditCarController extends Controller
 {
@@ -181,6 +182,22 @@ class EditCarController extends Controller
         return response()->json(['error' => 'Car status is not DONE'], 403);
     }
 
+    public function generateDismantlingDocument(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    {
+        $partsList = $this->getPartsList($car);
+        $pdf = Pdf::loadView('exports.pdf.dismantling-document', [
+            'parts' => $partsList,
+            'car' => $car,
+        ])->stream();
+        $storage = \Storage::disk('s3');
+        $folderName = 'cars/' . $car->id . '/documents';
+        $fileName = $car->make . '_' . $car->model . '_' . \Str::replace('-', '', $car->chassis) . '_dismantling';
+        $savePath = $folderName.'/'.$fileName . '.pdf';
+        $storage->put($savePath, $pdf, 'public');
+        $url = \Storage::disk('s3')->url($savePath);
+        return response()->json(['link' => $url]);
+    }
+
     public function deletePart(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
     {
         $card->update(['deleted_by' => $request->user()->id]);
@@ -197,7 +214,7 @@ class EditCarController extends Controller
     }
 
 
-    public function uploadPartPhoto(Request $request, Car $car, CarPdrPositionCard $card)
+    public function uploadPartPhoto(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
     {
         if ($request->file('uploadPartPhotos')) {
             $storage = \Storage::disk('s3');
