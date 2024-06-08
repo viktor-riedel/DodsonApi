@@ -8,6 +8,12 @@
     <title>Dismantling document</title>
     <style>
         body {
+            @font-face {
+                font-family: "Roboto Light";
+                font-style: normal;
+                font-weight: 400;
+                src: url("/public/fonts/Roboto/Roboto-Light.ttf");
+            }
             font-family: "Roboto Light", "DejaVu Sans", serif;
         }
     </style>
