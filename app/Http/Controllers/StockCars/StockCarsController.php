@@ -26,8 +26,9 @@ class StockCarsController extends Controller
         $sortByModel = $request->get('sortByModel', null);
         $sortByYear = $request->get('sortByYear', null);
         $sortByPrice = $request->get('sortByPrice', null);
+        $country = $request->get('country', null);
 
-        $cars = Car::with('carFinance', 'images', 'carAttributes', 'modifications')
+        $cars = Car::with('carFinance', 'images', 'carAttributes', 'modifications', 'markets')
                 ->when($make, function ($query, $make) {
                     return $query->where('make', $make);
                 })
@@ -36,6 +37,11 @@ class StockCarsController extends Controller
                 })
                 ->when($generation, function ($query, $generation) {
                     return $query->where('generation', $generation);
+                })
+                ->when($country, function($query, $country) {
+                    return $query->whereHas('markets', function($q) use ($country) {
+                        return $q->where('country_code', $country);
+                    });
                 })
                 ->when($sortByMake, function ($query, $sortByMake) {
                     return $query->orderBy('make', $sortByMake);
@@ -65,7 +71,7 @@ class StockCarsController extends Controller
                 return $query->where('make', 'like', '%' . $searchText . '%')
                     ->orWhere('model', 'like', '%' . $searchText . '%')
                     ->orWhere('chassis', 'like', '%' . $searchText . '%');
-            })
+                })
 
             ->paginate(20);
         return StockCarResource::collection($cars);
@@ -77,10 +83,16 @@ class StockCarsController extends Controller
         return new StockCarResource($car);
     }
 
-    public function makes(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function makes(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
+        $country = $request->get('country', null);
         $makes = Car::whereHas('carFinance', function ($query) {
                 return $query->where('car_is_for_sale', 1);
+            })
+            ->when($country, function ($query, $country) {
+                return $query->whereHas('markets', function ($q) use ($country) {
+                    return $q->where('country_code', $country);
+                });
             })
             ->orderBy('make')
                 ->get('make')
@@ -88,10 +100,16 @@ class StockCarsController extends Controller
         return MakeResource::collection($makes);
     }
 
-    public function models(string $make): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function models(Request $request, string $make): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
+        $country = $request->get('country', null);
         $makes = Car::whereHas('carFinance', function ($query) {
                 return $query->where('car_is_for_sale', 1);
+            })
+            ->when($country, function ($query, $country) {
+                return $query->whereHas('markets', function ($q) use ($country) {
+                    return $q->where('country_code', $country);
+                });
             })
             ->where('make', $make)
             ->orderBy('model')
@@ -100,10 +118,16 @@ class StockCarsController extends Controller
         return ModelResource::collection($makes);
     }
 
-    public function generations(string $make, string $model): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function generations(Request $request, string $make, string $model): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
+        $country = $request->get('country', null);
         $makes = Car::whereHas('carFinance', function ($query) {
                 return $query->where('car_is_for_sale', 1);
+            })
+            ->when($country, function ($query, $country) {
+                return $query->whereHas('markets', function ($q) use ($country) {
+                    return $q->where('country_code', $country);
+                });
             })
             ->where('make', $make)
             ->where('model', $model)

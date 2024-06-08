@@ -19,6 +19,7 @@ use App\Models\MediaFile;
 use App\Models\NomenclatureBaseItemPdrCard;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class EditCarController extends Controller
 {
@@ -33,10 +34,20 @@ class EditCarController extends Controller
             'modifications',
             'createdBy',
             'latestSyncData',
+            'markets',
             'carFinance');
         $parts = $this->buildPdrTreeWithoutEmpty($car, false);
         $partsList = $this->getPartsList($car);
         $car->unsetRelation('pdrs');
+
+        if ($car->markets->count()) {
+            $car->markets->transform(function($market) {
+               return [
+                 'name' => findCountryByCode($market->country_code),
+                 'country_code' => $market->country_code,
+               ];
+            });
+        }
 
         return response()->json([
            'car_info' => $car,
@@ -112,6 +123,13 @@ class EditCarController extends Controller
             'chassis' => strtoupper(trim($request->input('chassis'))),
         ]);
 
+        $car->markets()->delete();
+        foreach($request->input('markets') as $market) {
+            $car->markets()->create([
+                'country_code' => $market['country_code'],
+            ]);
+        }
+
         $car->carFinance()->update([
             'price_with_engine_nz' => $request->integer('price_with_engine_nz'),
             'price_without_engine_nz' => $request->integer('price_without_engine_nz'),
@@ -121,6 +139,7 @@ class EditCarController extends Controller
             'price_without_engine_mn' => $request->integer('price_without_engine_mn'),
             'price_with_engine_jp' => $request->integer('price_with_engine_jp'),
             'price_without_engine_jp' => $request->integer('price_without_engine_jp'),
+            'purchase_price' => $request->integer('purchase_price'),
             'car_is_for_sale' => (bool) $request->input('car_is_for_sale'),
         ]);
 
@@ -162,6 +181,22 @@ class EditCarController extends Controller
             return response()->json([], 202);
         }
         return response()->json(['error' => 'Car status is not DONE'], 403);
+    }
+
+    public function generateDismantlingDocument(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    {
+        $partsList = $this->getPartsList($car);
+        $pdf = Pdf::loadView('exports.pdf.dismantling-document', [
+            'parts' => $partsList,
+            'car' => $car,
+        ])->stream();
+        $storage = \Storage::disk('s3');
+        $folderName = 'cars/' . $car->id . '/documents';
+        $fileName = $car->make . '_' . $car->model . '_' . \Str::replace('-', '', $car->chassis) . '_dismantling';
+        $savePath = $folderName.'/'.$fileName . '.pdf';
+        $storage->put($savePath, $pdf, 'public');
+        $url = \Storage::disk('s3')->url($savePath);
+        return response()->json(['link' => $url]);
     }
 
     public function deletePart(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
