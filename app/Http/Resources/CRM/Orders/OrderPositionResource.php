@@ -22,7 +22,7 @@ class OrderPositionResource extends JsonResource
                 'weight' => $this->card->partAttributesCard->weight,
             ],
             'prices' => [
-                'approximate_price' => $this->card->priceCard->approximate_price,
+                'buying_price' => $this->card->priceCard->buying_price,
                 'delivery_price_nz' => $this->card->priceCard->delivery_price_nz,
                 'delivery_price_ru' => $this->card->priceCard->delivery_price_ru,
                 'jp_needs' => $this->card->priceCard->jp_needs,
@@ -51,7 +51,7 @@ class OrderPositionResource extends JsonResource
                 'price_nz_wholesale' => $this->card->priceCard->price_nz_wholesale,
                 'price_ru_retail' => $this->card->priceCard->price_ru_retail,
                 'price_ru_wholesale' => $this->card->priceCard->price_ru_wholesale,
-                'real_price' => $this->card->priceCard->real_price,
+                'selling_price' => $this->card->priceCard->selling_price,
                 'ru_needs' => $this->card->priceCard->ru_needs,
             ],
         ];

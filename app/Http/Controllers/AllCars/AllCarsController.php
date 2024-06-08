@@ -46,7 +46,7 @@ class AllCarsController extends Controller
             ->paginate(20);
 
         $cars->getCollection()->each(function ($car) {
-            $car->parts_price = $car->positions->sum('card.priceCard.real_price');
+            $car->parts_price = $car->positions->sum('card.priceCard.selling_price');
         });
 
         return CarResource::collection($cars);

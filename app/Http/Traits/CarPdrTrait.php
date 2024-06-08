@@ -258,8 +258,8 @@ trait CarPdrTrait
             car_pdr_position_cards.oem_number, 
             car_pdr_position_cards.description as ic_description, 
             car_pdr_position_card_prices.price_currency,
-            car_pdr_position_card_prices.approximate_price,
-            car_pdr_position_card_prices.real_price,
+            car_pdr_position_card_prices.buying_price,
+            car_pdr_position_card_prices.selling_price,
             car_pdr_position_cards.comment')
             ->join('car_pdrs', 'car_pdrs.car_id', '=', 'cars.id')
             ->join('car_pdr_positions','car_pdr_positions.car_pdr_id', '=', 'car_pdrs.id')

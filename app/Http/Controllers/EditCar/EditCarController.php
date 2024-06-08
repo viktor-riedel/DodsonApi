@@ -149,7 +149,7 @@ class EditCarController extends Controller
     public function updateCarStatus(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
         $car->load('positions', 'positions.card', 'positions.card.priceCard');
-        $sum = $car->positions->sum('card.priceCard.real_price');
+        $sum = $car->positions->sum('card.priceCard.selling_price');
         $status = (int) $request->input('car_status');
         if (($status === 3 || $status === 4) && !$car->car_mvr) {
             return response()->json(['error' => 'MVR not set'], 403);
@@ -368,7 +368,7 @@ class EditCarController extends Controller
     {
         $currency = $card->priceCard->price_currency ?: 'JPY';
         $card->priceCard()->update([
-            'approximate_price' => (int) $request->input('approx_price'),
+            'buying_price' => (int) $request->input('approx_price'),
             'price_currency' => $currency,
         ]);
         return response()->json([], 204);
@@ -378,7 +378,7 @@ class EditCarController extends Controller
     {
         $currency = $card->priceCard->price_currency ?: 'JPY';
         $card->priceCard()->update([
-            'real_price' => (int) $request->input('real_price'),
+            'selling_price' => (int) $request->input('selling_price'),
             'price_currency' => $currency,
         ]);
         return response()->json([], 204);
@@ -414,7 +414,7 @@ class EditCarController extends Controller
                 ->get()->each(function ($card) use ($price) {
                     $currency = $card->priceCard->price_currency ?: 'JPY';
                     $card->priceCard()->update([
-                        'real_price' => $price,
+                        'selling_price' => $price,
                         'price_currency' => $currency,
                     ]);
                 });
