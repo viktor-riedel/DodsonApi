@@ -1,12 +1,12 @@
-php load_font.php public/fonts/Roboto-MediumItalic.ttf
-php load_font.php public/fonts/Roboto-BlackItalic.ttf
-php load_font.php public/fonts/Roboto-Thin.ttf
-php load_font.php public/fonts/Roboto-Italic.ttf
-php load_font.php public/fonts/Roboto-ThinItalic.ttf
-php load_font.php public/fonts/Roboto-BoldItalic.ttf
-php load_font.php public/fonts/Roboto-Black.ttf
-php load_font.php public/fonts/Roboto-Bold.ttf
-php load_font.php public/fonts/Roboto-LightItalic.ttf
-php load_font.php public/fonts/Roboto-Light.ttf
-php load_font.php public/fonts/Roboto-Regular.ttf
-php load_font.php public/fonts/Roboto-Medium.ttf
+php load_font.php font_family public/fonts/Roboto-MediumItalic.ttf
+php load_font.php font_family public/fonts/Roboto-BlackItalic.ttf
+php load_font.php font_family public/fonts/Roboto-Thin.ttf
+php load_font.php font_family public/fonts/Roboto-Italic.ttf
+php load_font.php font_family public/fonts/Roboto-ThinItalic.ttf
+php load_font.php font_family public/fonts/Roboto-BoldItalic.ttf
+php load_font.php font_family public/fonts/Roboto-Black.ttf
+php load_font.php font_family public/fonts/Roboto-Bold.ttf
+php load_font.php font_family public/fonts/Roboto-LightItalic.ttf
+php load_font.php font_family public/fonts/Roboto-Light.ttf
+php load_font.php font_family public/fonts/Roboto-Regular.ttf
+php load_font.php font_family public/fonts/Roboto-Medium.ttf
