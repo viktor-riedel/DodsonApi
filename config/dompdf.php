@@ -14,13 +14,14 @@ return array(
     'show_warnings' => false,   // Throw an Exception on warnings from dompdf
 
     'public_path' => null,  // Override the public path if needed
+
+    'DOMPDF_DEFAULT_FONT' => 'Roboto',
     /*
      * Dejavu Sans font is missing glyphs for converted entities, turn it off if you need to show € and £.
      */
     'convert_entities' => true,
 
     'options' => array(
-        'DOMPDF_DEFAULT_FONT' => 'dejavu serif',
         /**
          * The location of the DOMPDF font directory
          *
