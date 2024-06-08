@@ -52,12 +52,12 @@
     @foreach($parts as $part)
     <tr style="height: 18px;">
         <td style="width: 20%; height: 18px;">
-            <span style="font-size: 14px">
+            <span style="font-size: 12px">
                 {{$part->name_eng}}
             </span>
         </td>
         <td style="width: 20%; height: 18px;">
-            <span style="font-size: 14px">
+            <span style="font-size: 12px">
                 {{$part->name_ru}}
             </span>
         </td>
