@@ -10,3 +10,4 @@ php load_font.php font_family public/fonts/Roboto/Roboto-MediumItalic.ttf
 php load_font.php font_family public/fonts/Roboto/Roboto-Regular.ttf
 php load_font.php font_family public/fonts/Roboto/Roboto-Thin.ttf
 php load_font.php font_family public/fonts/Roboto/Roboto-ThinItalic.ttf
+php load_font.php font_family public/fonts/Roboto/arialuni.ttf

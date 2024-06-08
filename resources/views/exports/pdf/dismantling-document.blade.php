@@ -6,15 +6,9 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Dismantling document</title>
-    <style>
+    <style type="text/css">
         body {
-            @font-face {
-                font-family: "Roboto Light";
-                font-style: normal;
-                font-weight: 400;
-                src: url("/public/fonts/Roboto/Roboto-Light.ttf");
-            }
-            font-family: "Roboto Light", "DejaVu Sans", serif;
+            font-family: "DejaVu Sans", sans-serif;;
         }
     </style>
 </head>
