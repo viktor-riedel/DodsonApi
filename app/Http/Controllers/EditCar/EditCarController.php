@@ -139,6 +139,7 @@ class EditCarController extends Controller
             'price_without_engine_mn' => $request->integer('price_without_engine_mn'),
             'price_with_engine_jp' => $request->integer('price_with_engine_jp'),
             'price_without_engine_jp' => $request->integer('price_without_engine_jp'),
+            'purchase_price' => $request->integer('purchase_price'),
             'car_is_for_sale' => (bool) $request->input('car_is_for_sale'),
         ]);
 
