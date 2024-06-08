@@ -4,6 +4,7 @@ namespace App\Actions\Api;
 
 use App\Models\Car;
 use App\Models\NomenclatureBaseItem;
+use DNS1D;
 
 class GetDoneCarDataAction
 {
@@ -97,6 +98,12 @@ class GetDoneCarDataAction
                 'item_name_eng' => $position->card?->name_eng,
                 'ic_number' => $position->ic_number,
                 'ic_description' => $position->ic_description,
+                'barcode' => [
+                    'algo' => \App\Models\CarPdrPositionCard::BARCODE_ALGO,
+                    'postfix' => $car->id,
+                    'item_id' => $position->id,
+                    'code' => $position->id . $car->id,
+                ],
                 'finance' => [
                     'selling_price' => $position->card->priceCard->real_price,
                     'approximate_price' => $position->card->priceCard->approximate_price,

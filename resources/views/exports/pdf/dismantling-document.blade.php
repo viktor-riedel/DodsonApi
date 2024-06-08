@@ -70,7 +70,7 @@
             </span>
         </td>
         <td style="width: 20%; height: 18px;">
-            <img src="data:image/png;base64,'{{DNS1D::getBarcodePNG((string) $part->id, \App\Models\CarPdrPositionCard::BARCODE_ALGO)}}" alt="">
+            <img src="data:image/png;base64,'{{DNS1D::getBarcodePNG($part->id . $car->id, \App\Models\CarPdrPositionCard::BARCODE_ALGO)}}" alt="">
         </td>
     </tr>
     <tr><td colspan="5"></td></tr>
