@@ -8,7 +8,7 @@
     <title>Dismantling document</title>
     <style>
         body {
-            font-family: "Roboto Light", serif;
+            font-family: "Roboto Light", "DejaVu Sans", serif;
         }
     </style>
 </head>
