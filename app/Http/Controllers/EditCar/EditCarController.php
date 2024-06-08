@@ -33,10 +33,20 @@ class EditCarController extends Controller
             'modifications',
             'createdBy',
             'latestSyncData',
+            'markets',
             'carFinance');
         $parts = $this->buildPdrTreeWithoutEmpty($car, false);
         $partsList = $this->getPartsList($car);
         $car->unsetRelation('pdrs');
+
+        if ($car->markets->count()) {
+            $car->markets->transform(function($market) {
+               return [
+                 'name' => findCountryByCode($market->country_code),
+                 'country_code' => $market->country_code,
+               ];
+            });
+        }
 
         return response()->json([
            'car_info' => $car,
@@ -111,6 +121,13 @@ class EditCarController extends Controller
             'generation' => strtoupper(trim($request->input('generation'))),
             'chassis' => strtoupper(trim($request->input('chassis'))),
         ]);
+
+        $car->markets()->delete();
+        foreach($request->input('markets') as $market) {
+            $car->markets()->create([
+                'country_code' => $market['country_code'],
+            ]);
+        }
 
         $car->carFinance()->update([
             'price_with_engine_nz' => $request->integer('price_with_engine_nz'),

@@ -156,8 +156,8 @@ if (!function_exists('findCountryByCode')) {
             if ($code === $countryCode) {
                 return $country;
             }
-            return "";
         }
+        return "";
     }
 }
 
