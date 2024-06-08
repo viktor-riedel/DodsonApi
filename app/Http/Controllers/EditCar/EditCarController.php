@@ -364,17 +364,17 @@ class EditCarController extends Controller
         return response()->json([], 204);
     }
 
-    public function updateApproxPrice(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    public function updateBuyingPrice(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
     {
         $currency = $card->priceCard->price_currency ?: 'JPY';
         $card->priceCard()->update([
-            'buying_price' => (int) $request->input('approx_price'),
+            'buying_price' => (int) $request->input('buying_price'),
             'price_currency' => $currency,
         ]);
         return response()->json([], 204);
     }
 
-    public function updateRealPrice(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    public function updateSellingPrice(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
     {
         $currency = $card->priceCard->price_currency ?: 'JPY';
         $card->priceCard()->update([

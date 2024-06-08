@@ -34,8 +34,8 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
         Route::prefix('/update-parts-list')->group(function() {
             Route::patch('/ic-number/{card}', [EditCarController::class, 'updateICNumber']);
             Route::patch('/price-currency/{card}', [EditCarController::class, 'updatePriceCurrency']);
-            Route::patch('/approx-price/{card}', [EditCarController::class, 'updateApproxPrice']);
-            Route::patch('/real-price/{card}', [EditCarController::class, 'updateRealPrice']);
+            Route::patch('/buying-price/{card}', [EditCarController::class, 'updateBuyingPrice']);
+            Route::patch('/selling-price/{card}', [EditCarController::class, 'updateSellingPrice']);
             Route::patch('/comment/{card}', [EditCarController::class, 'updateComment']);
             Route::patch('/ic-description/{card}', [EditCarController::class, 'updateIcDescription']);
             Route::patch('/set-parts-price', [EditCarController::class, 'setPartsPrice']);
