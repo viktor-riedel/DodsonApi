@@ -3,6 +3,7 @@
 namespace App\Jobs\Sync;
 
 use App\Actions\Api\GetDoneCarDataAction;
+use App\Events\Sync\Export\CarDoneEvent;
 use App\Http\ExternalApiHelpers\SendDoneCar;
 use App\Models\Car;
 use App\Models\User;
@@ -30,6 +31,7 @@ class SendDoneCarJob implements ShouldQueue
     public function handle(): void
     {
         try {
+            event(new CarDoneEvent($this->user, $this->car, true, false));
             $data = app()->make(GetDoneCarDataAction::class)->handle($this->car);
             $this->httpHelper = new SendDoneCar();
             $response = $this->httpHelper->sendData($data);
@@ -41,6 +43,7 @@ class SendDoneCarJob implements ShouldQueue
                         null,
                     'created_by' => $this->user->id,
                 ]);
+                event(new CarDoneEvent($this->user, $this->car, false, true, $response['Date'], $response['Number']));
             }
             // update db with server response
         } catch (\Exception $e) {
