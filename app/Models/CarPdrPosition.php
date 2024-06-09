@@ -15,6 +15,7 @@ class CarPdrPosition extends Model
 
     protected $fillable = [
         'car_pdr_id',
+        'user_id',
         'item_name_ru',
         'item_name_eng',
         'ic_number',
@@ -45,5 +46,10 @@ class CarPdrPosition extends Model
     public function images(): MorphMany
     {
         return $this->morphMany(MediaFile::class, 'mediable');
+    }
+
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

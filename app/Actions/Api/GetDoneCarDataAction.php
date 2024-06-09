@@ -74,7 +74,8 @@ class GetDoneCarDataAction
                 ],
                 'finance' => [
                     'contr_agent' => $car->contr_agent_name,
-                    'purchase_price' => $car->positions->sum(function ($item) {
+                    'purchase_price' => $car->carFinance->purchase_price,
+                    'parts_price' => $car->positions->sum(function ($item) {
                         return $item->card->priceCard->selling_price;
                     }),
                     'price_without_engine_nz' => $car->carFinance->price_without_engine_nz,
@@ -103,6 +104,10 @@ class GetDoneCarDataAction
                     'postfix' => $car->id,
                     'item_id' => $position->id,
                     'code' => $position->id . $car->id,
+                ],
+                'client' => [
+                   'name' => $position->client?->name,
+                   'email' => $position->client?->email,
                 ],
                 'finance' => [
                     'selling_price' => $position->card->priceCard->selling_price,

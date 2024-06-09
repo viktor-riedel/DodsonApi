@@ -39,6 +39,7 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
             Route::patch('/comment/{card}', [EditCarController::class, 'updateComment']);
             Route::patch('/ic-description/{card}', [EditCarController::class, 'updateIcDescription']);
             Route::patch('/set-parts-price', [EditCarController::class, 'setPartsPrice']);
+            Route::patch('/set-part-client/{card}', [EditCarController::class, 'setClient']);
         });
 
         Route::prefix('/links')->group(function() {

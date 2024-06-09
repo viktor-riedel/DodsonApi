@@ -260,10 +260,13 @@ trait CarPdrTrait
             car_pdr_position_card_prices.price_currency,
             car_pdr_position_card_prices.buying_price,
             car_pdr_position_card_prices.selling_price,
+            car_pdr_positions.user_id,
+            users.name as client_name,
             car_pdr_position_cards.comment')
             ->join('car_pdrs', 'car_pdrs.car_id', '=', 'cars.id')
             ->join('car_pdr_positions','car_pdr_positions.car_pdr_id', '=', 'car_pdrs.id')
             ->join('car_pdr_position_cards', 'car_pdr_position_cards.car_pdr_position_id', '=', 'car_pdr_positions.id')
+            ->leftJoin('users', 'users.id', '=', 'car_pdr_positions.user_id')
             ->join('car_pdr_position_card_prices', 'car_pdr_position_card_prices.car_pdr_position_card_id', '=', 'car_pdr_position_cards.id')
             ->where('cars.id', $car->id)
             ->whereNull('car_pdr_positions.deleted_at')
