@@ -371,28 +371,28 @@ class EditCarController extends Controller
                 case 'RU':
                     $card->priceCard()->update([
                         'buying_price' => $isWholeSeller ? $baseCard?->price_ru_wholesale : $baseCard?->price_ru_retail,
-                        'selling_price' => 0,
+                        //'selling_price' => 0,
                         //'price_currency' => 'RUB',
                     ]);
                     break;
                 case 'NZ':
                     $card->priceCard()->update([
                         'buying_price' => $isWholeSeller ? $baseCard?->price_nz_wholesale : $baseCard?->price_nz_retail,
-                        'selling_price' => 0,
+                        //'selling_price' => 0,
                         //'price_currency' => 'NZD',
                     ]);
                     break;
                 case 'MN':
                     $card->priceCard()->update([
                         'buying_price' => $isWholeSeller ? $baseCard?->price_mng_wholesale : $baseCard?->price_mng_retail,
-                        'selling_price' => 0,
+                        //'selling_price' => 0,
                         //'price_currency' => 'MNT',
                     ]);
                     break;
                 case 'JP':
                     $card->priceCard()->update([
                         'buying_price' => $isWholeSeller ? $baseCard?->price_jp_wholesale : $baseCard?->price_jp_retail,
-                        'selling_price' => 0,
+                        //'selling_price' => 0,
                         //'price_currency' => 'JPY',
                     ]);
                     break;
