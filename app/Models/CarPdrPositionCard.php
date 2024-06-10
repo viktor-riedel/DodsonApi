@@ -24,6 +24,8 @@ class CarPdrPositionCard extends Model
         'description',
         'ic_number',
         'oem_number',
+        'barcode',
+        'car_pdr_position_cards',
         'created_by',
         'deleted_by',
     ];

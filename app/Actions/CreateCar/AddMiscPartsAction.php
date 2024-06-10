@@ -4,6 +4,7 @@ namespace App\Actions\CreateCar;
 
 use App\Http\Traits\InnerIdTrait;
 use App\Models\Car;
+use App\Models\CarPdrPositionCard;
 
 class AddMiscPartsAction
 {
@@ -58,6 +59,7 @@ class AddMiscPartsAction
                     'ic_number' => $part['ic_number'] ?? '',
                     'oem_number' => null,
                     'created_by' => $userId,
+                    'barcode' => $this->generateBarCode(),
                 ]);
                 if (isset($part['comment'])) {
                     $card->comments()->create([
@@ -94,5 +96,16 @@ class AddMiscPartsAction
                 ]);
             }
         }
+    }
+
+    private function generateBarCode(): int
+    {
+        $exist = true;
+        $barcode = 0;
+        while($exist) {
+            $barcode = random_int(1000000, 6999999);
+            $exist = CarPdrPositionCard::where('barcode', $barcode)->exists();
+        }
+        return $barcode;
     }
 }

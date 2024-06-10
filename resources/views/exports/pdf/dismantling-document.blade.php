@@ -1,81 +1,50 @@
-<!doctype html>
-<html lang="eng">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Dismantling document</title>
-    <style type="text/css">
-        body {
-            font-family: "DejaVu Sans", sans-serif;;
-        }
+<!DOCTYPE  html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+    <style type="text/css"> * {margin:0; padding:0; text-indent:0; }
+        .s1 { color: black; font-family:Arial, sans-serif; font-style: italic; font-weight: bold; text-decoration: none; font-size: 16pt; }
+        .s2 { color: black; font-family:Arial, sans-serif; font-style: italic; font-weight: bold; text-decoration: none; font-size: 12pt; }
+        .s3 { color: black; font-family:Arial, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 12pt; }
+        .s4 { color: black; font-family:Arial, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 10pt; }
+        .s5 { color: black; font-family:Arial, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 8pt; }
+        table, tbody {vertical-align: top; overflow: visible; }
+        .page_break { page-break-before: always; }
     </style>
 </head>
 <body>
-<p>Dismantling document for:</p>
-<table style="border-collapse: collapse; width: 100%; height: 75px;" border="1">
-    <tbody>
-    <tr style="height: 18px;">
-        <td style="width: 11%; height: 18px;">Make</td>
-        <td style="width: 89%; height: 18px;">&nbsp;<strong>{{$car->make}}</strong></td>
-    </tr>
-    <tr style="height: 18px;">
-        <td style="width: 11%; height: 18px;">Model</td>
-        <td style="width: 89%; height: 18px;">&nbsp;<strong>{{$car->model}}</strong></td>
-    </tr>
-    <tr style="height: 18px;">
-        <td style="width: 11%; height: 18px;">Year</td>
-        <td style="width: 89%; height: 18px;">&nbsp;<strong>{{$car->carAttributes->year}}</strong></td>
-    </tr>
-    <tr>
-        <td style="width: 11%;">Chassis</td>
-        <td style="width: 89%;">&nbsp;<strong>{{$car->carAttributes->chassis}}</strong></td>
-    </tr>
-    <tr>
-        <td style="width: 11%;">Generation</td>
-        <td style="width: 89%;">&nbsp;<strong>{{$car->generation}}</strong></td>
-    </tr>
-    <tr>
-        <td style="width: 11%;">Modification</td>
-        <td style="width: 89%;">&nbsp;<strong>{{$car->modifications->header}}</strong></td>
-    </tr>
-    <tr style="height: 18px;">
-        <td style="width: 11%; height: 18px;">MVR</td>
-        <td style="width: 89%; height: 18px;">&nbsp;<strong>{{$car->car_mvr}}</strong></td>
-    </tr>
-    </tbody>
-</table>
-<p>Parts:</p>
-<table style="border-collapse: collapse; width: 100%; height: 18px;" border="1">
-    <tbody>
-    @foreach($parts as $part)
-    <tr style="height: 18px;">
-        <td style="width: 20%; height: 18px;">
-            <span style="font-size: 12px">
-                {{$part->name_eng}}
-            </span>
-        </td>
-        <td style="width: 20%; height: 18px;">
-            <span style="font-size: 12px">
-                {{$part->name_ru}}
-            </span>
-        </td>
-        <td style="width: 20%; height: 18px; text-align: center">
-            {{$part->ic_number}}
-        </td>
-        <td style="width: 20%; height: 18px;">
-            <span style="font-size: 12px">
-                {{$part->ic_description}}
-            </span>
-        </td>
-        <td style="width: 20%; height: 18px;">
-            <img src="data:image/png;base64,'{{DNS1D::getBarcodePNG($part->id . $car->id, \App\Models\CarPdrPositionCard::BARCODE_ALGO)}}" alt="">
-        </td>
-    </tr>
-    <tr><td colspan="5"></td></tr>
-    @endforeach
-    </tbody>
-</table>
+@foreach($parts as $part)
+    <p style="text-indent: 0pt;text-align: left;"><br/></p>
+    <table style="border-collapse:collapse;margin-left:6.57pt" cellspacing="0">
+        <tr style="height:31pt">
+            <td style="width:157pt;border-top-style:dashed;border-top-width:1pt;border-top-color:#333333;border-left-style:dashed;border-left-width:1pt;border-left-color:#333333;border-bottom-style:solid;border-bottom-width:1pt;border-bottom-color:#333333" rowspan="2">
+                <p class="s1" style="padding-left: 34pt;text-indent: 0pt;line-height: 16pt;text-align: left;">
+                    {{$part->barcode}}
+                </p>
+                <p style="text-indent: 0pt;text-align: left;">
+                    <span>
+                        <table border="0" cellspacing="0" cellpadding="0">
+                            <tr><td><img width="209" height="43" src="data:image/png;base64,'{{DNS1D::getBarcodePNG((string) $part->barcode, \App\Models\CarPdrPositionCard::BARCODE_ALGO)}}"/></td></tr>
+                        </table>
+                    </span></p>
+                <p style="padding-top: 3pt;text-indent: 0pt;text-align: left;"><br/></p>
+            </td><td style="width:88pt;border-top-style:dashed;border-top-width:1pt;border-top-color:#333333;border-bottom-style:solid;border-bottom-width:1pt;border-bottom-color:#333333;border-right-style:dashed;border-right-width:1pt;border-right-color:#333333">
+                <p class="s2" style="padding-left: 3pt;text-indent: 0pt;text-align: left;">Stock #: {{$car->car_mvr}}</p></td></tr>
+        <tr style="height:32pt"><td style="width:88pt;border-top-style:solid;border-top-width:1pt;border-top-color:#333333;border-bottom-style:solid;border-bottom-width:1pt;border-bottom-color:#333333;border-right-style:dashed;border-right-width:1pt;border-right-color:#333333">
+                <p class="s2" style="padding-left: 3pt;text-indent: 0pt;text-align: left;">Yr: <span class="s3">{{$car->carAttributes->year > 0 ? $car->carAttributes->year : ''}}</span></p>
+                <p class="s2" style="padding-top: 2pt;padding-left: 3pt;text-indent: 0pt;text-align: left;">IC: {{$part->ic_number}}</p></td></tr>
+        <tr style="height:121pt">
+            <td style="width:245pt;border-top-style:solid;border-top-width:1pt;border-top-color:#333333;border-left-style:dashed;border-left-width:1pt;border-left-color:#333333;border-bottom-style:dashed;border-bottom-width:1pt;border-bottom-color:#333333;border-right-style:dashed;border-right-width:1pt;border-right-color:#333333" colspan="2">
+                <p style="padding-top: 10pt;text-indent: 0pt;text-align: left;"><br/></p><p class="s2" style="padding-left: 2pt;padding-right: 27pt;text-indent: 0pt;text-align: left;">
+                    {{$part->name_eng}} {{$part->name_ru}}
+                </p>
+                <p class="s2" style="padding-left: 2pt;text-indent: 0pt;text-align: left;">{{$car->make}}, {{$car->model}}</p>
+                <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">IC description: {{$part->ic_description}}</p>
+                <p class="s5" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Comment:</p>
+                <p class="s5" style="padding-top: 4pt;padding-left: 129pt;text-indent: 0pt;line-height: 9pt;text-align: left;">{{now()->format('d.m.Y H:i:s')}} / {{auth()->user()->name}}</p>
+            </td>
+        </tr>
+    </table>
+    <div class="page_break"></div>
+@endforeach
 </body>
 </html>

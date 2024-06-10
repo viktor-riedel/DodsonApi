@@ -261,6 +261,7 @@ trait CarPdrTrait
             car_pdr_position_card_prices.buying_price,
             car_pdr_position_card_prices.selling_price,
             car_pdr_positions.user_id,
+            car_pdr_position_cards.barcode,
             users.name as client_name,
             car_pdr_position_cards.comment')
             ->join('car_pdrs', 'car_pdrs.car_id', '=', 'cars.id')
@@ -279,5 +280,18 @@ trait CarPdrTrait
             });
 
         return $parts;
+    }
+
+    public function generateBarCode(): int
+    {
+        {
+            $exist = true;
+            $barcode = 0;
+            while($exist) {
+                $barcode = random_int(1000000, 6999999);
+                $exist = CarPdrPositionCard::where('barcode', $barcode)->exists();
+            }
+            return $barcode;
+        }
     }
 }

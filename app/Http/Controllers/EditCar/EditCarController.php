@@ -197,7 +197,18 @@ class EditCarController extends Controller
 
     public function generateDismantlingDocument(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
+        $needsRefresh = false;
         $partsList = $this->getPartsList($car);
+        foreach($partsList as $part) {
+            if (!$part->barcode) {
+                $needsRefresh = true;
+                $part = CarPdrPositionCard::find($part->id);
+                $part->update(['barcode' => $this->generateBarCode()]);
+            }
+        }
+        if ($needsRefresh) {
+            $partsList = $this->getPartsList($car);
+        }
         $pdf = Pdf::loadView('exports.pdf.dismantling-document', [
             'parts' => $partsList,
             'car' => $car,
@@ -288,7 +299,6 @@ class EditCarController extends Controller
 
     public function addListParts(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
-        dd(1);
         app()->make(AddListPartsAction::class)->handle($car, $request->user()->id, $request->all());
         return response()->json([], 201);
     }
