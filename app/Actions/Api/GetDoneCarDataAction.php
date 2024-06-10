@@ -101,9 +101,7 @@ class GetDoneCarDataAction
                 'ic_description' => $position->ic_description,
                 'barcode' => [
                     'algo' => \App\Models\CarPdrPositionCard::BARCODE_ALGO,
-                    'postfix' => $car->id,
-                    'item_id' => $position->id,
-                    'code' => $position->id . $car->id,
+                    'code' => $position->barcode,
                 ],
                 'client' => [
                    'name' => $position->client?->name,
