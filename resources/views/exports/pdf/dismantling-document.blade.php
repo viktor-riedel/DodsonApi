@@ -9,6 +9,7 @@
         .s3 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 12pt; }
         .s4 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 10pt; }
         .s5 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 8pt; }
+        .s6 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 6pt; }
         table, tbody {vertical-align: top; overflow: visible; }
         .page_break { page-break-before: always; }
     </style>
@@ -42,7 +43,9 @@
                 <p class="s2" style="padding-left: 2pt;text-indent: 0pt;text-align: left;">{{$car->make}}, {{$car->model}}</p>
                 <p class="s4" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">IC description: {{$part->ic_description}}</p>
                 <p class="s5" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">Comment:</p>
-                <p class="s5" style="padding-top: 4pt;padding-left: 129pt;text-indent: 0pt;line-height: 9pt;text-align: left;">{{now()->format('d.m.Y H:i:s')}} / {{auth()->user()->name}}</p>
+                <p class="s6" style="padding-top: 4pt;padding-left: 129pt;text-indent: 0pt;line-height: 9pt;text-align: left;">
+                    {{now()->format('d.m.Y H:i:s')}} / {{auth()->user()->name}}
+                </p>
             </td>
         </tr>
     </table>
