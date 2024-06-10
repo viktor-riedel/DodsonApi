@@ -1,0 +1,24 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    public function up(): void
+    {
+        Schema::table('car_pdr_position_cards', function (Blueprint $table) {
+            $table->unsignedBigInteger('barcode')
+                ->after('oem_number')
+                ->nullable()
+                ->index();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('car_pdr_position_cards', function (Blueprint $table) {
+            $table->dropColumn('barcode');
+        });
+    }
+};
