@@ -41,6 +41,7 @@ class EditCarController extends Controller
         $partsList = $this->getPartsList($car);
         $clients = User::withoutRole('ADMIN')
             ->where('is_api_user', 0)
+            ->orderBy('name')
             ->get()
             ->transform(function($user) {
                 return [
