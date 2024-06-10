@@ -74,8 +74,9 @@ class GetDoneCarDataAction
                 ],
                 'finance' => [
                     'contr_agent' => $car->contr_agent_name,
-                    'purchase_price' => $car->positions->sum(function ($item) {
-                        return $item->card->priceCard->real_price;
+                    'purchase_price' => $car->carFinance->purchase_price,
+                    'parts_price' => $car->positions->sum(function ($item) {
+                        return $item->card->priceCard->selling_price;
                     }),
                     'price_without_engine_nz' => $car->carFinance->price_without_engine_nz,
                     'price_with_engine_nz' => $car->carFinance->price_with_engine_nz,
@@ -104,9 +105,13 @@ class GetDoneCarDataAction
                     'item_id' => $position->id,
                     'code' => $position->id . $car->id,
                 ],
+                'client' => [
+                   'name' => $position->client?->name,
+                   'email' => $position->client?->email,
+                ],
                 'finance' => [
-                    'selling_price' => $position->card->priceCard->real_price,
-                    'approximate_price' => $position->card->priceCard->approximate_price,
+                    'selling_price' => $position->card->priceCard->selling_price,
+                    'buying_price' => $position->card->priceCard->buying_price,
                     'price_currency' => $position->card->priceCard->price_currency,
                     'price_nz_wholesale' => $position->card->priceCard->price_nz_wholesale,
                     'price_nz_retail' => $position->card->priceCard->price_nz_retail,

@@ -17,6 +17,7 @@ use App\Models\CarPdrPositionCardPrice;
 use App\Models\Link;
 use App\Models\MediaFile;
 use App\Models\NomenclatureBaseItemPdrCard;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -38,6 +39,15 @@ class EditCarController extends Controller
             'carFinance');
         $parts = $this->buildPdrTreeWithoutEmpty($car, false);
         $partsList = $this->getPartsList($car);
+        $clients = User::withoutRole('ADMIN')
+            ->where('is_api_user', 0)
+            ->get()
+            ->transform(function($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                ];
+            });
         $car->unsetRelation('pdrs');
 
         if ($car->markets->count()) {
@@ -54,6 +64,7 @@ class EditCarController extends Controller
            'parts_tree' => $parts,
            'parts_list' => $partsList,
            'car_statuses' => Car::getStatusesJson(),
+           'clients' => $clients,
         ]);
     }
 
@@ -149,7 +160,7 @@ class EditCarController extends Controller
     public function updateCarStatus(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
         $car->load('positions', 'positions.card', 'positions.card.priceCard');
-        $sum = $car->positions->sum('card.priceCard.real_price');
+        $sum = $car->positions->sum('card.priceCard.selling_price');
         $status = (int) $request->input('car_status');
         if (($status === 3 || $status === 4) && !$car->car_mvr) {
             return response()->json(['error' => 'MVR not set'], 403);
@@ -318,6 +329,7 @@ class EditCarController extends Controller
         $card->position()->update([
             'ic_number' => strtoupper(trim($request->input('ic_number')))
         ]);
+
         $card->priceCard()->update([
             'price_nz_wholesale' => $baseCard?->price_nz_wholesale,
             'price_nz_retail' => $baseCard?->price_nz_retail,
@@ -349,6 +361,51 @@ class EditCarController extends Controller
             'mng_needs' => $baseCard?->mng_needs,
             'needs' => $baseCard?->needs,
         ]);
+
+        $clientCountryCode = $card->position->client?->country_code;
+        $isWholeSeller = $card->position->client ? $card->position->client->userCard->wholesaler : false;
+
+        //update selling and buying prices
+        if ($clientCountryCode) {
+            switch ($clientCountryCode) {
+                case 'RU':
+                    $card->priceCard()->update([
+                        //'buying_price' => $isWholeSeller ? $baseCard?->price_ru_wholesale : $baseCard?->price_ru_retail,
+                        'selling_price' => $isWholeSeller && $baseCard?->price_ru_wholesale ?
+                            $baseCard?->price_ru_wholesale : $baseCard?->price_ru_retail,
+                        //'price_currency' => 'RUB',
+                    ]);
+                    break;
+                case 'NZ':
+                    $card->priceCard()->update([
+                        //'buying_price' => $isWholeSeller ? $baseCard?->price_nz_wholesale : $baseCard?->price_nz_retail,
+                        'selling_price' => $isWholeSeller && $baseCard?->price_nz_wholesale ?
+                            $baseCard?->price_nz_wholesale : $baseCard?->price_nz_retail,
+                        //'price_currency' => 'NZD',
+                    ]);
+                    break;
+                case 'MN':
+                    $card->priceCard()->update([
+                        //'buying_price' => $isWholeSeller ? $baseCard?->price_mng_wholesale : $baseCard?->price_mng_retail,
+                        'selling_price' => $isWholeSeller && $baseCard?->price_mng_wholesale ?
+                            $baseCard?->price_mng_wholesale : $baseCard?->price_mng_retail,
+                        //'price_currency' => 'MNT',
+                    ]);
+                    break;
+                case 'JP':
+                    $card->priceCard()->update([
+                        //'buying_price' => $isWholeSeller ? $baseCard?->price_jp_wholesale : $baseCard?->price_jp_retail,
+                        'selling_price' => $isWholeSeller && $baseCard?->price_jp_wholesale ?
+                            $baseCard?->price_jp_wholesale : $baseCard?->price_jp_retail,
+                        //'price_currency' => 'JPY',
+                    ]);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        $card->priceCard->refresh();
         $card->refresh();
         return response()->json([
             'price_card' => $card->priceCard,
@@ -364,21 +421,21 @@ class EditCarController extends Controller
         return response()->json([], 204);
     }
 
-    public function updateApproxPrice(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    public function updateBuyingPrice(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
     {
         $currency = $card->priceCard->price_currency ?: 'JPY';
         $card->priceCard()->update([
-            'approximate_price' => (int) $request->input('approx_price'),
+            'buying_price' => (int) $request->input('buying_price'),
             'price_currency' => $currency,
         ]);
         return response()->json([], 204);
     }
 
-    public function updateRealPrice(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    public function updateSellingPrice(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
     {
         $currency = $card->priceCard->price_currency ?: 'JPY';
         $card->priceCard()->update([
-            'real_price' => (int) $request->input('real_price'),
+            'selling_price' => (int) $request->input('selling_price'),
             'price_currency' => $currency,
         ]);
         return response()->json([], 204);
@@ -414,12 +471,20 @@ class EditCarController extends Controller
                 ->get()->each(function ($card) use ($price) {
                     $currency = $card->priceCard->price_currency ?: 'JPY';
                     $card->priceCard()->update([
-                        'real_price' => $price,
+                        'selling_price' => $price,
                         'price_currency' => $currency,
                     ]);
                 });
         }
         return response()->json($partIds, 202);
+    }
+
+    public function setClient(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    {
+        $card->position->update([
+            'user_id' => $request->input('client_id'),
+        ]);
+        return response()->json([], 204);
     }
 
     public function linksList(Request $request, Car $car): \Illuminate\Http\Resources\Json\AnonymousResourceCollection

@@ -23,7 +23,9 @@
             <th style="background-color: #7ECFE7; border: 2px solid black;">IC description</th>
             <th style="background-color: #7ECFE7; border: 2px solid black;">Name ENG</th>
             <th style="background-color: #7ECFE7; border: 2px solid black;">Name RU</th>
-            <th style="background-color: #7ECFE7; border: 2px solid black;">Price</th>
+            <th style="background-color: #7ECFE7; border: 2px solid black;">Buying Price</th>
+            <th style="background-color: #7ECFE7; border: 2px solid black;">Selling Price</th>
+            <th style="background-color: #7ECFE7; border: 2px solid black;">Client</th>
             <th style="background-color: #7ECFE7; border: 2px solid black;">Comment</th>
         </tr>
     </thead>
@@ -35,7 +37,9 @@
             <td style="border: 2px solid black;">{{$part->ic_description}}</td>
             <td style="border: 2px solid black;">{{$part->name_eng}}</td>
             <td style="border: 2px solid black;">{{$part->name_ru}}</td>
-            <td style="border: 2px solid black;">{{$part->real_price}}</td>
+            <td style="border: 2px solid black;">{{$part->buying_price}}</td>
+            <td style="border: 2px solid black;">{{$part->selling_price}}</td>
+            <td style="border: 2px solid black;">{{$part->client_name}}</td>
             <td style="border: 2px solid black;">
                 @if($part->card->comments->count())
                     @foreach($part->card->comments as $comment)
