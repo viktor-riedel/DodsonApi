@@ -377,30 +377,34 @@ class EditCarController extends Controller
                     ]);
                     break;
                 case 'NZ':
-                    $card->priceCard()->update([
-                        //'buying_price' => $isWholeSeller ? $baseCard?->price_nz_wholesale : $baseCard?->price_nz_retail,
-                        'selling_price' => $isWholeSeller && $baseCard?->price_nz_wholesale ?
-                            $baseCard?->price_nz_wholesale : $baseCard?->price_nz_retail,
-                        //'price_currency' => 'NZD',
-                    ]);
+                    if ($card->priceCard->selling_price) {
+                        $card->priceCard()->update([
+                            //'buying_price' => $isWholeSeller ? $baseCard?->price_nz_wholesale : $baseCard?->price_nz_retail,
+                            'selling_price' => $isWholeSeller && $baseCard?->price_nz_wholesale ?
+                                $baseCard?->price_nz_wholesale : $baseCard?->price_nz_retail,
+                            //'price_currency' => 'NZD',
+                        ]);
+                    }
                     break;
                 case 'MN':
-                    $card->priceCard()->update([
-                        //'buying_price' => $isWholeSeller ? $baseCard?->price_mng_wholesale : $baseCard?->price_mng_retail,
-                        'selling_price' => $isWholeSeller && $baseCard?->price_mng_wholesale ?
-                            $baseCard?->price_mng_wholesale : $baseCard?->price_mng_retail,
-                        //'price_currency' => 'MNT',
-                    ]);
-                    break;
-                case 'JP':
-                    $card->priceCard()->update([
-                        //'buying_price' => $isWholeSeller ? $baseCard?->price_jp_wholesale : $baseCard?->price_jp_retail,
-                        'selling_price' => $isWholeSeller && $baseCard?->price_jp_wholesale ?
-                            $baseCard?->price_jp_wholesale : $baseCard?->price_jp_retail,
-                        //'price_currency' => 'JPY',
-                    ]);
+                    if ($card->priceCard->selling_price) {
+                        $card->priceCard()->update([
+                            //'buying_price' => $isWholeSeller ? $baseCard?->price_mng_wholesale : $baseCard?->price_mng_retail,
+                            'selling_price' => $isWholeSeller && $baseCard?->price_mng_wholesale ?
+                                $baseCard?->price_mng_wholesale : $baseCard?->price_mng_retail,
+                            //'price_currency' => 'MNT',
+                        ]);
+                    }
                     break;
                 default:
+                    if ($card->priceCard->selling_price) {
+                        $card->priceCard()->update([
+                            //'buying_price' => $isWholeSeller ? $baseCard?->price_jp_wholesale : $baseCard?->price_jp_retail,
+                            'selling_price' => $isWholeSeller && $baseCard?->price_jp_wholesale ?
+                                $baseCard?->price_jp_wholesale : $baseCard?->price_jp_retail,
+                            //'price_currency' => 'JPY',
+                        ]);
+                    }
                     break;
             }
         }
