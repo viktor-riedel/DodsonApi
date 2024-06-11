@@ -161,21 +161,27 @@ class EditCarController extends Controller
     public function updateCarStatus(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
         $car->load('positions', 'positions.card', 'positions.card.priceCard');
-        $sum = $car->positions->sum('card.priceCard.selling_price');
+
         $status = (int) $request->input('car_status');
         if (($status === 3 || $status === 4) && !$car->car_mvr) {
             return response()->json(['error' => 'MVR not set'], 403);
         }
-        $notAllIc = $car->positions->filter(function ($position) {
-           return $position->ic_number === null || $position->ic_number === '';
-        });
 
-        if ($status === 2 && $notAllIc->count() > 0) {
-            return response()->json(['error' => 'Not all IC set'], 403);
+        $sum = $car->positions->sum('card.priceCard.selling_price');
+
+        if (!$car->carFinance->purchase_price && !$sum) {
+            return response()->json(['error' => 'One of prices should be set'], 403);
         }
-        if ($status === 2 && $sum === 0) {
-            return response()->json(['error' => 'Spare parts sum is 0'], 403);
-        }
+
+//        $notAllIc = $car->positions->filter(function ($position) {
+//           return $position->ic_number === null || $position->ic_number === '';
+//        });
+//        if ($status === 2 && $notAllIc->count() > 0) {
+//            return response()->json(['error' => 'Not all IC set'], 403);
+//        }
+//        if ($status === 2 && $sum === 0) {
+//            return response()->json(['error' => 'Spare parts sum is 0'], 403);
+//        }
         $car->statusLogs()->create([
             'old_status' => $car->car_status,
             'new_status' => (int) $request->input('car_status'),
