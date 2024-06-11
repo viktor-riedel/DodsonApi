@@ -99,8 +99,7 @@ class GetDoneCarDataAction
                 'ic_number' => $position->ic_number,
                 'ic_description' => $position->ic_description,
                 'barcode' => [
-                    'algo' => \App\Models\CarPdrPositionCard::BARCODE_ALGO,
-                    'code' => $position->barcode,
+                    'code' => $position->card?->barcode,
                 ],
                 'client' => [
                    'name' => $position->client?->name,
