@@ -99,7 +99,7 @@ class GetDoneCarDataAction
                 'ic_number' => $position->ic_number,
                 'ic_description' => $position->ic_description,
                 'barcode' => [
-                    'code' => $position->card?->barcode,
+                    'code' => (string) $position->card?->barcode,
                 ],
                 'client' => [
                    'name' => $position->client?->name,
