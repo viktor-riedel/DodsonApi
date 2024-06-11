@@ -78,6 +78,9 @@ class GetDoneCarDataAction
                     'parts_price' => $car->positions->sum(function ($item) {
                         return $item->card->priceCard->selling_price;
                     }),
+                    'selling_price' => $car->positions->sum(function ($item) {
+                        return $item->card->priceCard->buying_price;
+                    }),
                     'price_without_engine_nz' => $car->carFinance->price_without_engine_nz,
                     'price_with_engine_nz' => $car->carFinance->price_with_engine_nz,
                     'price_without_engine_ru' => $car->carFinance->price_without_engine_ru,
