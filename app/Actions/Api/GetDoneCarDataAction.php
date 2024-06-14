@@ -60,6 +60,8 @@ class GetDoneCarDataAction
                 'color' => $car->carAttributes->color,
                 'chassis' => $car->carAttributes->chassis,
                 'engine' => $car->carAttributes->engine,
+                'mileage' => $car->carAttributes->mileage,
+                'generation' => $car->generation,
                 'mvr' => [
                     'mvr' => $car->car_mvr,
                 ],
