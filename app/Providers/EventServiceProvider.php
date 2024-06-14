@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Events\ModelsEvent\NomenclatureCreateEvent;
+use App\Events\Sync\Export\SendToBotEvent;
 use App\Listeners\NomenclatureCreatedListener;
+use App\Listeners\SendCarToBotListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -22,6 +24,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         NomenclatureCreateEvent::class => [
             NomenclatureCreatedListener::class,
+        ],
+        SendToBotEvent::class => [
+            SendCarToBotListener::class,
         ],
     ];
 

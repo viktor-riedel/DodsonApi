@@ -9,6 +9,7 @@ use App\Exports\Excel\CreatedCarPartsExcelExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Cart\LinkResource;
 use App\Http\Traits\CarPdrTrait;
+use App\Jobs\Sync\SendCarToBotJob;
 use App\Jobs\Sync\SendDoneCarJob;
 use App\Models\Car;
 use App\Models\CarPdrPositionCard;
@@ -142,6 +143,11 @@ class EditCarController extends Controller
             ]);
         }
 
+        if ($request->input('car_is_for_sale') && !$car->carFinance->car_is_for_sale) {
+            //send to bot
+            SendCarToBotJob::dispatch($car);
+        }
+
         $car->carFinance()->update([
             'price_with_engine_nz' => $request->integer('price_with_engine_nz'),
             'price_without_engine_nz' => $request->integer('price_without_engine_nz'),
@@ -154,6 +160,7 @@ class EditCarController extends Controller
             'purchase_price' => $request->integer('purchase_price'),
             'car_is_for_sale' => (bool) $request->input('car_is_for_sale'),
         ]);
+
 
         return response()->json([], 202);
     }
@@ -173,15 +180,6 @@ class EditCarController extends Controller
             return response()->json(['error' => 'One of prices should be set'], 403);
         }
 
-//        $notAllIc = $car->positions->filter(function ($position) {
-//           return $position->ic_number === null || $position->ic_number === '';
-//        });
-//        if ($status === 2 && $notAllIc->count() > 0) {
-//            return response()->json(['error' => 'Not all IC set'], 403);
-//        }
-//        if ($status === 2 && $sum === 0) {
-//            return response()->json(['error' => 'Spare parts sum is 0'], 403);
-//        }
         $car->statusLogs()->create([
             'old_status' => $car->car_status,
             'new_status' => (int) $request->input('car_status'),

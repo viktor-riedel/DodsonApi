@@ -35,6 +35,7 @@ class SendDoneCarJob implements ShouldQueue
             $data = app()->make(GetDoneCarDataAction::class)->handle($this->car);
             $this->httpHelper = new SendDoneCar();
             $response = $this->httpHelper->sendData($data);
+            ray($response);
             if ($response) {
                 $this->car->syncedPartsData()->create([
                     'document_number' => $response['Number'] ?? null,
