@@ -49,7 +49,6 @@ class SendListedCarToBot
                 $response = $this->prepareRequest($url)
                     ->accept('application/json')
                     ->post('/api/messages/send-simple-photo-message', $data);
-                ray($response);
                 if ($response->ok()) {
                     //update
                 }
