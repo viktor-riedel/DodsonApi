@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 
 class AllCarsController extends Controller
 {
-    public function list(Request $request)//: \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function list(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $make = $request->get('make', '');
         $model = $request->get('model', '');
@@ -46,7 +46,10 @@ class AllCarsController extends Controller
             ->paginate(20);
 
         $cars->getCollection()->each(function ($car) {
-            $car->parts_price = $car->positions->sum('card.priceCard.selling_price');
+            $car->parts_price =  (int) $car->carFinance->purchase_price === 0 ?
+                $car->positions->sum('card.priceCard.selling_price') :
+                $car->carFinance->purchase_price;
+            $car->selling_price = $car->positions->sum('card.priceCard.buying_price');
         });
 
         return CarResource::collection($cars);
