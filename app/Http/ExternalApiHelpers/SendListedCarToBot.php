@@ -26,7 +26,7 @@ class SendListedCarToBot
             } else {
                 $availableIn = '';
             }
-            $subject .= $this->car->modifications->header . ' ' .
+            $subject .= ' ' . $this->car->modifications->header . ' ' .
                 ($availableIn ? 'available for / доступно в ' . $availableIn : '');
             $data = [
                 'message' => $subject,
