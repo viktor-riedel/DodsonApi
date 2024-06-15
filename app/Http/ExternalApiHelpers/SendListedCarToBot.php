@@ -27,7 +27,7 @@ class SendListedCarToBot
                 $availableIn = '';
             }
             $subject .= ' ' . $this->car->modifications->header . ' ' .
-                ($availableIn ? 'available for' . $availableIn : '');
+                ($availableIn ? 'available for | доступно в ' . $availableIn : '');
             $data = [
                 'message' => $subject,
                 'photo_url' => $this->car->images->first()->url,
@@ -35,7 +35,7 @@ class SendListedCarToBot
                     [
                         [
                             'type' => 'url',
-                            'text' => 'more information',
+                            'text' => 'more information | показать больше',
                             'data' => [
                                 'user_id' => 1,
                                 'car_id' => $this->car->id,
