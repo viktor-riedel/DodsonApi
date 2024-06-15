@@ -45,6 +45,7 @@ class SendListedCarToBot
                     ],
             ];
             try {
+                \Log::info(json_encode($data));
                 $url = $this->buildUrl();
                 $response = $this->prepareRequest($url)
                     ->accept('application/json')
