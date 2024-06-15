@@ -48,8 +48,7 @@ class SendListedCarToBot
                 $url = $this->buildUrl();
                 $response = $this->prepareRequest($url)
                     ->accept('application/json')
-                    ->post('/api/messages/send-simple-photo-message',
-                        json_encode($data, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+                    ->post('/api/messages/send-simple-photo-message', $data);
                 if ($response->ok()) {
                     //update
                     \Log::info('Car sent to bot: ' . $this->car->id);
@@ -69,6 +68,6 @@ class SendListedCarToBot
 
     private function prepareRequest(string $url): PendingRequest
     {
-        return Http::baseUrl($url)->timeout(30);
+        return Http::asJson()->baseUrl($url)->timeout(30);
     }
 }
