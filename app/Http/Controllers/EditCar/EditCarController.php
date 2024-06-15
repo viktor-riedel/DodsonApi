@@ -143,8 +143,8 @@ class EditCarController extends Controller
             ]);
         }
 
-        if ($request->input('car_is_for_sale') && !$car->carFinance->car_is_for_sale) {
-            //send to bot
+        //send to bot
+        if ($request->input('car_is_for_sale') && !$car->carFinance->car_is_for_sale && config('app.env') === 'production') {
             SendCarToBotJob::dispatch($car);
         }
 
