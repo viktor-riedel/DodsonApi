@@ -45,13 +45,14 @@ class SendListedCarToBot
                     ],
             ];
             try {
-                \Log::info(json_encode($data));
                 $url = $this->buildUrl();
                 $response = $this->prepareRequest($url)
                     ->accept('application/json')
                     ->post('/api/messages/send-simple-photo-message', $data);
                 if ($response->ok()) {
                     //update
+                } else {
+                    $response->throw();
                 }
             } catch (\Exception $e) {
                 \Log::error('Failed to update telegram bot: '.$e->getMessage());
