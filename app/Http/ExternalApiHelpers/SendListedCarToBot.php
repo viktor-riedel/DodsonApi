@@ -4,7 +4,7 @@ namespace App\Http\ExternalApiHelpers;
 
 use App\Models\Car;
 use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Support\Facades\Http;
+use Http;
 
 class SendListedCarToBot
 {
@@ -51,6 +51,7 @@ class SendListedCarToBot
                     ->post('/api/messages/send-simple-photo-message', $data);
                 if ($response->ok()) {
                     //update
+                    \Log::info('Car sent to bot: ' . $this->car->id);
                 } else {
                     \Log::error('Failed to update telegram bot: '. $response->toException()?->getMessage());
                 }
