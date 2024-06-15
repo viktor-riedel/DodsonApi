@@ -46,7 +46,7 @@ class SendListedCarToBot
             ];
             try {
                 $url = $this->buildUrl();
-                ray(json_encode($data));
+                \Log::info(json_encode($data));
                 $response = $this->prepareRequest($url)
                     ->accept('application/json')
                     ->post('/api/messages/send-simple-photo-message', $data);
