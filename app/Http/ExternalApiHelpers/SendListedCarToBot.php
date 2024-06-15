@@ -52,7 +52,7 @@ class SendListedCarToBot
                 if ($response->ok()) {
                     //update
                 } else {
-                    $response->throw();
+                    \Log::error('Failed to update telegram bot: '. $response->toException()?->getMessage());
                 }
             } catch (\Exception $e) {
                 \Log::error('Failed to update telegram bot: '.$e->getMessage());
