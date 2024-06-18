@@ -21,12 +21,12 @@
     <table style="border-collapse:collapse;width: 100%;margin:auto;" cellspacing="0">
         <tr style="height:31pt">
             <td style="width:157pt;border-top-style:dashed;border-top-width:1pt;border-top-color:#333333;border-left-style:dashed;border-left-width:1pt;border-left-color:#333333;border-bottom-style:solid;border-bottom-width:1pt;border-bottom-color:#333333" rowspan="2">
-                <p class="s1" style="padding-left: 34pt;text-indent: 0pt;line-height: 16pt;text-align: left;">
+                <p class="s1" style="margin-left: 10px; padding-left: 34pt;text-indent: 0pt;line-height: 16pt;text-align: left;">
                     {{$part->barcode}}
                 </p>
                 <p style="text-indent: 0pt;text-align: left;">
                     <span>
-                        <table border="0" cellspacing="0" cellpadding="0">
+                        <table border="0" cellspacing="0" cellpadding="0" style="margin-left: 10px">
                             <tr>
                                 <td>
                                     <img width="209" height="43" src="data:image/png;base64,'{{DNS1D::getBarcodePNG((string) $part->barcode, \App\Models\CarPdrPositionCard::BARCODE_ALGO)}}"/>
@@ -49,11 +49,11 @@
         <tr>
             <td style="width:100%;height: 118pt;border-top-style:solid;border-top-width:1pt;border-top-color:#333333;border-left-style:dashed;border-left-width:1pt;border-left-color:#333333;border-bottom-style:dashed;border-bottom-width:1pt;border-bottom-color:#333333;border-right-style:dashed;border-right-width:1pt;border-right-color:#333333" colspan="2">
                 <p style="padding-top: 10pt;text-indent: 0pt;text-align: left;"><br/></p>
-                <p class="s2" style="padding-left: 2pt;padding-right: 27pt;text-indent: 0pt;text-align: left;">
+                <p class="s2" style="margin-left: 5px;padding-left: 2pt;padding-right: 27pt;text-indent: 0pt;text-align: left;">
                     {{$part->name_eng}} {{$part->name_ru}}
                 </p>
-                <p class="s2" style="padding-left: 2pt;text-indent: 0pt;text-align: left;">{{$car->make}}, {{$car->model}}</p>
-                <p class="s7" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">
+                <p class="s2" style="margin-left: 5px;padding-left: 2pt;text-indent: 0pt;text-align: left;">{{$car->make}}, {{$car->model}}</p>
+                <p class="s7" style="margin-left: 5px;padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">
                     IC description:
                     @if($part->ic_description)
                         {{$part->ic_description}}
@@ -61,10 +61,10 @@
                         <br>
                     @endif
                 </p>
-                <p class="s5" style="padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">
+                <p class="s5" style="margin-left: 5px;padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">
                     Comment:
                 </p>
-                <p class="s6" style="padding-top: 4pt;padding-left: 0;text-indent: 0pt;line-height: 9pt;text-align: left;">
+                <p class="s6" style="margin-left: 5px;padding-top: 4pt;padding-left: 0;text-indent: 0pt;line-height: 9pt;text-align: left;">
                     {{now()->format('d.m.Y H:i:s')}} / {{auth()->user()?->name ?? ''}}
                 </p>
             </td>
