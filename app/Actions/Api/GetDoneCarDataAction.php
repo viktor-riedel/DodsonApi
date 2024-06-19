@@ -77,8 +77,8 @@ class GetDoneCarDataAction
                 'finance' => [
                     'contr_agent' => $car->contr_agent_name,
                     'purchase_price' => $car->carFinance->purchase_price,
-                    'parts_price' => $car->positions->sum('card.priceCard.selling_price'),
-                    'selling_price' => $car->positions->sum('card.priceCard.buying_price'),
+                    'selling_price' => $car->positions->sum('card.priceCard.selling_price'),
+                    'parts_price' => $car->positions->sum('card.priceCard.buying_price'),
                     'price_without_engine_nz' => $car->carFinance->price_without_engine_nz,
                     'price_with_engine_nz' => $car->carFinance->price_with_engine_nz,
                     'price_without_engine_ru' => $car->carFinance->price_without_engine_ru,

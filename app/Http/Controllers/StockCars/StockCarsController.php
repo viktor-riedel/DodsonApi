@@ -5,10 +5,12 @@ namespace App\Http\Controllers\StockCars;
 use App\Events\StockCars\AddedToWishListEvent;
 use App\Events\StockCars\RemovedFromWishListEvent;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\SellingPartsMap\SellingMapItemResource;
 use App\Http\Resources\StockCars\GenerationResource;
 use App\Http\Resources\StockCars\MakeResource;
 use App\Http\Resources\StockCars\ModelResource;
 use App\Http\Resources\StockCars\StockCarResource;
+use App\Http\Traits\DefaultSellingMapTrait;
 use App\Models\Car;
 use App\Models\CarAttribute;
 use App\Models\CarFinance;
@@ -16,6 +18,9 @@ use Illuminate\Http\Request;
 
 class StockCarsController extends Controller
 {
+
+    use DefaultSellingMapTrait;
+
     public function list(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $searchText = $request->get('search', null);
@@ -77,10 +82,13 @@ class StockCarsController extends Controller
         return StockCarResource::collection($cars);
     }
 
-    public function view(Car $car): StockCarResource
+    public function view(Car $car): \Illuminate\Http\JsonResponse
     {
         $car->load('carFinance', 'images', 'links', 'carAttributes', 'modifications');
-        return new StockCarResource($car);
+        return response()->json([
+            'car' => new StockCarResource($car),
+            'partsList' => SellingMapItemResource::collection($this->getDefaultSellingMap())
+        ]);
     }
 
     public function makes(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection

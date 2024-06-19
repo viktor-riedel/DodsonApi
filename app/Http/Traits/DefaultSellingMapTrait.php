@@ -27,7 +27,8 @@ trait DefaultSellingMapTrait
     {
         $directories = SellingMapItem::where('parent_id', 0)->get();
         foreach ($directories as $directory) {
-            $directory->items = SellingMapItem::where('parent_id', $directory->id)->get();
+            $directory->items = SellingMapItem::where('parent_id', $directory->id)
+                ->get();
         }
         return $directories;
     }

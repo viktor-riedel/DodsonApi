@@ -3,12 +3,13 @@
 namespace App\Actions\CreateCar;
 
 use App\Http\Traits\InnerIdTrait;
+use App\Http\Traits\SyncPartWithOrderTrait;
 use App\Models\Car;
 use App\Models\CarPdrPositionCard;
 
 class AddMiscPartsAction
 {
-    use InnerIdTrait;
+    use InnerIdTrait, SyncPartWithOrderTrait;
 
     public function handle(Car $car, int $userId, array $parts = []): void
     {

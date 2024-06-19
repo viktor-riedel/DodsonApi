@@ -15,7 +15,7 @@ class SellingPartsMapController extends Controller
 
     public const MAIN_DIRECTORIES = [
         'Engine and Transmission',
-        'Front end Assy (Nosecut)',
+        'Frontend Assy (Nosecut)',
         'Body Exterior',
         'Interior',
         'Front Suspension',

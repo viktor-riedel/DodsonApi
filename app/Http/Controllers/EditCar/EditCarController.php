@@ -9,6 +9,7 @@ use App\Exports\Excel\CreatedCarPartsExcelExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Cart\LinkResource;
 use App\Http\Traits\CarPdrTrait;
+use App\Http\Traits\SyncPartWithOrderTrait;
 use App\Jobs\Sync\SendCarToBotJob;
 use App\Jobs\Sync\SendDoneCarJob;
 use App\Models\Car;
@@ -25,7 +26,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class EditCarController extends Controller
 {
-    use CarPdrTrait;
+    use CarPdrTrait, SyncPartWithOrderTrait;
 
     public function edit(Car $car): \Illuminate\Http\JsonResponse
     {
@@ -232,6 +233,10 @@ class EditCarController extends Controller
         $card->images()->update(['deleted_by' => $request->user()->id]);
         $card->position()->update(['deleted_by' => $request->user()->id]);
 
+        //sync with order
+        if ($card->position->client) {
+            $this->deletePartFromOrder($car, $card->position->client->id, $card->position);
+        }
         $card->position()->delete();
         $card->delete();
 
@@ -447,6 +452,9 @@ class EditCarController extends Controller
             'buying_price' => (int) $request->input('buying_price'),
             'price_currency' => $currency,
         ]);
+        if ($card->position->client) {
+            $this->updatePriceForPartInOrder($car, $card->position->client->id, $card->position);
+        }
         return response()->json([], 204);
     }
 
@@ -500,9 +508,15 @@ class EditCarController extends Controller
 
     public function setClient(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
     {
+        if ($card->position->client) {
+            //check if we reassign a client
+            $this->deletePartFromOrder($car, $card->position->client->id, $card->position);
+        }
         $card->position->update([
             'user_id' => $request->input('client_id'),
         ]);
+        //sync with order if any
+        $this->addPartToOrder($car, $request->input('client_id'), $card->position);
         return response()->json([], 204);
     }
 

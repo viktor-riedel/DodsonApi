@@ -144,4 +144,9 @@ class Car extends Model
     {
         return $this->hasMany(CarMarket::class);
     }
+
+    public function getHasActiveOrderAttribute(): bool
+    {
+        return OrderItem::where('car_id', $this->id)->exists();
+    }
 }
