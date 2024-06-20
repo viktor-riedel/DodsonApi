@@ -2,8 +2,10 @@
 
 namespace App\Actions\Order;
 
+use App\Events\Order\OrderCreatedEvent;
 use App\Http\Controllers\SellingPartsMap\SellingPartsMapController;
 use App\Http\Traits\InnerIdTrait;
+use App\Mail\UserOrderCreatedMail;
 use App\Models\Car;
 use App\Models\CarPdr;
 use App\Models\CarPdrPositionCard;
@@ -77,6 +79,11 @@ class CreateCarOrderAction
 
         // add parts to parts list of the car + user
         $this->createPartsEntries($car, $request);
+
+        //fire email event
+        event(new OrderCreatedEvent($this->user, $order));
+        \Mail::to(config('mail.info_email'))
+            ->send(new UserOrderCreatedMail($this->user, $order));
 
         return $order->id;
     }

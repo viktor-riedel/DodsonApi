@@ -34,34 +34,13 @@
             Modification: {{$car->modifications->header}}
         </li>
         <li>
-            @if($user->country_code === 'RU')
-                @if($item->with_engine)
-                    Car with engine price: {{$car->carFinance->price_with_engine_ru}} ₽
-                @else
-                    Car without engine price: {{$car->carFinance->price_without_engine_ru}} ₽
-                @endif
-            @endif
-            @if($user->country_code === 'NZ')
-                @if($item->with_engine)
-                   Car with engine price: {{$car->carFinance->price_with_engine_nz}} $
-                @else
-                   Car without engine price: {{$car->carFinance->price_without_engine_ru}} $
-                @endif
-            @endif
-            @if($user->country_code === 'MN')
-                @if($item->with_engine)
-                   Car with engine price: {{$car->carFinance->price_with_engine_mn}}
-                @else
-                   Car without engine price: {{$car->carFinance->price_without_engine_ru}}
-                @endif
-            @endif
-            @if(!$user->country_code || !in_array($user->country_code, ['NZ', 'RU', 'MN']))
-                @if($item->with_engine)
-                   Car with engine price: {{$car->carFinance->price_with_engine_jp}} ¥
-                @else
-                   Car without engine price: {{$car->carFinance->price_without_engine_jp}} ¥
-                @endif
-            @endif
+            @foreach($order->items as $orderItem)
+                <ul style="list-style: decimal">
+                    <li>
+                        {{ $orderItem->item_name_eng }} / {{$orderItem->item_name_ru}}, price: {{number_format($orderItem->price_jpy)}}
+                    </li>
+                </ul>
+            @endforeach
         </li>
         <li>
            MVR: {{$car->car_mvr}}

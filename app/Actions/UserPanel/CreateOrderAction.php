@@ -15,6 +15,9 @@ class CreateOrderAction
 
     public function handle(Request $request): int
     {
+
+        throw new \Exception('method is absolete!!!');
+
         $cars = $request->input('cars');
         $parts = $request->input('parts');
         $user = $request->user();
@@ -97,10 +100,6 @@ class CreateOrderAction
         }
 
         $order->update(['order_total' => $orderSum]);
-
-        event(new OrderCreatedEvent($user, $order));
-        \Mail::to(config('mail.info_email'))
-            ->send(new UserOrderCreatedMail($user, $order));
 
         return $order->id;
     }
