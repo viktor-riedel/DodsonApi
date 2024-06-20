@@ -11,6 +11,7 @@
         .s5 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 8pt; }
         .s6 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 6pt; }
         .s7 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 6pt; }
+        .s8 { color: black; font-family:DejaVu Sans, sans-serif; font-style: italic; font-weight: bold; text-decoration: none; font-size: 10pt; }
         table, tbody {vertical-align: top; overflow: visible; }
         .page_break { page-break-before: always; }
         @page { size: 10cm 7cm landscape;}
@@ -49,9 +50,15 @@
         <tr>
             <td style="width:100%;height: 118pt;border-top-style:solid;border-top-width:1pt;border-top-color:#333333;border-left-style:dashed;border-left-width:1pt;border-left-color:#333333;border-bottom-style:dashed;border-bottom-width:1pt;border-bottom-color:#333333;border-right-style:dashed;border-right-width:1pt;border-right-color:#333333" colspan="2">
                 <p style="padding-top: 10pt;text-indent: 0pt;text-align: left;"><br/></p>
-                <p class="s2" style="margin-left: 5px;padding-left: 2pt;padding-right: 27pt;text-indent: 0pt;text-align: left;">
-                    {{$part->name_eng}} {{$part->name_ru}}
-                </p>
+                @if(count(explode(' ', $part->name_ru)) < 3)
+                    <p class="s2" style="margin-left: 5px;padding-left: 2pt;padding-right: 27pt;text-indent: 0pt;text-align: left;">
+                        {{$part->name_eng}} {{$part->name_ru}}
+                    </p>
+                @else
+                    <p class="s8" style="margin-left: 5px;padding-left: 2pt;padding-right: 27pt;text-indent: 0pt;text-align: left;">
+                        {{$part->name_eng}} {{$part->name_ru}}
+                    </p>
+                @endif
                 <p class="s2" style="margin-left: 5px;padding-left: 2pt;text-indent: 0pt;text-align: left;">{{$car->make}}, {{$car->model}}</p>
                 <p class="s7" style="margin-left: 5px;padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">
                     IC description:

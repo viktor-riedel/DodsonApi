@@ -25,7 +25,6 @@ class ImportFromCapartsAction
         if ($exist) {
             return 0;
         }
-
         if ($request->input('mvr') && is_array($request->input('mvr'))) {
             $make = $request->input('mvr.make');
             $model = $request->input('mvr.model');
@@ -63,7 +62,7 @@ class ImportFromCapartsAction
                     'chassis' => $chassis,
                     'created_by' => $userId,
                     'contr_agent_name' => 'Carsbeck',//$request->input('auction_info.auction')
-                    'car_mvr' => $request->input('mvr.car_mvr'),
+                    'car_mvr' => $request->input('mvr.stock_number'),
                 ]);
 
                 $car->carFinance()->create([
@@ -118,6 +117,7 @@ class ImportFromCapartsAction
 
                 return $car->id;
             }
+            \Log::error('Error importing car. Generation number is not set!');
         }
         return -1;
     }

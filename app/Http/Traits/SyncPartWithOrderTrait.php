@@ -26,7 +26,7 @@ trait SyncPartWithOrderTrait
                 'with_engine' => false,
                 'item_name_eng' => $position->item_name_eng,
                 'item_name_ru' => $position->item_name_ru,
-                'price_jpy' => 0,
+                'price_jpy' => $position->card->priceCard->buying_price ?? 0,
                 'comment' => null,
             ]);
             $item->order->update(['order_total' => $item->order->items->sum('price_jpy')]);
@@ -75,6 +75,62 @@ trait SyncPartWithOrderTrait
             if (!$order->items->count()) {
                 $order->delete();
             }
+        }
+    }
+
+    private function syncOrdersWithDoneResponse(Car $car, array $invoices): void
+    {
+        if (count($invoices)) {
+            foreach ($invoices as $invoice) {
+                $user = User::where('name', $invoice['Company'] ?? '')->first();
+                if ($user) {
+                    $items = OrderItem::with('order')
+                        ->where('car_id', $car->id)
+                        ->where('user_id', $user->id)
+                        ->get();
+                    $order = $items->first()->order;
+                    //update order
+                    $order->update([
+                        'order_number' => $invoice['Number'],
+                        'status_ru' => $invoice['State'],
+                        'status_en' => null,
+                        'order_total' => $invoice['TotalAmount'] > 0 ? $invoice['TotalAmount'] : $order->order_total,
+                        'reference' => $invoice['Ref'],
+                        'mvr_price' => $invoice['MVRPrice'],
+                        'extra_price' => $invoice['Number'],
+                        'package_price' => $invoice['DJP_Package'],
+                        'mvr_commission' => $invoice['MVRСommission'],
+                        'currency' => $invoice['Currency'],
+                    ]);
+                    // update order items
+                    if (isset($invoice['Inventory']) && count($invoice['Inventory'])) {
+                        foreach($invoice['Inventory'] as $inventoryItem) {
+                            $value = $inventoryItem['Item'] ?? null;
+                            if ($value) {
+                                $orderItem = $items->where('item_name_eng', $value['Description'])->first();
+                                if (!$orderItem) {
+                                    $orderItem = $items->where('item_name_ru', $value['Description'])->first();
+                                }
+                                $orderItem?->update([
+                                        'item_status_ru' => $inventoryItem['State'],
+                                        'item_status_en' => '',
+                                ]);
+                                if ($inventoryItem['Price']) {
+                                    $orderItem?->update([
+                                        'price_jpy' => $inventoryItem['Price'],
+                                    ]);
+                                }
+                            }
+                        }
+                    } else {
+                        \Log::warning('Warning! No inventory items for order: ' . $order->id . ' in response!');
+                    }
+                } else {
+                    \Log::error('Error syncing with 1C. User not found by name: ' . $invoice['Company']);
+                }
+            }
+        } else {
+            \Log::error('Error syncing with 1C. Invoices count = 0 for car: ' . $car->id);
         }
     }
 
