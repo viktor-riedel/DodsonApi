@@ -1,5 +1,5 @@
-<!DOCTYPE  html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE  html>
+<html lang="en">
     <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title></title>
@@ -18,7 +18,7 @@
     </style>
 </head>
 <body>
-@foreach($parts as $part)
+@foreach($parts as $key => $part)
     <table style="border-collapse:collapse;width: 100%;margin:auto;" cellspacing="0">
         <tr style="height:31pt">
             <td style="width:157pt;border-top-style:dashed;border-top-width:1pt;border-top-color:#333333;border-left-style:dashed;border-left-width:1pt;border-left-color:#333333;border-bottom-style:solid;border-bottom-width:1pt;border-bottom-color:#333333" rowspan="2">
@@ -77,7 +77,8 @@
             </td>
         </tr>
     </table>
-    <div class="page_break"></div>
+    @if($key < ($parts->count() - 1))
+        <div class="page-break"></div>
+    @endif
 @endforeach
-</body>
-</html>
+</body></html>
