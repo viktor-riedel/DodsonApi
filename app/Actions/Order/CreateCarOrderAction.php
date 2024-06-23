@@ -10,6 +10,7 @@ use App\Models\Car;
 use App\Models\CarPdr;
 use App\Models\CarPdrPositionCard;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -27,6 +28,7 @@ class CreateCarOrderAction
     private array $rearSuspension = [];
     private array $other = [];
     private User $user;
+    private Car $car;
 
 
     public function handle(Request $request, Car $car): int
@@ -40,17 +42,26 @@ class CreateCarOrderAction
         $this->frontSuspension = $request->input('frontSuspension');
         $this->rearSuspension = $request->input('rearSuspension');
         $this->other = $request->input('other');
+        $this->car = $car;
 
-        // create order
-        $order = Order::create([
-            'user_id' => $this->user->id,
-            'order_number' => $orderNumber,
-            'order_status' =>  Order::ORDER_STATUS_INT[Order::ORDER_STATUS_STRING[0]],
-            'invoice_url' => null,
-            'order_total' => 0,
-            'country_code' => $this->user->country_code,
-            'comment' => $request->input('comment'),
-        ]);
+        //check if user already has an active order for that car
+        $order = OrderItem::with('order')->where([
+            'car_id' => $car->id,
+            'user_id' => $this->user->id
+        ])->first()?->order;
+
+        if (!$order) {
+            // create order
+            $order = Order::create([
+                'user_id' => $this->user->id,
+                'order_number' => $orderNumber,
+                'order_status' =>  Order::ORDER_STATUS_INT[Order::ORDER_STATUS_STRING[0]],
+                'invoice_url' => null,
+                'order_total' => 0,
+                'country_code' => $this->user->country_code,
+                'comment' => $request->input('comment'),
+            ]);
+        }
 
         //create items
         if (count($this->engine)) {
@@ -77,8 +88,8 @@ class CreateCarOrderAction
 
         $order->update(['order_total' => $this->orderTotal]);
 
-        // add parts to parts list of the car + user
-        $this->createPartsEntries($car, $request);
+        // add parts to parts list of the car
+        $this->createPartsEntries();
 
         //fire email event
         event(new OrderCreatedEvent($this->user, $order));
@@ -91,107 +102,101 @@ class CreateCarOrderAction
     private function createOrderItems(Order $order, Car $car, array $parts = []): void
     {
         foreach ($parts as $part) {
-            $order->items()->create([
+
+            //check part already chosen by another user
+            $item = OrderItem::where([
                 'car_id' => $car->id,
-                'part_id' => null,
-                'with_engine' => false,
-                'item_name_eng' => $part['item_name_eng'] ?? '',
-                'item_name_ru' => $part['item_name_ru'] ?? null,
-                'price_jpy' => $part['price_jpy'] ?? 0,
-                'engine_price' => 0,
-                'catalyst_price' => 0,
-                'user_id' => $this->user->id,
-                'currency' => 'JPY',
-            ]);
-            $this->orderTotal += (int) $part['price_jpy'];
+                'item_name_eng' =>  $part['item_name_eng']
+            ])->first();
+
+            if (!$item) {
+                $order->items()->create([
+                    'car_id' => $car->id,
+                    'part_id' => null,
+                    'with_engine' => false,
+                    'item_name_eng' => $part['item_name_eng'] ?? '',
+                    'item_name_ru' => $part['item_name_ru'] ?? null,
+                    'price_jpy' => $part['price_jpy'] ?? 0,
+                    'engine_price' => 0,
+                    'catalyst_price' => 0,
+                    'user_id' => $this->user->id,
+                    'currency' => 'JPY',
+                ]);
+                $this->orderTotal += (int) $part['price_jpy'];
+            }
         }
     }
 
-    private function createPartsEntries(Car $car): void
+    private function createPartsEntries(): void
     {
+        //check parts ordered and create entries for unordered parts
+        $orderedItems = OrderItem::where([
+            'car_id' => $this->car->id,
+        ])->get()->pluck('item_name_eng')->toArray();
+
         if (count($this->engine)) {
-            $folder = $car->pdrs()->create([
-                'parent_id' => 0,
-                'item_name_eng' => SellingPartsMapController::MAIN_DIRECTORIES[0],
-                'item_name_ru' => '',
-                'is_folder' => true,
-                'is_deleted' => false,
-                'parts_list_id' => null,
-                'created_by' => $this->user->id,
-            ]);
-            $this->createCards($folder, $this->engine);
+            //exclude from ordered parts from request
+            $parts = collect($this->engine)->filter(function($part) use ($orderedItems) {
+               return !in_array($part['item_name_eng'], $orderedItems, true);
+            });
+            if ($parts->count()) {
+                $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[0]);
+                $this->createCards($folder, $parts->toArray());
+            }
         }
         if (count($this->front)) {
-            $folder = $car->pdrs()->create([
-                'parent_id' => 0,
-                'item_name_eng' => SellingPartsMapController::MAIN_DIRECTORIES[1],
-                'item_name_ru' => '',
-                'is_folder' => true,
-                'is_deleted' => false,
-                'parts_list_id' => null,
-                'created_by' => $this->user->id,
-            ]);
-            $this->createCards($folder, $this->front);
+            $parts = collect($this->front)->filter(function($part) use ($orderedItems) {
+                return !in_array($part['item_name_eng'], $orderedItems, true);
+            });
+            if ($parts->count()) {
+                $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[1]);
+                $this->createCards($folder, $parts->toArray());
+            }
         }
         if (count($this->exterior)) {
-            $folder = $car->pdrs()->create([
-                'parent_id' => 0,
-                'item_name_eng' => SellingPartsMapController::MAIN_DIRECTORIES[2],
-                'item_name_ru' => '',
-                'is_folder' => true,
-                'is_deleted' => false,
-                'parts_list_id' => null,
-                'created_by' => $this->user->id,
-            ]);
-            $this->createCards($folder, $this->exterior);
+            $parts = collect($this->exterior)->filter(function($part) use ($orderedItems) {
+                return !in_array($part['item_name_eng'], $orderedItems, true);
+            });
+            if ($parts->count()) {
+                $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[2]);
+                $this->createCards($folder, $parts->toArray());
+            }
         }
         if (count($this->interior)) {
-            $folder = $car->pdrs()->create([
-                'parent_id' => 0,
-                'item_name_eng' => SellingPartsMapController::MAIN_DIRECTORIES[3],
-                'item_name_ru' => '',
-                'is_folder' => true,
-                'is_deleted' => false,
-                'parts_list_id' => null,
-                'created_by' => $this->user->id,
-            ]);
-            $this->createCards($folder, $this->interior);
+            $parts = collect($this->interior)->filter(function($part) use ($orderedItems) {
+                return !in_array($part['item_name_eng'], $orderedItems, true);
+            });
+            if ($parts->count()) {
+                $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[3]);
+                $this->createCards($folder, $parts->toArray());
+            }
         }
         if (count($this->frontSuspension)) {
-            $folder = $car->pdrs()->create([
-                'parent_id' => 0,
-                'item_name_eng' => SellingPartsMapController::MAIN_DIRECTORIES[4],
-                'item_name_ru' => '',
-                'is_folder' => true,
-                'is_deleted' => false,
-                'parts_list_id' => null,
-                'created_by' => $this->user->id,
-            ]);
-            $this->createCards($folder, $this->frontSuspension);
+            $parts = collect($this->frontSuspension)->filter(function($part) use ($orderedItems) {
+                return !in_array($part['item_name_eng'], $orderedItems, true);
+            });
+            if ($parts->count()) {
+                $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[4]);
+                $this->createCards($folder, $parts->toArray());
+            }
         }
         if (count($this->rearSuspension)) {
-            $folder = $car->pdrs()->create([
-                'parent_id' => 0,
-                'item_name_eng' => SellingPartsMapController::MAIN_DIRECTORIES[5],
-                'item_name_ru' => '',
-                'is_folder' => true,
-                'is_deleted' => false,
-                'parts_list_id' => null,
-                'created_by' => $this->user->id,
-            ]);
-            $this->createCards($folder, $this->rearSuspension);
+            $parts = collect($this->rearSuspension)->filter(function($part) use ($orderedItems) {
+                return !in_array($part['item_name_eng'], $orderedItems, true);
+            });
+            if ($parts->count()) {
+                $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[5]);
+                $this->createCards($folder, $parts->toArray());
+            }
         }
         if (count($this->other)) {
-            $folder = $car->pdrs()->create([
-                'parent_id' => 0,
-                'item_name_eng' => SellingPartsMapController::MAIN_DIRECTORIES[6],
-                'item_name_ru' => '',
-                'is_folder' => true,
-                'is_deleted' => false,
-                'parts_list_id' => null,
-                'created_by' => $this->user->id,
-            ]);
-            $this->createCards($folder, $this->other);
+            $parts = collect($this->rearSuspension)->filter(function($part) use ($orderedItems) {
+                return !in_array($part['item_name_eng'], $orderedItems, true);
+            });
+            if ($parts->count()) {
+                $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[6]);
+                $this->createCards($folder, $parts->toArray());
+            }
         }
     }
 
@@ -260,5 +265,29 @@ class CreateCarOrderAction
             $exist = CarPdrPositionCard::where('barcode', $barcode)->exists();
         }
         return $barcode;
+    }
+
+    private function resolveFolder(string $folderName): CarPdr
+    {
+        $folder = CarPdr::where(
+            [
+                'car_id' => $this->car->id,
+                'item_name_eng' => $folderName,
+                'is_folder' => true,
+            ]
+        )->first();
+
+        if (!$folder) {
+            $folder = $this->car->pdrs()->create([
+                'parent_id' => 0,
+                'item_name_eng' => $folderName,
+                'item_name_ru' => '',
+                'is_folder' => true,
+                'is_deleted' => false,
+                'parts_list_id' => null,
+                'created_by' => $this->user->id,
+            ]);
+        }
+        return $folder;
     }
 }

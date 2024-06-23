@@ -43,4 +43,10 @@ trait DefaultSellingMapTrait
             ->orderBy('item_name_eng')
             ->get();
     }
+
+    private function getDefaultMapItemsCount(): int
+    {
+        return SellingMapItem::all()->count();
+    }
+
 }

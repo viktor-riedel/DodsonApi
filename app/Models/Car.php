@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Traits\DefaultSellingMapTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Car extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, DefaultSellingMapTrait;
 
     public const WITH_ENGINE = 'WITH_ENGINE';
     public const WITHOUT_ENGINE = 'WITHOUT_ENGINE';
@@ -147,6 +148,6 @@ class Car extends Model
 
     public function getHasActiveOrderAttribute(): bool
     {
-        return OrderItem::where('car_id', $this->id)->exists();
+        return OrderItem::where('car_id', $this->id)->count() === $this->getDefaultMapItemsCount();
     }
 }
