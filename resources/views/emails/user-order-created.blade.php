@@ -17,10 +17,10 @@
 <p>Order Number: {{$order->order_number}}</p>
 <p>-------------ORDER DETAILS------------</p>
 <ul style="list-style: none">
-@if($item->car_id)
+@if($order)
     @php
         $car = \App\Models\Car::with('carFinance', 'images', 'carAttributes', 'modifications')
-            ->find($item->car_id);
+            ->find($order->items->first()->car_id);
     @endphp
     <li>
         Car: {{$car->make}} {{$car->model}} {{$car->year}} {{$car->chassis}}
@@ -33,25 +33,29 @@
         Modification: {{$car->modifications->header}}
     </li>
     <li>
+        <p>-------------ORDERED PARTS------------</p>
+    </li>
+    <li>
+        <ol>
         @foreach($order->items as $orderItem)
-            <ul style="list-style: decimal">
-                <li>
-                    {{ $orderItem->item_name_eng }} / {{$orderItem->item_name_ru}}, price: {{number_format($orderItem->price_jpy)}}
-                </li>
-            </ul>
+            <li>
+                {{ $orderItem->item_name_eng }} / {{$orderItem->item_name_ru}}, price: {{number_format($orderItem->price_jpy)}}
+            </li>
         @endforeach
+        </ol>
+    </li>
+    <li>
+        <p>-------------END ORDERED PARTS------------</p>
     </li>
     <li>
        MVR: {{$car->car_mvr}}
     </li>
     <li>
-        Comment: {{$item->comment}}
+        Comment: {{$order->comment}}
     </li>
     @endif
 @endif
 </ul>
-@if($item->part_id)
-@endif
 <p>--------------------------------------</p>
 <p>Kind Regards, Dodson Team</p>
 </body>
