@@ -42,7 +42,7 @@ class EditCarController extends Controller
             'latestSyncData',
             'markets',
             'carFinance');
-        $parts = $this->buildPdrTreeWithoutEmpty($car, false);
+        $parts = []; //$this->buildPdrTreeWithoutEmpty($car, false);
         $defaultSellingParts = $this->getDefaultSellingMap();
         $partsList = $this->getPartsList($car);
         $clients = User::withoutRole('ADMIN')
