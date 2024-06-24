@@ -237,7 +237,13 @@ class EditCarController extends Controller
         if ($card->position->client) {
             $this->deletePartFromOrder($car, $card->position->client->id, $card->position);
         }
+        $carPdr = $card->position->carPdr;
         $card->position()->delete();
+
+        //delete folder is empty
+        if (!$carPdr->positions()->count()) {
+            $carPdr->delete();
+        }
         $card->delete();
 
         $car->load('images', 'carAttributes', 'modification', 'createdBy');

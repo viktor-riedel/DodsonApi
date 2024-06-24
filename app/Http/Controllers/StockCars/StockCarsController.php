@@ -87,7 +87,7 @@ class StockCarsController extends Controller
         $car->load('carFinance', 'images', 'links', 'carAttributes', 'modifications');
         return response()->json([
             'car' => new StockCarResource($car),
-            'partsList' => SellingMapItemResource::collection($this->getDefaultSellingMap())
+            'partsList' => SellingMapItemResource::collection($this->getDefaultSellingMapWithOrdered($car))
         ]);
     }
 

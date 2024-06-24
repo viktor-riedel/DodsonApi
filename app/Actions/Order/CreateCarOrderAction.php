@@ -129,74 +129,33 @@ class CreateCarOrderAction
 
     private function createPartsEntries(): void
     {
-        //check parts ordered and create entries for unordered parts
-        $orderedItems = OrderItem::where([
-            'car_id' => $this->car->id,
-        ])->get()->pluck('item_name_eng')->toArray();
-
         if (count($this->engine)) {
-            //exclude from ordered parts from request
-            $parts = collect($this->engine)->filter(function($part) use ($orderedItems) {
-               return !in_array($part['item_name_eng'], $orderedItems, true);
-            });
-            if ($parts->count()) {
-                $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[0]);
-                $this->createCards($folder, $parts->toArray());
-            }
+            $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[0]);
+            $this->createCards($folder, $this->engine);
         }
         if (count($this->front)) {
-            $parts = collect($this->front)->filter(function($part) use ($orderedItems) {
-                return !in_array($part['item_name_eng'], $orderedItems, true);
-            });
-            if ($parts->count()) {
-                $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[1]);
-                $this->createCards($folder, $parts->toArray());
-            }
+            $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[1]);
+            $this->createCards($folder, $this->front);
         }
         if (count($this->exterior)) {
-            $parts = collect($this->exterior)->filter(function($part) use ($orderedItems) {
-                return !in_array($part['item_name_eng'], $orderedItems, true);
-            });
-            if ($parts->count()) {
-                $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[2]);
-                $this->createCards($folder, $parts->toArray());
-            }
+            $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[2]);
+            $this->createCards($folder, $this->exterior);
         }
         if (count($this->interior)) {
-            $parts = collect($this->interior)->filter(function($part) use ($orderedItems) {
-                return !in_array($part['item_name_eng'], $orderedItems, true);
-            });
-            if ($parts->count()) {
-                $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[3]);
-                $this->createCards($folder, $parts->toArray());
-            }
+            $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[3]);
+            $this->createCards($folder, $this->interior);
         }
         if (count($this->frontSuspension)) {
-            $parts = collect($this->frontSuspension)->filter(function($part) use ($orderedItems) {
-                return !in_array($part['item_name_eng'], $orderedItems, true);
-            });
-            if ($parts->count()) {
-                $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[4]);
-                $this->createCards($folder, $parts->toArray());
-            }
+            $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[4]);
+            $this->createCards($folder, $this->frontSuspension);
         }
         if (count($this->rearSuspension)) {
-            $parts = collect($this->rearSuspension)->filter(function($part) use ($orderedItems) {
-                return !in_array($part['item_name_eng'], $orderedItems, true);
-            });
-            if ($parts->count()) {
-                $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[5]);
-                $this->createCards($folder, $parts->toArray());
-            }
+            $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[5]);
+            $this->createCards($folder, $this->rearSuspension);
         }
         if (count($this->other)) {
-            $parts = collect($this->rearSuspension)->filter(function($part) use ($orderedItems) {
-                return !in_array($part['item_name_eng'], $orderedItems, true);
-            });
-            if ($parts->count()) {
-                $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[6]);
-                $this->createCards($folder, $parts->toArray());
-            }
+            $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[6]);
+            $this->createCards($folder, $this->other);
         }
     }
 

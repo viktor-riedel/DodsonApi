@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources\SellingPartsMap;
 
-use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -20,7 +19,7 @@ class SellingMapItemResource extends JsonResource
             'price_nzd' => $this->price_nzd,
             'price_mng' => $this->price_mng,
             'items' => self::collection($this->items),
-            'available' => false,
+            'available' => $this->available,
         ];
     }
 }

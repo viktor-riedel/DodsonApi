@@ -251,6 +251,7 @@ trait CarPdrTrait
     {
         $parts = \DB::table('cars')
             ->selectRaw('car_pdr_position_cards.id, 
+            car_pdrs.item_name_eng as folder,
             car_pdr_position_cards.parent_inner_id, 
             car_pdr_position_cards.name_eng, 
             car_pdr_position_cards.name_ru, 
