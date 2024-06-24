@@ -3,7 +3,6 @@
 namespace App\Http\Traits;
 
 use App\Models\Car;
-use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\PartList;
 use App\Models\SellingMapItem;

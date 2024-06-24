@@ -5,10 +5,13 @@ namespace App\Http\Controllers\EditCar;
 use App\Actions\CreateCar\AddListPartsAction;
 use App\Actions\CreateCar\AddMiscPartsAction;
 use App\Actions\CreateCar\AddPartsFromModificationListAction;
+use App\Actions\CreateCar\AddPartsFromSellingListAction;
 use App\Exports\Excel\CreatedCarPartsExcelExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Cart\LinkResource;
+use App\Http\Resources\SellingPartsMap\SellingMapItemResource;
 use App\Http\Traits\CarPdrTrait;
+use App\Http\Traits\DefaultSellingMapTrait;
 use App\Http\Traits\SyncPartWithOrderTrait;
 use App\Jobs\Sync\SendCarToBotJob;
 use App\Jobs\Sync\SendDoneCarJob;
@@ -26,7 +29,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class EditCarController extends Controller
 {
-    use CarPdrTrait, SyncPartWithOrderTrait;
+    use CarPdrTrait, SyncPartWithOrderTrait, DefaultSellingMapTrait;
 
     public function edit(Car $car): \Illuminate\Http\JsonResponse
     {
@@ -40,6 +43,7 @@ class EditCarController extends Controller
             'markets',
             'carFinance');
         $parts = $this->buildPdrTreeWithoutEmpty($car, false);
+        $defaultSellingParts = $this->getDefaultSellingMap();
         $partsList = $this->getPartsList($car);
         $clients = User::withoutRole('ADMIN')
             ->where('is_api_user', 0)
@@ -65,6 +69,7 @@ class EditCarController extends Controller
         return response()->json([
            'car_info' => $car,
            'parts_tree' => $parts,
+           'selling_parts' => SellingMapItemResource::collection($defaultSellingParts),
            'parts_list' => $partsList,
            'car_statuses' => Car::getStatusesJson(),
            'clients' => $clients,
@@ -327,6 +332,12 @@ class EditCarController extends Controller
     public function addModListParts(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
         app()->make(AddPartsFromModificationListAction::class)->handle($car, $request->all(), $request->user()->id);
+        return response()->json([], 201);
+    }
+
+    public function addSellingListParts(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    {
+        app()->make(AddPartsFromSellingListAction::class)->handle($car, $request->all(), $request->user()->id);
         return response()->json([], 201);
     }
 
