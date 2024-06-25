@@ -108,8 +108,8 @@ class GetDoneCarDataAction
                    'email' => $position->client?->email,
                 ],
                 'finance' => [
-                    'selling_price' => $position->card->priceCard->selling_price,
-                    'buying_price' => $position->card->priceCard->buying_price,
+                    'selling_price' => $position->card->priceCard->buying_price,
+                    'buying_price' => $position->card->priceCard->selling_price,
                     'price_currency' => $position->card->priceCard->price_currency,
                     'price_nz_wholesale' => $position->card->priceCard->price_nz_wholesale,
                     'price_nz_retail' => $position->card->priceCard->price_nz_retail,
