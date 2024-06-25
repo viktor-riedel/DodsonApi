@@ -62,7 +62,7 @@
         }
 
         @page {
-            size: portrait;
+            size: landscape;
         }
         .page_break { page-break-before: always; }
     </style>
