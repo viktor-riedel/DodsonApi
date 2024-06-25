@@ -16,65 +16,46 @@
 <p>User Email: {{$user->email}}</p>
 <p>Order Number: {{$order->order_number}}</p>
 <p>-------------ORDER DETAILS------------</p>
-@foreach($order->items as $item)
-    <ul style="list-style: none">
-    @if($item->car_id)
-        @php
-            $car = \App\Models\Car::with('carFinance', 'images', 'carAttributes', 'modifications')
-                ->find($item->car_id);
-        @endphp
-        <li>
-            Car: {{$car->make}} {{$car->model}} {{$car->year}} {{$car->chassis}}
-        </li>
-        @if($car->images->count())
-        <li>
-            <img src="{{$car->images[0]->url}}" alt="" style="max-width: 350px">
-        </li>
-        <li>
-            Modification: {{$car->modifications->header}}
-        </li>
-        <li>
-            @if($user->country_code === 'RU')
-                @if($item->with_engine)
-                    Car with engine price: {{$car->carFinance->price_with_engine_ru}} ₽
-                @else
-                    Car without engine price: {{$car->carFinance->price_without_engine_ru}} ₽
-                @endif
-            @endif
-            @if($user->country_code === 'NZ')
-                @if($item->with_engine)
-                   Car with engine price: {{$car->carFinance->price_with_engine_nz}} $
-                @else
-                   Car without engine price: {{$car->carFinance->price_without_engine_ru}} $
-                @endif
-            @endif
-            @if($user->country_code === 'MN')
-                @if($item->with_engine)
-                   Car with engine price: {{$car->carFinance->price_with_engine_mn}}
-                @else
-                   Car without engine price: {{$car->carFinance->price_without_engine_ru}}
-                @endif
-            @endif
-            @if(!$user->country_code || !in_array($user->country_code, ['NZ', 'RU', 'MN']))
-                @if($item->with_engine)
-                   Car with engine price: {{$car->carFinance->price_with_engine_jp}} ¥
-                @else
-                   Car without engine price: {{$car->carFinance->price_without_engine_jp}} ¥
-                @endif
-            @endif
-        </li>
-        <li>
-           MVR: {{$car->car_mvr}}
-        </li>
-        <li>
-            Comment: {{$item->comment}}
-        </li>
-        @endif
+<ul style="list-style: none">
+@if($order)
+    @php
+        $car = \App\Models\Car::with('carFinance', 'images', 'carAttributes', 'modifications')
+            ->find($order->items->first()->car_id);
+    @endphp
+    <li>
+        Car: {{$car->make}} {{$car->model}} {{$car->year}} {{$car->chassis}}
+    </li>
+    @if($car->images->count())
+    <li>
+        <img src="{{$car->images[0]->url}}" alt="" style="max-width: 350px">
+    </li>
+    <li>
+        Modification: {{$car->modifications->header}}
+    </li>
+    <li>
+        <p>-------------ORDERED PARTS------------</p>
+    </li>
+    <li>
+        <ol>
+        @foreach($order->items as $orderItem)
+            <li>
+                {{ $orderItem->item_name_eng }} / {{$orderItem->item_name_ru}}, price: {{number_format($orderItem->price_jpy)}}
+            </li>
+        @endforeach
+        </ol>
+    </li>
+    <li>
+        <p>-------------END ORDERED PARTS------------</p>
+    </li>
+    <li>
+       MVR: {{$car->car_mvr}}
+    </li>
+    <li>
+        Comment: {{$order->comment}}
+    </li>
     @endif
-    </ul>
-    @if($item->part_id)
-    @endif
-@endforeach
+@endif
+</ul>
 <p>--------------------------------------</p>
 <p>Kind Regards, Dodson Team</p>
 </body>

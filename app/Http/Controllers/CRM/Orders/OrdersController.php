@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\CRM\Orders;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Car\CarResource;
 use App\Http\Resources\CRM\Orders\OrderResource;
 use App\Http\Resources\CRM\Orders\ViewOrderResource;
+use App\Http\Resources\Order\OrderItemResource;
 use App\Models\Car;
 use App\Models\Order;
 use Illuminate\Http\Request;
@@ -33,16 +35,20 @@ class OrdersController extends Controller
         return response()->json($statuses);
     }
     
-    public function view(Request $request, Order $order): ViewOrderResource
+    public function view(Request $request, Order $order): \Illuminate\Http\JsonResponse
     {
-        $order->load('carItems', 'createdBy');
-        $carIds = $order->carItems->pluck('id')->toArray();
-        $order->cars = Car::with('images', 'carAttributes', 'modifications', 'positions',
-                'carFinance', 'positions.card', 'positions.card.priceCard',
-                'positions.card.partAttributesCard', 'positions.card.images')
-                ->whereIn('id', $carIds)
-                ->get();
+        $order->load('items', 'createdBy');
+        $car = $order->items->first()->car;
+        if ($car) {
+            $car->load('images', 'carAttributes', 'modifications');
+        }
 
-        return new ViewOrderResource($order);
+        return response()->json(
+            [
+                'car' => new CarResource($car),
+                'order_items' => OrderItemResource::collection($order->items),
+                'order' => new OrderResource($order)
+            ]
+        );
     }
 }

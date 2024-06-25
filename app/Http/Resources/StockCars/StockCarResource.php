@@ -33,6 +33,7 @@ class StockCarResource extends JsonResource
             ],
             'links' => $this->whenLoaded('links',LinkResource::collection($this->links), []),
             'comment' => $this->comment,
+            'is_ordered' => $this->has_active_order,
             'images' => $this->whenLoaded('images',
                 $this->images->count() ? PhotoResource::collection($this->images) : [['url' => '/no_photo.png']]
                 , [['url' => '/no_photo.png']]),

@@ -34,6 +34,15 @@ class Order extends Model
         'invoice_url',
         'order_total',
         'country_code',
+        'comment',
+        'reference',
+        'status_en',
+        'status_ru',
+        'total_amount',
+        'mvr_price',
+        'extra_price',
+        'package_price',
+        'mvr_commission',
     ];
 
     protected $casts = [
@@ -42,7 +51,7 @@ class Order extends Model
 
     public static function getNextOrderNumber(): int
     {
-        $ordersCount = self::all()->count();
+        $ordersCount = self::withTrashed()->get()->count();
         return self::ORDER_START_NUMBER + ($ordersCount + 1);
     }
 

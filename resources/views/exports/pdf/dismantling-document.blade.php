@@ -1,5 +1,5 @@
-<!DOCTYPE  html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE  html>
+<html lang="en">
     <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title></title>
@@ -11,13 +11,14 @@
         .s5 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 8pt; }
         .s6 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 6pt; }
         .s7 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 6pt; }
+        .s8 { color: black; font-family:DejaVu Sans, sans-serif; font-style: italic; font-weight: bold; text-decoration: none; font-size: 10pt; }
         table, tbody {vertical-align: top; overflow: visible; }
         .page_break { page-break-before: always; }
         @page { size: 10cm 7cm landscape;}
     </style>
 </head>
 <body>
-@foreach($parts as $part)
+@foreach($parts as $key => $part)
     <table style="border-collapse:collapse;width: 100%;margin:auto;" cellspacing="0">
         <tr style="height:31pt">
             <td style="width:157pt;border-top-style:dashed;border-top-width:1pt;border-top-color:#333333;border-left-style:dashed;border-left-width:1pt;border-left-color:#333333;border-bottom-style:solid;border-bottom-width:1pt;border-bottom-color:#333333" rowspan="2">
@@ -49,9 +50,15 @@
         <tr>
             <td style="width:100%;height: 118pt;border-top-style:solid;border-top-width:1pt;border-top-color:#333333;border-left-style:dashed;border-left-width:1pt;border-left-color:#333333;border-bottom-style:dashed;border-bottom-width:1pt;border-bottom-color:#333333;border-right-style:dashed;border-right-width:1pt;border-right-color:#333333" colspan="2">
                 <p style="padding-top: 10pt;text-indent: 0pt;text-align: left;"><br/></p>
-                <p class="s2" style="margin-left: 5px;padding-left: 2pt;padding-right: 27pt;text-indent: 0pt;text-align: left;">
-                    {{$part->name_eng}} {{$part->name_ru}}
-                </p>
+                @if(count(explode(' ', $part->name_ru)) < 3)
+                    <p class="s2" style="margin-left: 5px;padding-left: 2pt;padding-right: 27pt;text-indent: 0pt;text-align: left;">
+                        {{$part->name_eng}} {{$part->name_ru}}
+                    </p>
+                @else
+                    <p class="s8" style="margin-left: 5px;padding-left: 2pt;padding-right: 27pt;text-indent: 0pt;text-align: left;">
+                        {{$part->name_eng}} {{$part->name_ru}}
+                    </p>
+                @endif
                 <p class="s2" style="margin-left: 5px;padding-left: 2pt;text-indent: 0pt;text-align: left;">{{$car->make}}, {{$car->model}}</p>
                 <p class="s7" style="margin-left: 5px;padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">
                     IC description:
@@ -70,7 +77,8 @@
             </td>
         </tr>
     </table>
-    <div class="page_break"></div>
+    @if($key < ($parts->count() - 1))
+        <div class="page-break"></div>
+    @endif
 @endforeach
-</body>
-</html>
+</body></html>

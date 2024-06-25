@@ -251,6 +251,7 @@ trait CarPdrTrait
     {
         $parts = \DB::table('cars')
             ->selectRaw('car_pdr_position_cards.id, 
+            car_pdrs.item_name_eng as folder,
             car_pdr_position_cards.parent_inner_id, 
             car_pdr_position_cards.name_eng, 
             car_pdr_position_cards.name_ru, 
@@ -271,7 +272,6 @@ trait CarPdrTrait
             ->join('car_pdr_position_card_prices', 'car_pdr_position_card_prices.car_pdr_position_card_id', '=', 'car_pdr_position_cards.id')
             ->where('cars.id', $car->id)
             ->whereNull('car_pdr_positions.deleted_at')
-            ->orderBy('car_pdr_position_cards.name_eng')
             ->get()->each(function($position) {
                 $card = CarPdrPositionCard::with('images', 'createdBy', 'priceCard', 'partAttributesCard', 'comments', 'comments.createdBy')
                     ->find($position->id);

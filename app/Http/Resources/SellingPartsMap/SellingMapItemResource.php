@@ -19,6 +19,7 @@ class SellingMapItemResource extends JsonResource
             'price_nzd' => $this->price_nzd,
             'price_mng' => $this->price_mng,
             'items' => self::collection($this->items),
+            'available' => $this->available,
         ];
     }
 }
