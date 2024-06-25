@@ -245,7 +245,7 @@ class CreateCarOrderAction
             $folder = $this->car->pdrs()->create([
                 'parent_id' => 0,
                 'item_name_eng' => $folderName,
-                'item_name_ru' => '',
+                'item_name_ru' => $folderName,
                 'is_folder' => true,
                 'is_deleted' => false,
                 'parts_list_id' => null,
