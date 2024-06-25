@@ -93,8 +93,13 @@ class CreateCarOrderAction
 
         //fire email event
         event(new OrderCreatedEvent($this->user, $order));
-        \Mail::to(config('mail.info_email'))
-            ->send(new UserOrderCreatedMail($this->user, $order));
+
+        $emails = explode(',', config('mail.info_email'));
+        if (count($emails)) {
+            foreach ($emails as $email) {
+                \Mail::to($email)->send(new UserOrderCreatedMail($this->user, $order));
+            }
+        }
 
         return $order->id;
     }
