@@ -42,7 +42,7 @@ class AllCarsController extends Controller
                     ->orWhere('chassis', 'like', "%$text")
                     ->orWhere('car_mvr', 'like', "%$text");
             })
-            ->orderBy('updated_at', 'desc')
+            ->orderBy('created_at', 'desc')
             ->paginate(20);
 
         $cars->getCollection()->each(function ($car) {
