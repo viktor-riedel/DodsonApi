@@ -42,7 +42,7 @@ class EditCarController extends Controller
             'latestSyncData',
             'markets',
             'carFinance');
-        $parts = []; //$this->buildPdrTreeWithoutEmpty($car, false);
+        $parts = $this->buildPdrTreeWithoutEmpty($car, false);
         $defaultSellingParts = $this->getDefaultSellingMap();
         $partsList = $this->getPartsList($car);
         $clients = User::withoutRole('ADMIN')
@@ -204,7 +204,7 @@ class EditCarController extends Controller
         return response()->json(['error' => 'Car status is not DONE'], 403);
     }
 
-    public function generateDismantlingDocument(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    public function generateDismantlingBadges(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
         $needsRefresh = false;
         $partsList = $this->getPartsList($car);
@@ -218,6 +218,22 @@ class EditCarController extends Controller
         if ($needsRefresh) {
             $partsList = $this->getPartsList($car);
         }
+        $pdf = Pdf::loadView('exports.pdf.dismantling-badges', [
+            'parts' => $partsList,
+            'car' => $car,
+        ])->stream();
+        $storage = \Storage::disk('s3');
+        $folderName = 'cars/' . $car->id . '/documents';
+        $fileName = $car->make . '_' . $car->model . '_' . \Str::replace('-', '', $car->chassis) . '_dismantling';
+        $savePath = $folderName.'/'.$fileName . '.pdf';
+        $storage->put($savePath, $pdf, 'public');
+        $url = \Storage::disk('s3')->url($savePath);
+        return response()->json(['link' => $url]);
+    }
+
+    public function generateDismantlingDocument(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    {
+        $partsList = $this->getPartsList($car);
         $pdf = Pdf::loadView('exports.pdf.dismantling-document', [
             'parts' => $partsList,
             'car' => $car,
