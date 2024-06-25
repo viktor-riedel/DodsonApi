@@ -181,8 +181,7 @@ class EditCarController extends Controller
         }
 
         $sum = $car->positions->sum('card.priceCard.selling_price');
-
-        if (!$car->carFinance->purchase_price && !$sum) {
+        if ($status === 2 && !$car->carFinance->purchase_price && !$sum) {
             return response()->json(['error' => 'One of prices should be set'], 403);
         }
 
