@@ -78,6 +78,7 @@ class CreateNewCarFromCatalogAction
             $modification->header . $modification->generation . $modification->chassis
         )]);
 
+        $modification->refresh();
         $car->modifications()->create($modification->toArray());
 
         return $car->id;
