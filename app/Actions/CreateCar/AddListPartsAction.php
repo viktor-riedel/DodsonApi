@@ -6,7 +6,6 @@ use App\Http\Traits\InnerIdTrait;
 use App\Models\Car;
 use App\Models\CarPdrPosition;
 use App\Models\CarPdrPositionCard;
-use App\Models\NomenclatureBaseItemPdr;
 use App\Models\NomenclatureBaseItemPdrCard;
 use App\Models\NomenclatureModification;
 
