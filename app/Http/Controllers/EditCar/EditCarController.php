@@ -415,7 +415,7 @@ class EditCarController extends Controller
         ]);
 
         $clientCountryCode = $card->position->client?->country_code;
-        $isWholeSeller = $card->position->client ? $card->position->client->userCard->wholesaler : false;
+        $isWholeSeller = $card->position->client?->wholesaler ?? false;
 
         //update selling and buying prices
         if ($clientCountryCode) {
