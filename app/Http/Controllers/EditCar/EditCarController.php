@@ -418,7 +418,7 @@ class EditCarController extends Controller
         $isWholeSeller = $card->position->client?->wholesaler ?? false;
 
         //update selling and buying prices
-        if ($clientCountryCode) {
+        if ($clientCountryCode && !$card->priceCard->selling_price) {
             switch ($clientCountryCode) {
                 case 'RU':
                     $card->priceCard()->update([
