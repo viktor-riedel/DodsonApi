@@ -4,7 +4,7 @@ namespace App\Actions\Api;
 
 use App\Models\Car;
 use App\Models\NomenclatureBaseItem;
-use DNS1D;
+use App\Models\StatusUpdateLog;
 
 class GetDoneCarDataAction
 {
@@ -25,6 +25,12 @@ class GetDoneCarDataAction
         $baseCar = NomenclatureBaseItem::
             with('modifications')
             ->where('inner_id', $car->parent_inner_id)
+            ->first();
+
+        $dismantledDate = StatusUpdateLog::with('user')
+            ->where('car_id', $car->id)
+            ->where('new_status', 4)
+            ->latest()
             ->first();
 
         $usedModification = $baseCar->modifications->where('inner_id', $car->modifications->inner_id)->first();
@@ -89,6 +95,11 @@ class GetDoneCarDataAction
                     'price_without_engine_jp' => $car->carFinance->price_without_engine_jp,
                 ],
                 'images' => $car->images->pluck('url')->toArray(),
+                'dismantled_date' => $dismantledDate?->created_at->format('d/m/Y'),
+                'dismantled_set_by' => [
+                    'name' => $dismantledDate?->user?->name,
+                    'email' => $dismantledDate?->user?->email,
+                ],
                 'items' => [],
             ],
         ];
