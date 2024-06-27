@@ -17,6 +17,8 @@ class StatusUpdateLog extends Model
         'user_id',
     ];
 
+    protected $hidden = ['deleted_at'];
+
     public function car(): BelongsTo
     {
         return $this->belongsTo(Car::class);
