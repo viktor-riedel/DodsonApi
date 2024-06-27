@@ -50,7 +50,8 @@ class BaseItemPdrPositionController extends Controller
     {
         $position = app()->make(CreateBaseItemPositionAction::class)->handle($request, $baseItemPdr);
         if ($position) {
-            app()->make(BaseItemModificationsSyncAction::class)->handle($baseItemPdr, $position);
+            // TODO SYNC ???
+            //app()->make(BaseItemModificationsSyncAction::class)->handle($baseItemPdr, $position);
             return new BaseItemPdrPositionResource($position->load('nomenclatureBaseItemPdrCard'));
         }
         abort('Item has not been created');
