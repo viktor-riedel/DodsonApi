@@ -8,6 +8,7 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
     Route::get('/list', [AllCarsController::class, 'list']);
     Route::get('/currencies-list', [AllCarsController::class, 'currencyList']);
     Route::get('/status-list', [AllCarsController::class, 'statusList']);
+    Route::get('/users-list', [AllCarsController::class, 'usersList']);
     Route::get('/makes', [AllCarsController::class, 'makes']);
     Route::get('/{make}/models', [AllCarsController::class, 'models']);
     Route::get('/{make}/{model}/generations', [AllCarsController::class, 'generations']);
