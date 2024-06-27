@@ -7,6 +7,7 @@ use App\Http\Resources\AvailableCars\GenerationResource;
 use App\Http\Resources\AvailableCars\MakeResource;
 use App\Http\Resources\AvailableCars\ModelResource;
 use App\Http\Resources\Car\CarResource;
+use App\Http\Resources\Car\CreatedByResource;
 use App\Models\Car;
 use App\Models\CarPdrPositionCardPrice;
 use Illuminate\Http\Request;
@@ -19,6 +20,7 @@ class AllCarsController extends Controller
         $model = $request->get('model', '');
         $generation = $request->get('generation', '');
         $car_status = $request->get('status', -1);
+        $user = $request->get('user', -1);
         $text = $request->get('text', '');
 
         $cars = Car::with(['images', 'carAttributes', 'carFinance',
@@ -35,6 +37,9 @@ class AllCarsController extends Controller
             })
             ->when($car_status >= 0, function ($query) use ($car_status) {
                 return $query->where('car_status', $car_status);
+            })
+            ->when($user >= 0, function ($query) use ($user) {
+                return $query->where('created_by', $user);
             })
             ->when($text, function ($query) use ($text) {
                 return $query->where('make', 'like', "%$text")
@@ -86,5 +91,15 @@ class AllCarsController extends Controller
     public function statusList(): \Illuminate\Http\JsonResponse
     {
         return response()->json(['status' => Car::getStatusesJson()]);
+    }
+
+    public function usersList(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    {
+        $users = Car::with('createdBy')
+            ->orderBy('created_by')
+            ->get()
+            ->pluck('createdBy')
+            ->unique();
+        return CreatedByResource::collection($users);
     }
 }
