@@ -33,6 +33,6 @@ class SendDoneCar
 
     private function prepareRequest(string $url): PendingRequest
     {
-        return Http::baseUrl($url)->timeout(30);
+        return Http::baseUrl($url)->timeout(60);
     }
 }
