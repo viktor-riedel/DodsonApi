@@ -48,32 +48,32 @@
         </p>
     </td>
     <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-        <p class="s4" style="text-indent: 0pt;line-height: 10pt;text-align: right;">
+        <p class="s5" style="text-indent: 0pt;line-height: 10pt;text-align: right;">
             {{$part->ic_number}}
         </p>
     </td>
     <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-        <p class="s4" style="text-indent: 0pt;line-height: 10pt;text-align: center;">
+        <p class="s5" style="text-indent: 0pt;line-height: 10pt;text-align: center;">
             {{$part->ic_description}}
         </p>
     </td>
     <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-        <p class="s4" style="padding-left: 1pt;text-indent: 0pt;line-height: 10pt;text-align: left;">
+        <p class="s5" style="padding-left: 1pt;text-indent: 0pt;line-height: 10pt;text-align: left;">
             {{$part->name_eng}}
         </p>
     </td>
     <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-        <p class="s4" style="padding-left: 1pt;text-indent: 0pt;line-height: 10pt;text-align: left;">
+        <p class="s5" style="padding-left: 1pt;text-indent: 0pt;line-height: 10pt;text-align: left;">
             {{$part->name_ru}}
         </p>
     </td>
     <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-        <p class="s4" style="padding-left: 1pt;text-indent: 0pt;line-height: 10pt;text-align: left;">
+        <p class="s5" style="padding-left: 1pt;text-indent: 0pt;line-height: 10pt;text-align: left;">
             {{$part->client_name}}
         </p>
     </td>
     <td style="border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-        <p class="s4" style="padding-left: 1pt;text-indent: 0pt;line-height: 10pt;text-align: center;">
+        <p class="s5" style="padding-left: 1pt;text-indent: 0pt;line-height: 10pt;text-align: center;">
             @if($part->card->comments->count())
                 @foreach($part->card->comments as $comment)
                     {{$comment->comment}}<br>
