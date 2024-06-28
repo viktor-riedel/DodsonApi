@@ -56,6 +56,15 @@
             font-size: 8.5pt;
         }
 
+        .s5 {
+            color: black;
+            font-family: DejaVu Sans, sans-serif;
+            font-style: normal;
+            font-weight: normal;
+            text-decoration: none;
+            font-size: 9px;
+        }
+
         table, tbody {
             vertical-align: top;
             overflow: visible;
