@@ -6,6 +6,7 @@ use App\Models\Car;
 use App\Models\CarPdrPosition;
 use App\Models\CarPdrPositionCard;
 use App\Models\NomenclatureBaseItem;
+use App\Models\NomenclatureBaseItemPdrCard;
 use App\Models\PartList;
 use Illuminate\Support\Collection;
 
@@ -277,6 +278,9 @@ trait CarPdrTrait
                     ->find($position->id);
                 $position->images = $card->images ?? [];
                 $position->card = $card ?? null;
+                $position->original_card = NomenclatureBaseItemPdrCard::where('ic_number', $card->ic_number)
+                    ->where('description', $card->description)
+                    ->first();
             });
 
         return $parts;
