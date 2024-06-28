@@ -16,7 +16,7 @@ Route::prefix('auth')->group(function() {
 });
 
 //Route::get('test', function() {
-//    $car = \App\Models\Car::find(52);
+//    $car = \App\Models\Car::find(129);
 //    $partsList = \DB::table('cars')
 //        ->selectRaw('car_pdr_position_cards.id,
 //            car_pdrs.item_name_eng as folder,
