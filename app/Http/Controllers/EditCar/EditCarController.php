@@ -42,7 +42,7 @@ class EditCarController extends Controller
             'latestSyncData',
             'markets',
             'carFinance');
-        $parts = $this->buildPdrTreeWithoutEmpty($car, false);
+        $parts = []; //$this->buildPdrTreeWithoutEmpty($car, false);
         $defaultSellingParts = $this->getDefaultSellingMap();
         $partsList = $this->getPartsList($car);
         $clients = User::withoutRole('ADMIN')
@@ -323,6 +323,12 @@ class EditCarController extends Controller
         return response()->json([], 202);
     }
 
+    public function updateOriginalPriceCard(Request $request, Car $car, NomenclatureBaseItemPdrCard $card): \Illuminate\Http\JsonResponse
+    {
+        $card->update($request->except('id'));
+        return response()->json([], 202);
+    }
+
     public function addMiscParts(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
         app()->make(AddMiscPartsAction::class)->handle($car, $request->user()->id, $request->all());
@@ -373,7 +379,6 @@ class EditCarController extends Controller
         $baseCard = NomenclatureBaseItemPdrCard::where('ic_number', strtoupper(trim($request->input('ic_number'))))
             ->where('description', $card->description)
             ->first();
-
         $card->update([
             'parent_inner_id' => $baseCard ? $baseCard->inner_id : $card->parent_inner_id,
         ]);
@@ -464,6 +469,7 @@ class EditCarController extends Controller
         $card->priceCard->refresh();
         $card->refresh();
         return response()->json([
+            'original_card' => $baseCard,
             'price_card' => $card->priceCard,
             'card' => $card,
         ], 202);
