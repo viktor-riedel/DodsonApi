@@ -280,6 +280,7 @@ trait CarPdrTrait
                 $position->card = $card ?? null;
                 $position->original_card = NomenclatureBaseItemPdrCard::where('ic_number', $card->ic_number)
                     ->where('description', $card->description)
+                    ->where('name_eng', $card->name_eng)
                     ->first();
             });
 
