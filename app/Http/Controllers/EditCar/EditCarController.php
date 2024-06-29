@@ -378,6 +378,7 @@ class EditCarController extends Controller
         $card->update(['ic_number' => strtoupper(trim($request->input('ic_number')))]);
         $baseCard = NomenclatureBaseItemPdrCard::where('ic_number', strtoupper(trim($request->input('ic_number'))))
             ->where('description', $card->description)
+            ->where('name_eng', $car->name_eng)
             ->first();
         $card->update([
             'parent_inner_id' => $baseCard ? $baseCard->inner_id : $card->parent_inner_id,
