@@ -5,7 +5,7 @@
     <title></title>
     <style type="text/css"> * {margin:0; padding:0; text-indent:0; }
         .s1 { color: black; font-family:DejaVu Sans, sans-serif; font-style: italic; font-weight: bold; text-decoration: none; font-size: 16pt; }
-        .s2 { color: black; font-family:DejaVu Sans, sans-serif; font-style: italic; font-weight: bold; text-decoration: none; font-size: 12pt; }
+        .s2 { color: black; font-family:DejaVu Sans, sans-serif; font-style: italic; font-weight: bold; text-decoration: none; font-size: 13px; }
         .s3 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 12pt; }
         .s4 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 10pt; }
         .s5 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 8pt; }
@@ -76,7 +76,9 @@
                         {{$part->name_ru}}
                     </p>
                 @endif
-                <p class="s2" style="margin-left: 5px;padding-left: 2pt;text-indent: 0pt;text-align: left;">{{$car->make}}, {{$car->model}}</p>
+                <p class="s2" style="margin-left: 5px;padding-left: 2pt;text-indent: 0pt;text-align: left;">
+                    {{$car->make}}, {{$car->model}}
+                </p>
                 <p class="s7" style="margin-left: 5px;padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">
                     IC description:
                     @if($part->ic_description)
