@@ -37,18 +37,28 @@ class OrdersController extends Controller
     
     public function view(Request $request, Order $order): \Illuminate\Http\JsonResponse
     {
+        return response()->json($this->getFullOrderData($order));
+    }
+
+    public function update(Request $request, Order $order): \Illuminate\Http\JsonResponse
+    {
+        $order->update(['order_status' => (int) $request->input('status')]);
+        return response()->json($this->getFullOrderData($order));
+    }
+
+    private function getFullOrderData(Order $order): array
+    {
+        $order->refresh();
         $order->load('items', 'createdBy');
         $car = $order->items->first()->car;
         if ($car) {
             $car->load('images', 'carAttributes', 'modifications');
         }
 
-        return response()->json(
-            [
-                'car' => new CarResource($car),
-                'order_items' => OrderItemResource::collection($order->items),
-                'order' => new OrderResource($order)
-            ]
-        );
+        return [
+            'car' => new CarResource($car),
+            'order_items' => OrderItemResource::collection($order->items),
+            'order' => new OrderResource($order)
+        ];
     }
 }

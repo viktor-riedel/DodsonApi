@@ -30,6 +30,7 @@ class OrderResource extends JsonResource
             'country_code' => $this->country_code,
             'created_by' => $this->createdBy->name,
             'user' => $this->createdBy->name,
+            'disabled' => $this->order_status === 3,
         ];
     }
 }
