@@ -34,7 +34,7 @@ class OrderItem extends Model
 
     public function car(): BelongsTo
     {
-        return $this->belongsTo(Car::class);
+        return $this->belongsTo(Car::class)->withTrashed();
     }
 
     public function user(): BelongsTo

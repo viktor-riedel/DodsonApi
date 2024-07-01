@@ -39,6 +39,7 @@ class CarResource extends JsonResource
             'price_without_engine_mn' => $this->carFinance->price_without_engine_mn,
             'price_with_engine_jp' => $this->carFinance->price_with_engine_jp,
             'price_without_engine_jp' => $this->carFinance->price_without_engine_jp,
+            'is_deleted' => $this->trashed(),
         ];
     }
 }
