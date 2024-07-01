@@ -77,6 +77,7 @@ class PermissionsSeeder extends Seeder
                 'name' => 'ACCESS SETTINGS',
                 'description' => 'Can access settings',
             ],
+            //
 
     ];
 
