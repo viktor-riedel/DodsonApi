@@ -176,7 +176,7 @@ class EditCarController extends Controller
         $car->load('positions', 'positions.card', 'positions.card.priceCard');
 
         $status = (int) $request->input('car_status');
-        if (($status === 3 || $status === 4) && !$car->car_mvr) {
+        if (($status === 3 || $status === 4 || $status === 2) && !$car->car_mvr) {
             return response()->json(['error' => 'MVR not set'], 403);
         }
 
