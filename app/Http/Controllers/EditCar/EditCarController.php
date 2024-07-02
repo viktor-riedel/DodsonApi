@@ -22,6 +22,8 @@ use App\Models\CarPdrPositionCardPrice;
 use App\Models\Link;
 use App\Models\MediaFile;
 use App\Models\NomenclatureBaseItemPdrCard;
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -78,9 +80,13 @@ class EditCarController extends Controller
 
     public function delete(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
-        $car->update(['deleted_by' => $request->user()->id]);
-        $car->delete();
-        return response()->json([], 202);
+        $orderExists = OrderItem::where('car_id', $car->id)->exists();
+        if (!$orderExists) {
+            $car->update(['deleted_by' => $request->user()->id]);
+            $car->delete();
+            return response()->json([], 202);
+        }
+        abort(403, 'Car has order created!');
     }
 
     public function uploadCarPhoto(Request $request, Car $car): \Illuminate\Http\JsonResponse
