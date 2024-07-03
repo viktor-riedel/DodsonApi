@@ -66,7 +66,7 @@ trait BaseItemModificationsTrait
                 'doors' => $modification['catalog_header']['doors'],
                 'transmission' => $modification['catalog_modification']['transmission_type'],
                 'drive_train' => $modification['catalog_modification']['drive_train'],
-                'chassis' => implode('#', $modification['catalog_modification']['chassis']),
+                'chassis' => implode(',', $modification['catalog_modification']['chassis']),
                 'body_type' => $modification['catalog_header']['body_type'],
                 'image_url' => $modification['model_image_url'],
                 'restyle' => $modification['catalog_header']['restyle'],
