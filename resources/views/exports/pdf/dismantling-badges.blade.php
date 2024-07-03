@@ -9,7 +9,7 @@
         .s3 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 12pt; }
         .s4 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 10pt; }
         .s5 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 8pt; }
-        .s6 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 6pt; }
+        .s6 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 7pt; }
         .s7 { color: black; font-family:DejaVu Sans, sans-serif; font-style: normal; font-weight: normal; text-decoration: none; font-size: 6pt; }
         .s8 { color: black; font-family:DejaVu Sans, sans-serif; font-style: italic; font-weight: bold; text-decoration: none; font-size: 9pt; }
         .s9 { color: black; font-family:DejaVu Sans, sans-serif; font-style: italic; font-weight: bold; text-decoration: none; font-size: 8pt; }
@@ -91,7 +91,12 @@
                     Comment:
                 </p>
                 <p class="s6" style="margin-left: 5px;padding-top: 8pt;padding-left: 0;text-indent: 0pt;line-height: 9pt;text-align: left;">
-                    {{now()->format('d.m.Y H:i:s')}} / {{auth()->user()?->name ?? ''}}
+                    <span style="float: left">
+                        {{now()->format('d.m.Y H:i:s')}} / {{auth()->user()?->name ?? 'no user'}}
+                    </span>
+                    <span style="float: right; margin-right: 2pt;">
+                        {{$part->client}}
+                    </span>
                 </p>
             </td>
         </tr>
