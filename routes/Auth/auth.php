@@ -16,7 +16,7 @@ Route::prefix('auth')->group(function() {
 });
 
 //Route::get('test', function() {
-//    $car = \App\Models\Car::find(129);
+//    $car = \App\Models\Car::find(126);
 //    $partsList = \DB::table('cars')
 //        ->selectRaw('car_pdr_position_cards.id,
 //            car_pdrs.item_name_eng as folder,
@@ -45,8 +45,9 @@ Route::prefix('auth')->group(function() {
 //                ->find($position->id);
 //            $position->images = $card->images ?? [];
 //            $position->card = $card ?? null;
+//            $position->client = App\Models\User::find($position->user_id)?->name ?? 'no client name';
 //        });
-//    return \Pdf::loadView('exports.pdf.dismantling-document', [
+//    return \Pdf::loadView('exports.pdf.dismantling-badges', [
 //        'parts' => $partsList,
 //        'car' => $car,
 //    ])->stream();

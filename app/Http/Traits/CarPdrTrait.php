@@ -8,6 +8,7 @@ use App\Models\CarPdrPositionCard;
 use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemPdrCard;
 use App\Models\PartList;
+use App\Models\User;
 use Illuminate\Support\Collection;
 
 trait CarPdrTrait
@@ -282,6 +283,7 @@ trait CarPdrTrait
                     ->where('description', $card->description)
                     ->where('name_eng', $card->name_eng)
                     ->first();
+                $position->client = User::find($position->user_id)?->name ?? '';
             });
 
         return $parts;
