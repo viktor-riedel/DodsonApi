@@ -22,7 +22,23 @@ class UpdateRussianNomenclatureNamesCommand extends Command
         foreach($baseItemPdr->baseItemPDR as $pdrItem) {
             if (!$pdrItem->item_name_ru) {
                 $ru_name_default = $defaultItems->where('item_name_eng', $pdrItem->item_name_eng)->first();
-                $pdrItem->update(['item_name_ru' => $ru_name_default?->item_name_ru]);
+                $pdrItem->update(['item_name_ru' => $ru_name_default?->item_name_ru ?? $pdrItem->item_name_ru]);
+            }
+            if (!$pdrItem->item_name_eng) {
+                $pdrItem->update(['item_name_eng' => $pdrItem->item_name_eng]);
+            }
+            $pdrItem->refresh();
+            $positions = $pdrItem->nomenclatureBaseItemPdrPositions;
+            foreach($positions as $position) {
+                $card = $position->nomenclatureBaseItemPdrCard;
+                if ($card) {
+                    if (!$card->name_eng) {
+                        $card->update(['name_eng' => $pdrItem->item_name_eng]);
+                    }
+                    if (!$card->name_ru) {
+                        $card->update(['name_ru' => $pdrItem->item_name_ru]);
+                    }
+                }
             }
         }
 
