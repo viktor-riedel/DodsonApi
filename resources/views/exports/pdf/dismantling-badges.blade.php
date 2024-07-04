@@ -87,15 +87,20 @@
                         <br>
                     @endif
                 </p>
-                <p class="s5" style="margin-left: 5px;padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">
+                <p class="@if ($part->card->comments->count()) s6 @else s5 @endif" style="margin-left: 5px;padding-top: 1pt;padding-left: 1pt;text-indent: 0pt;text-align: left;">
                     Comment:
+                    @if($part->card->comments->count())
+                        @foreach($part->card->comments as $comment)
+                            {{$comment->comment}}&nbsp;
+                        @endforeach
+                    @endif
                 </p>
-                <p class="s6" style="margin-left: 5px;padding-top: 8pt;padding-left: 0;text-indent: 0pt;line-height: 9pt;text-align: left;">
-                    <span style="float: left">
-                        {{now()->format('d.m.Y H:i:s')}} / {{auth()->user()?->name ?? 'no user'}}
-                    </span>
-                    <span style="float: right; margin-right: 2pt;">
+                <p class="s6" style="margin-left: 5px;padding-top: 8pt;padding-left: 0;text-indent: 0pt;line-height: 9pt;">
+                    <span style="float: left;">
                         {{$part->client}}
+                    </span>
+                    <span style="float: right; margin-right: 5px;">
+                        {{now()->format('d.m.Y H:i:s')}} / {{auth()->user()?->name ?? 'no user'}}
                     </span>
                 </p>
             </td>
