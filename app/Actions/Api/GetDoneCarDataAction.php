@@ -117,6 +117,7 @@ class GetDoneCarDataAction
                 ],
                 'client' => [
                    'name' => $position->client?->name,
+                   'registered_name' => $position->client?->userCard?->trading_name,
                    'email' => $position->client?->email,
                 ],
                 'finance' => [
