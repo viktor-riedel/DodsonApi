@@ -522,6 +522,12 @@ class EditCarController extends Controller
         return response()->json(['comments' => $card->comments()->with('createdBy')->get()], 201);
     }
 
+    public function deleteComments(Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    {
+        $card->comments()->delete();
+        return response()->json([]);
+    }
+
     public function updateIcDescription(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
     {
         $card->update([

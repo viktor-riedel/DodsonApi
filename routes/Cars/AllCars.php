@@ -40,7 +40,10 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
             Route::patch('/price-currency/{card}', [EditCarController::class, 'updatePriceCurrency']);
             Route::patch('/buying-price/{card}', [EditCarController::class, 'updateBuyingPrice']);
             Route::patch('/selling-price/{card}', [EditCarController::class, 'updateSellingPrice']);
-            Route::patch('/comment/{card}', [EditCarController::class, 'updateComment']);
+            Route::prefix('/comment')->group(function() {
+                Route::patch('/{card}', [EditCarController::class, 'updateComment']);
+                Route::delete('/{card}', [EditCarController::class, 'deleteComments']);
+            });
             Route::patch('/ic-description/{card}', [EditCarController::class, 'updateIcDescription']);
             Route::patch('/set-parts-price', [EditCarController::class, 'setPartsPrice']);
             Route::patch('/set-part-client/{card}', [EditCarController::class, 'setClient']);
