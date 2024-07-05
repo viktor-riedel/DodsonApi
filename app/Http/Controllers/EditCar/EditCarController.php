@@ -6,6 +6,7 @@ use App\Actions\CreateCar\AddListPartsAction;
 use App\Actions\CreateCar\AddMiscPartsAction;
 use App\Actions\CreateCar\AddPartsFromModificationListAction;
 use App\Actions\CreateCar\AddPartsFromSellingListAction;
+use App\Actions\CreateCar\ChangeModificationAction;
 use App\Exports\Excel\CreatedCarPartsExcelExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Cart\LinkResource;
@@ -377,6 +378,12 @@ class EditCarController extends Controller
         Excel::store(new CreatedCarPartsExcelExport($car, $partsList), $filename, 's3', null, ['visibility' => 'public']);
         $url = \Storage::disk('s3')->url($filename);
         return response()->json(['link' => $url]);
+    }
+
+    public function updateModification(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    {
+        $result = app()->make(ChangeModificationAction::class)->handle($request, $car, $request->user());
+        return response()->json(['result' => $result]);
     }
 
     public function updateICNumber(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
