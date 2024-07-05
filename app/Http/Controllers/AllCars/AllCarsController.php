@@ -24,7 +24,7 @@ class AllCarsController extends Controller
         $text = $request->get('text', '');
 
         $cars = Car::with(['images', 'carAttributes', 'carFinance',
-            'modification', 'positions', 'positions.card',
+            'modification', 'positions', 'positions.card', 'latestSyncData',
             'positions.card.priceCard'])
             ->when($make, function ($query) use ($make) {
                 return $query->where('make', $make);
