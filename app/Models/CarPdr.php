@@ -27,6 +27,11 @@ class CarPdr extends Model
 
     protected $hidden = ['updated_at', 'deleted_at', 'created_at'];
 
+    public function car(): BelongsTo
+    {
+        return $this->belongsTo(Car::class);
+    }
+
     public function positions(): HasMany
     {
         return $this->hasMany(CarPdrPosition::class);

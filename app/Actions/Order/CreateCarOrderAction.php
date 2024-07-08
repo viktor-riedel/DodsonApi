@@ -4,6 +4,7 @@ namespace App\Actions\Order;
 
 use App\Events\Order\OrderCreatedEvent;
 use App\Http\Controllers\SellingPartsMap\SellingPartsMapController;
+use App\Http\Traits\BadgeGeneratorTrait;
 use App\Http\Traits\InnerIdTrait;
 use App\Mail\UserOrderCreatedMail;
 use App\Models\Car;
@@ -17,7 +18,7 @@ use Illuminate\Http\Request;
 class CreateCarOrderAction
 {
 
-    use InnerIdTrait;
+    use InnerIdTrait, BadgeGeneratorTrait;
 
     private int $orderTotal = 0;
     private array $engine = [];
@@ -186,7 +187,7 @@ class CreateCarOrderAction
                 'ic_number' => '',
                 'oem_number' => null,
                 'created_by' => $this->user->id,
-                'barcode' => $this->generateBarCode(),
+                'barcode' => $this->generateNextBarcode(),
             ]);
             $card->priceCard()->create([
                 'price_currency' => 'JPY',
@@ -218,17 +219,6 @@ class CreateCarOrderAction
                 'ordered_for_user_id' => null,
             ]);
         }
-    }
-
-    private function generateBarCode(): int
-    {
-        $exist = true;
-        $barcode = 0;
-        while($exist) {
-            $barcode = random_int(1000000, 6999999);
-            $exist = CarPdrPositionCard::where('barcode', $barcode)->exists();
-        }
-        return $barcode;
     }
 
     private function resolveFolder(string $folderName): CarPdr

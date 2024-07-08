@@ -2,18 +2,17 @@
 
 namespace App\Actions\CreateCar;
 
+use App\Http\Traits\BadgeGeneratorTrait;
 use App\Http\Traits\BaseItemPdrTreeTrait;
 use App\Http\Traits\InnerIdTrait;
 use App\Models\Car;
-use App\Models\CarPdrPositionCard;
 use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemPdrPosition;
 use Illuminate\Support\Collection;
 
 class AddPartsFromModificationListAction
 {
-    use BaseItemPdrTreeTrait;
-    use InnerIdTrait;
+    use BaseItemPdrTreeTrait, InnerIdTrait, BadgeGeneratorTrait;
 
     public int $userId = 0;
     public string $innerId = '';
@@ -105,7 +104,7 @@ class AddPartsFromModificationListAction
                     'description' => $originCard->description,
                     'ic_number' => $originCard->ic_number,
                     'oem_number' => $originCard->oem_number,
-                    'barcode' => $this->generateBarCode(),
+                    'barcode' => $this->generateNextBarcode(),
                     'created_by' => $this->userId,
                 ]);
                 if ($modification) {
@@ -145,16 +144,5 @@ class AddPartsFromModificationListAction
     private function modificationMatch(NomenclatureBaseItemPdrPosition $position): bool
     {
         return $position->modifications()->where('inner_id', $this->innerId)->exists();
-    }
-
-    private function generateBarCode(): int
-    {
-        $exist = true;
-        $barcode = 0;
-        while($exist) {
-            $barcode = random_int(1000000, 6999999);
-            $exist = CarPdrPositionCard::where('barcode', $barcode)->exists();
-        }
-        return $barcode;
     }
 }

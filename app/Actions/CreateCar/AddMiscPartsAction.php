@@ -2,6 +2,7 @@
 
 namespace App\Actions\CreateCar;
 
+use App\Http\Traits\BadgeGeneratorTrait;
 use App\Http\Traits\InnerIdTrait;
 use App\Http\Traits\SyncPartWithOrderTrait;
 use App\Models\Car;
@@ -9,7 +10,7 @@ use App\Models\CarPdrPositionCard;
 
 class AddMiscPartsAction
 {
-    use InnerIdTrait, SyncPartWithOrderTrait;
+    use InnerIdTrait, SyncPartWithOrderTrait, BadgeGeneratorTrait;
 
     public function handle(Car $car, int $userId, array $parts = []): void
     {
@@ -60,7 +61,7 @@ class AddMiscPartsAction
                     'ic_number' => $part['ic_number'] ?? '',
                     'oem_number' => null,
                     'created_by' => $userId,
-                    'barcode' => $this->generateBarCode(),
+                    'barcode' => $this->generateNextBarcode(),
                 ]);
                 if (isset($part['comment'])) {
                     $card->comments()->create([
@@ -97,16 +98,5 @@ class AddMiscPartsAction
                 ]);
             }
         }
-    }
-
-    private function generateBarCode(): int
-    {
-        $exist = true;
-        $barcode = 0;
-        while($exist) {
-            $barcode = random_int(1000000, 6999999);
-            $exist = CarPdrPositionCard::where('barcode', $barcode)->exists();
-        }
-        return $barcode;
     }
 }

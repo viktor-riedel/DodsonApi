@@ -3,6 +3,7 @@
 namespace App\Actions\CreateCar;
 
 use App\Http\Controllers\SellingPartsMap\SellingPartsMapController;
+use App\Http\Traits\BadgeGeneratorTrait;
 use App\Http\Traits\InnerIdTrait;
 use App\Models\Car;
 use App\Models\CarPdr;
@@ -12,7 +13,7 @@ use App\Models\User;
 
 class AddPartsFromSellingListAction
 {
-    use InnerIdTrait;
+    use InnerIdTrait, BadgeGeneratorTrait;
 
     private array $engine = [];
     private array $front = [];
@@ -93,7 +94,7 @@ class AddPartsFromSellingListAction
                 'ic_number' => '',
                 'oem_number' => null,
                 'created_by' => $this->userId,
-                'barcode' => $this->generateBarCode(),
+                'barcode' => $this->generateNextBarcode(),
             ]);
             $card->priceCard()->create([
                 'price_currency' => 'JPY',
@@ -115,7 +116,7 @@ class AddPartsFromSellingListAction
                 'minimum_threshold_mng_retail' => null,
                 'minimum_threshold_mng_wholesale' => null,
                 'selling_price' => null,
-                'buying_price' => (int) $part['price_jpy'],
+                'buying_price' => null,
             ]);
             $card->partAttributesCard()->create([
                 'color' => null,
@@ -125,17 +126,6 @@ class AddPartsFromSellingListAction
                 'ordered_for_user_id' => null,
             ]);
         }
-    }
-
-    private function generateBarCode(): int
-    {
-        $exist = true;
-        $barcode = 0;
-        while($exist) {
-            $barcode = random_int(1000000, 6999999);
-            $exist = CarPdrPositionCard::where('barcode', $barcode)->exists();
-        }
-        return $barcode;
     }
 
     private function resolveFolder(string $folderName): CarPdr

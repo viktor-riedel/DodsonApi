@@ -11,6 +11,7 @@ use App\Exports\Excel\CreatedCarPartsExcelExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Cart\LinkResource;
 use App\Http\Resources\SellingPartsMap\SellingMapItemResource;
+use App\Http\Traits\BadgeGeneratorTrait;
 use App\Http\Traits\CarPdrTrait;
 use App\Http\Traits\DefaultSellingMapTrait;
 use App\Http\Traits\SyncPartWithOrderTrait;
@@ -23,7 +24,6 @@ use App\Models\CarPdrPositionCardPrice;
 use App\Models\Link;
 use App\Models\MediaFile;
 use App\Models\NomenclatureBaseItemPdrCard;
-use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -32,7 +32,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class EditCarController extends Controller
 {
-    use CarPdrTrait, SyncPartWithOrderTrait, DefaultSellingMapTrait;
+    use CarPdrTrait, SyncPartWithOrderTrait, DefaultSellingMapTrait, BadgeGeneratorTrait;
 
     public function edit(Car $car): \Illuminate\Http\JsonResponse
     {
@@ -214,12 +214,13 @@ class EditCarController extends Controller
     public function generateDismantlingBadges(Request $request, Car $car): \Illuminate\Http\JsonResponse
     {
         $needsRefresh = false;
-        $partsList = $this->getPartsList($car);
+        $partsToPrint = collect($request->toArray())->pluck('card.car_pdr_position_id')->toArray();
+        $partsList = $this->getPartsList($car, $partsToPrint);
         foreach($partsList as $part) {
             if (!$part->barcode) {
                 $needsRefresh = true;
                 $part = CarPdrPositionCard::find($part->id);
-                $part->update(['barcode' => $this->generateBarCode()]);
+                $part->update(['barcode' => $this->generateNextBarcode()]);
             }
         }
         if ($needsRefresh) {
@@ -402,10 +403,10 @@ class EditCarController extends Controller
         ]);
 
         $card->priceCard()->update([
-            'price_nz_wholesale' => $baseCard?->price_nz_wholesale,
-            'price_nz_retail' => $baseCard?->price_nz_retail,
-            'price_ru_wholesale' => $baseCard?->price_ru_wholesale,
-            'price_ru_retail' => $baseCard?->price_ru_retail,
+            'price_nz_wholesale' => null,
+            'price_nz_retail' => null,
+            'price_ru_wholesale' => null,
+            'price_ru_retail' => null,
             'price_jp_minimum_buy' => $baseCard?->price_jp_maximum_buy,
             'price_jp_maximum_buy' => $baseCard?->price_jp_minimum_buy,
             'minimum_threshold_nz_retail' => $baseCard?->minimum_threshold_nz_retail,
@@ -420,10 +421,10 @@ class EditCarController extends Controller
             'delivery_price_ru' => $baseCard?->delivery_price_ru,
             'pinnacle_price' => $baseCard?->pinnacle_price,
             'price_currency' => 'JPY',
-            'price_mng_wholesale' => $baseCard?->price_mng_wholesale,
-            'price_mng_retail' => $baseCard?->price_mng_retail,
-            'price_jp_retail' => $baseCard?->price_jp_retail,
-            'price_jp_wholesale' => $baseCard?->price_jp_wholesale,
+            'price_mng_wholesale' => null,
+            'price_mng_retail' => null,
+            'price_jp_retail' => null,
+            'price_jp_wholesale' => null,
             'nz_team_price' => $baseCard?->nz_team_price,
             'nz_team_needs' => $baseCard?->nz_team_needs,
             'nz_needs' => $baseCard?->nz_needs,
@@ -433,52 +434,49 @@ class EditCarController extends Controller
             'needs' => $baseCard?->needs,
         ]);
 
-        $clientCountryCode = $card->position->client?->country_code;
-        $isWholeSeller = $card->position->client?->wholesaler ?? false;
+//        $clientCountryCode = $card->position->client?->country_code;
+//        $isWholeSeller = $card->position->client?->wholesaler ?? false;
 
         //update selling and buying prices
-        if ($clientCountryCode && !$card->priceCard->selling_price) {
-            switch ($clientCountryCode) {
-                case 'RU':
-                    $card->priceCard()->update([
-                        //'buying_price' => $isWholeSeller ? $baseCard?->price_ru_wholesale : $baseCard?->price_ru_retail,
-                        'selling_price' => $isWholeSeller && $baseCard?->price_ru_wholesale ?
-                            $baseCard?->price_ru_wholesale : $baseCard?->price_ru_retail,
-                        //'price_currency' => 'RUB',
-                    ]);
-                    break;
-                case 'NZ':
-                    if ($card->priceCard->selling_price) {
-                        $card->priceCard()->update([
-                            //'buying_price' => $isWholeSeller ? $baseCard?->price_nz_wholesale : $baseCard?->price_nz_retail,
-                            'selling_price' => $isWholeSeller && $baseCard?->price_nz_wholesale ?
-                                $baseCard?->price_nz_wholesale : $baseCard?->price_nz_retail,
-                            //'price_currency' => 'NZD',
-                        ]);
-                    }
-                    break;
-                case 'MN':
-                    if ($card->priceCard->selling_price) {
-                        $card->priceCard()->update([
-                            //'buying_price' => $isWholeSeller ? $baseCard?->price_mng_wholesale : $baseCard?->price_mng_retail,
-                            'selling_price' => $isWholeSeller && $baseCard?->price_mng_wholesale ?
-                                $baseCard?->price_mng_wholesale : $baseCard?->price_mng_retail,
-                            //'price_currency' => 'MNT',
-                        ]);
-                    }
-                    break;
-                default:
-                    if ($card->priceCard->selling_price) {
-                        $card->priceCard()->update([
-                            //'buying_price' => $isWholeSeller ? $baseCard?->price_jp_wholesale : $baseCard?->price_jp_retail,
-                            'selling_price' => $isWholeSeller && $baseCard?->price_jp_wholesale ?
-                                $baseCard?->price_jp_wholesale : $baseCard?->price_jp_retail,
-                            //'price_currency' => 'JPY',
-                        ]);
-                    }
-                    break;
-            }
-        }
+        // NOTE DISABLED FOR NOW
+//        if ($clientCountryCode && !$card->priceCard->selling_price) {
+//            switch ($clientCountryCode) {
+//                case 'RU':
+//                    $card->priceCard()->update([
+//                        'buying_price' => $isWholeSeller ? $baseCard?->price_ru_wholesale : $baseCard?->price_ru_retail,
+//                        'selling_price' => $isWholeSeller && $baseCard?->price_ru_wholesale ?
+//                            $baseCard?->price_ru_wholesale : $baseCard?->price_ru_retail,
+//                    ]);
+//                    break;
+//                case 'NZ':
+//                    if ($card->priceCard->selling_price) {
+//                        $card->priceCard()->update([
+//                            'buying_price' => $isWholeSeller ? $baseCard?->price_nz_wholesale : $baseCard?->price_nz_retail,
+//                            'selling_price' => $isWholeSeller && $baseCard?->price_nz_wholesale ?
+//                                $baseCard?->price_nz_wholesale : $baseCard?->price_nz_retail,
+//                        ]);
+//                    }
+//                    break;
+//                case 'MN':
+//                    if ($card->priceCard->selling_price) {
+//                        $card->priceCard()->update([
+//                            'buying_price' => $isWholeSeller ? $baseCard?->price_mng_wholesale : $baseCard?->price_mng_retail,
+//                            'selling_price' => $isWholeSeller && $baseCard?->price_mng_wholesale ?
+//                                $baseCard?->price_mng_wholesale : $baseCard?->price_mng_retail,
+//                        ]);
+//                    }
+//                    break;
+//                default:
+//                    if ($card->priceCard->selling_price) {
+//                        $card->priceCard()->update([
+//                            'buying_price' => $isWholeSeller ? $baseCard?->price_jp_wholesale : $baseCard?->price_jp_retail,
+//                            'selling_price' => $isWholeSeller && $baseCard?->price_jp_wholesale ?
+//                                $baseCard?->price_jp_wholesale : $baseCard?->price_jp_retail,
+//                        ]);
+//                    }
+//                    break;
+//            }
+//        }
 
         $card->priceCard->refresh();
         $card->refresh();
