@@ -13,6 +13,8 @@ use Illuminate\Support\Collection;
 
 trait CarPdrTrait
 {
+    use BadgeGeneratorTrait;
+
     private function buildCardPdrTree(Car $car, bool $defaultIcon = true): array
     {
         $pdr = $car->pdrs;
@@ -249,7 +251,7 @@ trait CarPdrTrait
         return $photos;
     }
 
-    private function getPartsList(Car $car): Collection
+    private function getPartsList(Car $car, array $printIds = []): Collection
     {
         $parts = \DB::table('cars')
             ->selectRaw('car_pdr_position_cards.id, 
@@ -272,6 +274,9 @@ trait CarPdrTrait
             ->join('car_pdr_position_cards', 'car_pdr_position_cards.car_pdr_position_id', '=', 'car_pdr_positions.id')
             ->leftJoin('users', 'users.id', '=', 'car_pdr_positions.user_id')
             ->join('car_pdr_position_card_prices', 'car_pdr_position_card_prices.car_pdr_position_card_id', '=', 'car_pdr_position_cards.id')
+            ->when(count($printIds), function($query) use ($printIds) {
+                $query->whereIn('car_pdr_positions.id', $printIds);
+            })
             ->where('cars.id', $car->id)
             ->whereNull('car_pdr_positions.deleted_at')
             ->get()->each(function($position) {
@@ -287,18 +292,5 @@ trait CarPdrTrait
             });
 
         return $parts;
-    }
-
-    public function generateBarCode(): int
-    {
-        {
-            $exist = true;
-            $barcode = 0;
-            while($exist) {
-                $barcode = random_int(1000000, 6999999);
-                $exist = CarPdrPositionCard::where('barcode', $barcode)->exists();
-            }
-            return $barcode;
-        }
     }
 }

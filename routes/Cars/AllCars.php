@@ -21,7 +21,7 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
         Route::patch('/update-car', [EditCarController::class, 'updateCar']);
         Route::patch('/update-car-status', [EditCarController::class, 'updateCarStatus']);
         Route::get('/sync-car', [EditCarController::class, 'syncCar']);
-        Route::get('/generate-dismantling-badges', [EditCarController::class, 'generateDismantlingBadges']);
+        Route::post('/generate-dismantling-badges', [EditCarController::class, 'generateDismantlingBadges']);
         Route::get('/generate-dismantling-document', [EditCarController::class, 'generateDismantlingDocument']);
         Route::delete('/delete-part/{card}', [EditCarController::class, 'deletePart']);
         Route::post('/upload-part-photo/{card}', [EditCarController::class, 'uploadPartPhoto']);
