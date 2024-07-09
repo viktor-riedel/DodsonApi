@@ -71,6 +71,7 @@ trait SyncPartWithOrderTrait
             //get order
             $order = $item->order;
             $item->delete();
+            $order->refresh();
             //check if order is empty
             if (!$order->items->count()) {
                 $order->delete();

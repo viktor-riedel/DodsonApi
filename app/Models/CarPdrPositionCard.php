@@ -13,7 +13,7 @@ class CarPdrPositionCard extends Model
 {
     use SoftDeletes;
 
-    public const BARCODE_ALGO = 'EAN8';
+    public const BARCODE_ALGO = 'C128';
 
     protected $fillable = [
         'car_pdr_position_id',
