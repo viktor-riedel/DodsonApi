@@ -29,6 +29,7 @@
     <li>
         <img src="{{$car->images[0]->url}}" alt="" style="max-width: 350px">
     </li>
+    @endif
     <li>
         Modification: {{$car->modifications->header}}
     </li>
@@ -53,7 +54,6 @@
     <li>
         Comment: {{$order->comment}}
     </li>
-    @endif
 @endif
 </ul>
 <p>--------------------------------------</p>

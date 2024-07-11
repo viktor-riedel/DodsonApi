@@ -116,7 +116,7 @@ class CreateCarOrderAction
             ])->first();
 
             if (!$item) {
-                $order->items()->create([
+                $orderItem = $order->items()->create([
                     'car_id' => $car->id,
                     'part_id' => null,
                     'with_engine' => false,
@@ -128,7 +128,24 @@ class CreateCarOrderAction
                     'user_id' => $this->user->id,
                     'currency' => 'JPY',
                 ]);
-                $this->orderTotal += (int) $part['price_jpy'];
+                switch ($this->user->country_code) {
+                    case 'JP':
+                        $orderItem->update(['price_jpy' => $part['price_jp']]);
+                        break;
+                    case 'NZ':
+                        $orderItem->update(['price_jpy' => $part['price_nz']]);
+                        break;
+                    case 'RU':
+                        $orderItem->update(['price_jpy' => $part['price_ru']]);
+                        break;
+                    case 'MNG':
+                        $orderItem->update(['price_jpy' => $part['price_mng']]);
+                        break;
+                    default:
+                        break;
+                }
+                $orderItem->refresh();
+                $this->orderTotal += (int) $orderItem->price_jpy;
             }
         }
     }
@@ -209,8 +226,25 @@ class CreateCarOrderAction
                 'minimum_threshold_mng_retail' => null,
                 'minimum_threshold_mng_wholesale' => null,
                 'selling_price' => null,
-                'buying_price' => (int) $part['price_jpy'],
+                'buying_price' => 0,
             ]);
+            $card->priceCard->refresh();
+            switch ($this->user->country_code) {
+                case 'JP':
+                    $card->priceCard()->update(['buying_price' => $part['price_jp']]);
+                    break;
+                case 'NZ':
+                    $card->priceCard()->update(['buying_price' => $part['price_nz']]);
+                    break;
+                case 'RU':
+                    $card->priceCard()->update(['buying_price' => $part['price_ru']]);
+                    break;
+                case 'MNG':
+                    $card->priceCard()->update(['buying_price' => $part['price_mng']]);
+                    break;
+                default:
+                    break;
+            }
             $card->partAttributesCard()->create([
                 'color' => null,
                 'weight' => null,
