@@ -7,6 +7,7 @@ use App\Actions\CreateCar\AddMiscPartsAction;
 use App\Actions\CreateCar\AddPartsFromModificationListAction;
 use App\Actions\CreateCar\AddPartsFromSellingListAction;
 use App\Actions\CreateCar\ChangeModificationAction;
+use App\Actions\CreateCar\UpdateIcNumberAction;
 use App\Exports\Excel\CreatedCarPartsExcelExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Cart\LinkResource;
@@ -389,101 +390,11 @@ class EditCarController extends Controller
 
     public function updateICNumber(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
     {
-        $card->update(['ic_number' => strtoupper(trim($request->input('ic_number')))]);
-        $baseCard = NomenclatureBaseItemPdrCard::where('ic_number', strtoupper(trim($request->input('ic_number'))))
-            ->where('description', $card->description)
-            ->where('name_eng', $card->name_eng)
-            ->first();
-        $card->update([
-            'parent_inner_id' => $baseCard ? $baseCard->inner_id : $card->parent_inner_id,
-        ]);
-
-        $card->position()->update([
-            'ic_number' => strtoupper(trim($request->input('ic_number')))
-        ]);
-
-        $card->priceCard()->update([
-            'price_nz_wholesale' => $baseCard?->price_nz_wholesale,
-            'price_nz_retail' => $baseCard?->price_nz_retail,
-            'price_ru_wholesale' => $baseCard?->price_ru_wholesale,
-            'price_ru_retail' => $baseCard?->price_ru_retail,
-            'price_jp_minimum_buy' => $baseCard?->price_jp_maximum_buy,
-            'price_jp_maximum_buy' => $baseCard?->price_jp_minimum_buy,
-            'minimum_threshold_nz_retail' => $baseCard?->minimum_threshold_nz_retail,
-            'minimum_threshold_nz_wholesale' => $baseCard?->minimum_threshold_nz_wholesale,
-            'minimum_threshold_ru_retail' => $baseCard?->minimum_threshold_ru_retail,
-            'minimum_threshold_ru_wholesale' => $baseCard?->minimum_threshold_ru_wholesale,
-            'minimum_threshold_jp_retail' => $baseCard?->minimum_threshold_jp_retail,
-            'minimum_threshold_jp_wholesale' => $baseCard?->minimum_threshold_jp_wholesale,
-            'minimum_threshold_mng_retail' => $baseCard?->minimum_threshold_mng_retail,
-            'minimum_threshold_mng_wholesale' => $baseCard?->minimum_threshold_mng_wholesale,
-            'delivery_price_nz' => $baseCard?->delivery_price_nz,
-            'delivery_price_ru' => $baseCard?->delivery_price_ru,
-            'pinnacle_price' => $baseCard?->pinnacle_price,
-            'price_currency' => 'JPY',
-            'price_mng_wholesale' => $baseCard?->price_mng_wholesale,
-            'price_mng_retail' => $baseCard?->price_mng_retail,
-            'price_jp_retail' => $baseCard?->price_jp_retail,
-            'price_jp_wholesale' => $baseCard?->price_jp_wholesale,
-            'nz_team_price' => $baseCard?->nz_team_price,
-            'nz_team_needs' => $baseCard?->nz_team_needs,
-            'nz_needs' => $baseCard?->nz_needs,
-            'ru_needs' => $baseCard?->ru_needs,
-            'jp_needs' => $baseCard?->jp_needs,
-            'mng_needs' => $baseCard?->mng_needs,
-            'needs' => $baseCard?->needs,
-        ]);
-
-//        $clientCountryCode = $card->position->client?->country_code;
-//        $isWholeSeller = $card->position->client?->wholesaler ?? false;
-
-        //update selling and buying prices
-        // NOTE DISABLED FOR NOW
-//        if ($clientCountryCode && !$card->priceCard->selling_price) {
-//            switch ($clientCountryCode) {
-//                case 'RU':
-//                    $card->priceCard()->update([
-//                        'buying_price' => $isWholeSeller ? $baseCard?->price_ru_wholesale : $baseCard?->price_ru_retail,
-//                        'selling_price' => $isWholeSeller && $baseCard?->price_ru_wholesale ?
-//                            $baseCard?->price_ru_wholesale : $baseCard?->price_ru_retail,
-//                    ]);
-//                    break;
-//                case 'NZ':
-//                    if ($card->priceCard->selling_price) {
-//                        $card->priceCard()->update([
-//                            'buying_price' => $isWholeSeller ? $baseCard?->price_nz_wholesale : $baseCard?->price_nz_retail,
-//                            'selling_price' => $isWholeSeller && $baseCard?->price_nz_wholesale ?
-//                                $baseCard?->price_nz_wholesale : $baseCard?->price_nz_retail,
-//                        ]);
-//                    }
-//                    break;
-//                case 'MN':
-//                    if ($card->priceCard->selling_price) {
-//                        $card->priceCard()->update([
-//                            'buying_price' => $isWholeSeller ? $baseCard?->price_mng_wholesale : $baseCard?->price_mng_retail,
-//                            'selling_price' => $isWholeSeller && $baseCard?->price_mng_wholesale ?
-//                                $baseCard?->price_mng_wholesale : $baseCard?->price_mng_retail,
-//                        ]);
-//                    }
-//                    break;
-//                default:
-//                    if ($card->priceCard->selling_price) {
-//                        $card->priceCard()->update([
-//                            'buying_price' => $isWholeSeller ? $baseCard?->price_jp_wholesale : $baseCard?->price_jp_retail,
-//                            'selling_price' => $isWholeSeller && $baseCard?->price_jp_wholesale ?
-//                                $baseCard?->price_jp_wholesale : $baseCard?->price_jp_retail,
-//                        ]);
-//                    }
-//                    break;
-//            }
-//        }
-
-        $card->priceCard->refresh();
-        $card->refresh();
+        $result = app()->make(UpdateIcNumberAction::class)->handle($request, $car, $card);
         return response()->json([
-            'original_card' => $baseCard,
-            'price_card' => $card->priceCard,
-            'card' => $card,
+            'original_card' => $result['original_card'],
+            'price_card' => $result['price_card'],
+            'card' => $result['card'],
         ], 202);
     }
 
