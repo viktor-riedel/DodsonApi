@@ -65,12 +65,12 @@ class UpdateIcNumberAction
 
         //update pricing
         $card->priceCard()->update([
-            'pricing_nz_retail' => (int) ceil(($baseCard?->price_nz_retail * $nzd->rate_to_jpy / 100) * 100),
-            'pricing_nz_wholesale' => (int) ceil(($baseCard?->price_nz_wholesale * $nzd->rate_to_jpy / 100) * 100),
-            'pricing_ru_retail' => (int) ceil(($baseCard?->price_ru_retail * $rub->rate_to_jpy / 100) * 100),
-            'pricing_ru_wholesale' => (int) ceil(($baseCard?->price_ru_wholesale * $rub->rate_to_jpy / 100) * 100),
-            'pricing_mng_retail' => (int) ceil(($baseCard?->price_mng_retail * $mnt->rate_to_jpy / 100) * 100),
-            'pricing_mng_wholesale' => (int) ceil(($baseCard?->price_mng_wholesale * $mnt->rate_to_jpy / 100) * 100),
+            'pricing_nz_retail' => (int) ceil(($baseCard?->price_nz_retail * $nzd->rate_to_jpy) / 100) * 100,
+            'pricing_nz_wholesale' => (int) ceil(($baseCard?->price_nz_wholesale * $nzd->rate_to_jpy) / 100) * 100,
+            'pricing_ru_retail' => (int) ceil(($baseCard?->price_ru_retail * $rub->rate_to_jpy) / 100) * 100,
+            'pricing_ru_wholesale' => (int) ceil(($baseCard?->price_ru_wholesale * $rub->rate_to_jpy) / 100) * 100,
+            'pricing_mng_retail' => (int) ceil(($baseCard?->price_mng_retail * $mnt->rate_to_jpy) / 100) * 100,
+            'pricing_mng_wholesale' => (int) ceil(($baseCard?->price_mng_wholesale * $mnt->rate_to_jpy) / 100) * 100,
             'pricing_jp_retail' => $baseCard?->price_jp_retail,
             'pricing_jp_wholesale' => $baseCard?->price_jp_wholesale,
         ]);
