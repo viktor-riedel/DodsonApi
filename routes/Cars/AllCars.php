@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AllCars\AllCarsController;
 use App\Http\Controllers\EditCar\EditCarController;
+use App\Http\Controllers\Pricing\PricingController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
@@ -12,6 +13,7 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
     Route::get('/makes', [AllCarsController::class, 'makes']);
     Route::get('/{make}/models', [AllCarsController::class, 'models']);
     Route::get('/{make}/{model}/generations', [AllCarsController::class, 'generations']);
+
     Route::prefix('/{car}')->group(function() {
         Route::get('/car-default-parts-list', [EditCarController::class, 'parts']);
         Route::get('/edit', [EditCarController::class, 'edit']);
@@ -48,6 +50,11 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
             Route::patch('/ic-description/{card}', [EditCarController::class, 'updateIcDescription']);
             Route::patch('/set-parts-price', [EditCarController::class, 'setPartsPrice']);
             Route::patch('/set-part-client/{card}', [EditCarController::class, 'setClient']);
+        });
+
+        Route::prefix('/pricing')->group(function() {
+           Route::get('/list', [PricingController::class, 'list']);
+           Route::patch('/update-selling-prices', [PricingController::class, 'updateSellingPrices']);
         });
 
         Route::prefix('/links')->group(function() {

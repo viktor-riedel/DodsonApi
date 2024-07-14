@@ -50,6 +50,15 @@ class CarPdrPositionCardPrice extends Model
         'jp_needs',
         'mng_needs',
         'needs',
+        //pricing
+        'pricing_nz_retail',
+        'pricing_nz_wholesale',
+        'pricing_ru_retail',
+        'pricing_ru_wholesale',
+        'pricing_mng_retail',
+        'pricing_mng_wholesale',
+        'pricing_jp_retail',
+        'pricing_jp_wholesale',
     ];
 
     protected $hidden = ['updated_at', 'deleted_at', 'created_at'];

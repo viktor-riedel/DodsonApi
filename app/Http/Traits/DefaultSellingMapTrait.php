@@ -10,6 +10,9 @@ use Illuminate\Support\Collection;
 
 trait DefaultSellingMapTrait
 {
+
+    use CarPdrTrait;
+
     private function createMainFolders(array $folders = []): void
     {
         if (count($folders)) {
@@ -39,11 +42,23 @@ trait DefaultSellingMapTrait
     {
         $directories = SellingMapItem::where('parent_id', 0)->get();
         $orderItems = OrderItem::where('car_id', $car->id)->get();
+        $partsList = $this->getPricingPartsList($car);
+        $parts = $partsList->pluck('name_eng')->toArray();
+
         foreach ($directories as $directory) {
             $directory->items = SellingMapItem::where('parent_id', $directory->id)
-                ->get()->each(function($item) use ($orderItems) {
+                ->whereIn('item_name_eng', $parts)
+                ->get()->each(function($item) use ($orderItems, $partsList) {
                     $item->available =
                         $orderItems->where('item_name_eng', $item->item_name_eng)->count() === 0;
+                    $item->price_jp = $partsList->where('name_eng', $item->item_name_eng)
+                        ->first()->card->priceCard->pricing_jp_wholesale ?? 0;
+                    $item->price_ru = $partsList->where('name_eng', $item->item_name_eng)
+                        ->first()->card->priceCard->pricing_ru_wholesale ?? 0;
+                    $item->price_nz = $partsList->where('name_eng', $item->item_name_eng)
+                        ->first()->card->priceCard->pricing_nz_wholesale ?? 0;
+                    $item->price_mng = $partsList->where('name_eng', $item->item_name_eng)
+                        ->first()->card->priceCard->pricing_mng_wholesale ?? 0;
                 });
         }
         return $directories;

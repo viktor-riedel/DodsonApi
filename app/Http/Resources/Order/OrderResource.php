@@ -11,14 +11,6 @@ class OrderResource extends JsonResource
     public function toArray(Request $request): array
     {
         $currency = '¥';
-//        if ($this->country_code === 'RU') {
-//            $currency = '₽';
-//        } else if ($this->country_code === 'MN') {
-//            $currency = '';
-//        } else if ($this->country_code === 'NZ') {
-//            $currency = '$';
-//        }
-
         return [
             'id' => $this->id,
             'car' => [
@@ -26,6 +18,8 @@ class OrderResource extends JsonResource
                 'model' => $this->items->first()?->car?->model,
                 'year' => $this->items->first()?->car?->carAttributes?->year,
                 'chassis' => $this->items->first()?->car?->chassis,
+                'car_mvr' => $this->items->first()?->car?->car_mvr,
+                'photo' => $this->items->first()?->car?->images->first()?->url,
             ],
             'items' => OrderItemResource::collection($this->items),
             'created' => $this->created_at->format('d/m/Y'),
@@ -33,10 +27,6 @@ class OrderResource extends JsonResource
             'status_en' => $this->status_en,
             'status_ru' => $this->status_ru,
             'total_amount' => $this->total_amount,
-            'mvr_price' => $this->mvr_price,
-            'extra_price' => $this->extra_price,
-            'package_price' => $this->package_price,
-            'mvr_commission' => $this->mvr_commission,
             'order_number' => $this->order_number,
             'order_number_formatted' => number_format($this->order_total),
             'order_total' => $this->order_total,

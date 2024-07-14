@@ -116,7 +116,7 @@ class CreateCarOrderAction
             ])->first();
 
             if (!$item) {
-                $order->items()->create([
+                $orderItem = $order->items()->create([
                     'car_id' => $car->id,
                     'part_id' => null,
                     'with_engine' => false,
@@ -128,7 +128,24 @@ class CreateCarOrderAction
                     'user_id' => $this->user->id,
                     'currency' => 'JPY',
                 ]);
-                $this->orderTotal += (int) $part['price_jpy'];
+                switch ($this->user->country_code) {
+                    case 'JP':
+                        $orderItem->update(['price_jpy' => $part['price_jp']]);
+                        break;
+                    case 'NZ':
+                        $orderItem->update(['price_jpy' => $part['price_nz']]);
+                        break;
+                    case 'RU':
+                        $orderItem->update(['price_jpy' => $part['price_ru']]);
+                        break;
+                    case 'MNG':
+                        $orderItem->update(['price_jpy' => $part['price_mng']]);
+                        break;
+                    default:
+                        break;
+                }
+                $orderItem->refresh();
+                $this->orderTotal += (int) $orderItem->price_jpy;
             }
         }
     }
@@ -137,87 +154,60 @@ class CreateCarOrderAction
     {
         if (count($this->engine)) {
             $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[0]);
-            $this->createCards($folder, $this->engine);
+            $this->updateCards($folder, $this->engine);
         }
         if (count($this->front)) {
             $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[1]);
-            $this->createCards($folder, $this->front);
+            $this->updateCards($folder, $this->front);
         }
         if (count($this->exterior)) {
             $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[2]);
-            $this->createCards($folder, $this->exterior);
+            $this->updateCards($folder, $this->exterior);
         }
         if (count($this->interior)) {
             $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[3]);
-            $this->createCards($folder, $this->interior);
+            $this->updateCards($folder, $this->interior);
         }
         if (count($this->frontSuspension)) {
             $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[4]);
-            $this->createCards($folder, $this->frontSuspension);
+            $this->updateCards($folder, $this->frontSuspension);
         }
         if (count($this->rearSuspension)) {
             $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[5]);
-            $this->createCards($folder, $this->rearSuspension);
+            $this->updateCards($folder, $this->rearSuspension);
         }
         if (count($this->other)) {
             $folder = $this->resolveFolder(SellingPartsMapController::MAIN_DIRECTORIES[6]);
-            $this->createCards($folder, $this->other);
+            $this->updateCards($folder, $this->other);
         }
     }
 
-    private function createCards(CarPdr $folder, array $parts): void
+    private function updateCards(CarPdr $folder, array $parts): void
     {
         foreach ($parts as $part) {
-            $position = $folder->positions()->create([
-                'item_name_ru' => $part['item_name_ru'] ?? '',
-                'item_name_eng' => $part['item_name_eng'] ?? '',
-                'ic_number' => null,
-                'oem_number' => null,
-                'ic_description' => null,
-                'is_virtual' => false,
-                'created_by' => $this->user->id,
-                'user_id' => $this->user->id,
-            ]);
-            $card = $position->card()->create([
-                'parent_inner_id' => $this->generateInnerId(\Str::random(10) . now()),
-                'name_eng' => $part['item_name_eng'] ?? '',
-                'name_ru' => $part['item_name_ru'] ?? '',
-                'comment' => null,
-                'description' => null,
-                'ic_number' => '',
-                'oem_number' => null,
-                'created_by' => $this->user->id,
-                'barcode' => $this->generateNextBarcode(),
-            ]);
-            $card->priceCard()->create([
-                'price_currency' => 'JPY',
-                'price_nz_wholesale' => null,
-                'price_nz_retail' => null,
-                'price_ru_wholesale' => null,
-                'price_ru_retail' => null,
-                'price_jp_minimum_buy' => null,
-                'price_jp_maximum_buy' => null,
-                'minimum_threshold_nz_retail' => null,
-                'minimum_threshold_nz_wholesale' => null,
-                'minimum_threshold_ru_retail' => null,
-                'minimum_threshold_ru_wholesale' => null,
-                'delivery_price_nz' => null,
-                'delivery_price_ru' => null,
-                'pinnacle_price' => null,
-                'minimum_threshold_jp_retail' => null,
-                'minimum_threshold_jp_wholesale' => null,
-                'minimum_threshold_mng_retail' => null,
-                'minimum_threshold_mng_wholesale' => null,
-                'selling_price' => null,
-                'buying_price' => (int) $part['price_jpy'],
-            ]);
-            $card->partAttributesCard()->create([
-                'color' => null,
-                'weight' => null,
-                'volume' => null,
-                'amount' => isset($part['amount']) ? (int) $part['amount'] : 1,
-                'ordered_for_user_id' => null,
-            ]);
+            $position = $folder->positions()->where('item_name_eng', $part['item_name_eng'])->first();
+            if ($position) {
+                $position->update([
+                    'barcode' => $this->generateNextBarcode(),
+                    'user_id' => $this->user->id
+                ]);
+                switch ($this->user->country_code) {
+                    case 'JP':
+                        $position->card->priceCard()->update(['buying_price' => $part['price_jp']]);
+                        break;
+                    case 'NZ':
+                        $position->card->priceCard()->update(['buying_price' => $part['price_nz']]);
+                        break;
+                    case 'RU':
+                        $position->card->priceCard()->update(['buying_price' => $part['price_ru']]);
+                        break;
+                    case 'MNG':
+                        $position->card->priceCard()->update(['buying_price' => $part['price_mng']]);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 
