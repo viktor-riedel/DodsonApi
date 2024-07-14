@@ -65,12 +65,12 @@ class UpdateIcNumberAction
 
         //update pricing
         $card->priceCard()->update([
-            'pricing_nz_retail' => (int) round($baseCard?->price_nz_retail * $nzd->rate_to_jpy, 3),
-            'pricing_nz_wholesale' => (int) round($baseCard?->price_nz_wholesale * $nzd->rate_to_jpy, 3),
-            'pricing_ru_retail' => (int) round($baseCard?->price_ru_retail * $rub->rate_to_jpy, 3),
-            'pricing_ru_wholesale' => (int) round($baseCard?->price_ru_wholesale * $rub->rate_to_jpy, 3),
-            'pricing_mng_retail' => (int) round($baseCard?->price_mng_retail * $mnt->rate_to_jpy, 3),
-            'pricing_mng_wholesale' => (int) round($baseCard?->price_mng_wholesale * $mnt->rate_to_jpy, 3),
+            'pricing_nz_retail' => (int) round($baseCard?->price_nz_retail * $nzd->rate_to_jpy, 4),
+            'pricing_nz_wholesale' => (int) round($baseCard?->price_nz_wholesale * $nzd->rate_to_jpy, 4),
+            'pricing_ru_retail' => (int) round($baseCard?->price_ru_retail * $rub->rate_to_jpy, 4),
+            'pricing_ru_wholesale' => (int) round($baseCard?->price_ru_wholesale * $rub->rate_to_jpy, 4),
+            'pricing_mng_retail' => (int) round($baseCard?->price_mng_retail * $mnt->rate_to_jpy, 4),
+            'pricing_mng_wholesale' => (int) round($baseCard?->price_mng_wholesale * $mnt->rate_to_jpy, 4),
             'pricing_jp_retail' => $baseCard?->price_jp_retail,
             'pricing_jp_wholesale' => $baseCard?->price_jp_wholesale,
         ]);
