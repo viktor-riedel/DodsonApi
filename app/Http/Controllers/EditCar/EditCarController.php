@@ -10,6 +10,7 @@ use App\Actions\CreateCar\ChangeModificationAction;
 use App\Actions\CreateCar\UpdateIcNumberAction;
 use App\Exports\Excel\CreatedCarPartsExcelExport;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CarPartsComment\CarPartsCommentResource;
 use App\Http\Resources\Cart\LinkResource;
 use App\Http\Resources\SellingPartsMap\SellingMapItemResource;
 use App\Http\Traits\BadgeGeneratorTrait;
@@ -19,6 +20,7 @@ use App\Http\Traits\SyncPartWithOrderTrait;
 use App\Jobs\Sync\SendCarToBotJob;
 use App\Jobs\Sync\SendDoneCarJob;
 use App\Models\Car;
+use App\Models\CarPartsComment;
 use App\Models\CarPdrPositionCard;
 use App\Models\CarPdrPositionCardAttribute;
 use App\Models\CarPdrPositionCardPrice;
@@ -27,7 +29,9 @@ use App\Models\MediaFile;
 use App\Models\NomenclatureBaseItemPdrCard;
 use App\Models\OrderItem;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -35,7 +39,7 @@ class EditCarController extends Controller
 {
     use CarPdrTrait, SyncPartWithOrderTrait, DefaultSellingMapTrait, BadgeGeneratorTrait;
 
-    public function edit(Car $car): \Illuminate\Http\JsonResponse
+    public function edit(Car $car): JsonResponse
     {
         $car->load('images',
             'links',
@@ -80,7 +84,7 @@ class EditCarController extends Controller
         ]);
     }
 
-    public function delete(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    public function delete(Request $request, Car $car): JsonResponse
     {
         $orderExists = OrderItem::where('car_id', $car->id)->exists();
         if (!$orderExists) {
@@ -91,7 +95,7 @@ class EditCarController extends Controller
         abort(403, 'Car has order created!');
     }
 
-    public function uploadCarPhoto(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    public function uploadCarPhoto(Request $request, Car $car): JsonResponse
     {
         if ($request->file('uploadCarPhotos')) {
             $storage = \Storage::disk('s3');
@@ -119,7 +123,7 @@ class EditCarController extends Controller
         return response()->json($car->images);
     }
 
-    public function deleteCarPhoto(Request $request, Car $car, MediaFile $photo): \Illuminate\Http\JsonResponse
+    public function deleteCarPhoto(Request $request, Car $car, MediaFile $photo): JsonResponse
     {
         $photo = $car->images()->where('id', $photo->id)->first();
         if ($photo) {
@@ -129,7 +133,7 @@ class EditCarController extends Controller
         return response()->json($car->images);
     }
 
-    public function updateCar(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    public function updateCar(Request $request, Car $car): JsonResponse
     {
         $car->update([
             'generation' => strtoupper(trim($request->input('generation'))),
@@ -179,7 +183,7 @@ class EditCarController extends Controller
         return response()->json([], 202);
     }
 
-    public function updateCarStatus(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    public function updateCarStatus(Request $request, Car $car): JsonResponse
     {
         $car->load('positions', 'positions.card', 'positions.card.priceCard');
 
@@ -203,7 +207,7 @@ class EditCarController extends Controller
         return response()->json([], 202);
     }
 
-    public function syncCar(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    public function syncCar(Request $request, Car $car): JsonResponse
     {
         if ($car->car_status === 2) {
             SendDoneCarJob::dispatch($car, $request->user());
@@ -212,7 +216,7 @@ class EditCarController extends Controller
         return response()->json(['error' => 'Car status is not DONE'], 403);
     }
 
-    public function generateDismantlingBadges(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    public function generateDismantlingBadges(Request $request, Car $car): JsonResponse
     {
         $needsRefresh = false;
         $partsToPrint = collect($request->toArray())->pluck('card.car_pdr_position_id')->toArray();
@@ -240,7 +244,7 @@ class EditCarController extends Controller
         return response()->json(['link' => $url]);
     }
 
-    public function generateDismantlingDocument(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    public function generateDismantlingDocument(Request $request, Car $car): JsonResponse
     {
         $partsList = $this->getPartsList($car);
         $pdf = Pdf::loadView('exports.pdf.dismantling-document', [
@@ -256,7 +260,7 @@ class EditCarController extends Controller
         return response()->json(['link' => $url]);
     }
 
-    public function deletePart(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    public function deletePart(Request $request, Car $car, CarPdrPositionCard $card): JsonResponse
     {
         $card->update(['deleted_by' => $request->user()->id]);
         $card->images()->update(['deleted_by' => $request->user()->id]);
@@ -282,7 +286,7 @@ class EditCarController extends Controller
     }
 
 
-    public function uploadPartPhoto(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    public function uploadPartPhoto(Request $request, Car $car, CarPdrPositionCard $card): JsonResponse
     {
         if ($request->file('uploadPartPhotos')) {
             $storage = \Storage::disk('s3');
@@ -310,7 +314,7 @@ class EditCarController extends Controller
         return response()->json($card->images);
     }
 
-    public function deletePartPhoto(Request $request, Car $car, CarPdrPositionCard $card, MediaFile $photo): \Illuminate\Http\JsonResponse
+    public function deletePartPhoto(Request $request, Car $car, CarPdrPositionCard $card, MediaFile $photo): JsonResponse
     {
         $photo = $card->images()->where('id', $photo->id)->first();
         if ($photo) {
@@ -320,25 +324,25 @@ class EditCarController extends Controller
         return response()->json($card->images);
     }
 
-    public function updateAttributes(Request $request, Car $car, CarPdrPositionCardAttribute $card): \Illuminate\Http\JsonResponse
+    public function updateAttributes(Request $request, Car $car, CarPdrPositionCardAttribute $card): JsonResponse
     {
         $card->update($request->except('car_pdr_position_id', 'id'));
         return response()->json([], 202);
     }
 
-    public function updatePriceCard(Request $request, Car $car, CarPdrPositionCardPrice $card): \Illuminate\Http\JsonResponse
+    public function updatePriceCard(Request $request, Car $car, CarPdrPositionCardPrice $card): JsonResponse
     {
         $card->update($request->except('car_pdr_position_card_id', 'id'));
         return response()->json([], 202);
     }
 
-    public function updateOriginalPriceCard(Request $request, Car $car, NomenclatureBaseItemPdrCard $card): \Illuminate\Http\JsonResponse
+    public function updateOriginalPriceCard(Request $request, Car $car, NomenclatureBaseItemPdrCard $card): JsonResponse
     {
         $card->update($request->except('id'));
         return response()->json([], 202);
     }
 
-    public function addMiscParts(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    public function addMiscParts(Request $request, Car $car): JsonResponse
     {
         app()->make(AddMiscPartsAction::class)->handle($car, $request->user()->id, $request->all());
         $car->load('images', 'carAttributes', 'modification', 'createdBy');
@@ -347,31 +351,31 @@ class EditCarController extends Controller
         return response()->json($partsList);
     }
 
-    public function addListParts(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    public function addListParts(Request $request, Car $car): JsonResponse
     {
         app()->make(AddListPartsAction::class)->handle($car, $request->user()->id, $request->all());
         return response()->json([], 201);
     }
 
-    public function parts(Car $car): \Illuminate\Http\JsonResponse
+    public function parts(Car $car): JsonResponse
     {
         $pdr = $this->buildDefaultPdrTreeByCar($car);
         return response()->json($pdr);
     }
 
-    public function addModListParts(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    public function addModListParts(Request $request, Car $car): JsonResponse
     {
         app()->make(AddPartsFromModificationListAction::class)->handle($car, $request->all(), $request->user()->id);
         return response()->json([], 201);
     }
 
-    public function addSellingListParts(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    public function addSellingListParts(Request $request, Car $car): JsonResponse
     {
         app()->make(AddPartsFromSellingListAction::class)->handle($car, $request->all(), $request->user()->id);
         return response()->json([], 201);
     }
 
-    public function exportPartsListToExcel(Car $car): \Illuminate\Http\JsonResponse
+    public function exportPartsListToExcel(Car $car): JsonResponse
     {
         $filename = 'exports/parts/'. $car->id . '/' .$car->make . '_' .
             $car->model . '_' . $car->generation . '_' .
@@ -382,13 +386,24 @@ class EditCarController extends Controller
         return response()->json(['link' => $url]);
     }
 
-    public function updateModification(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    public function updateModification(Request $request, Car $car): JsonResponse
     {
         $result = app()->make(ChangeModificationAction::class)->handle($request, $car, $request->user());
         return response()->json(['result' => $result]);
     }
 
-    public function updateICNumber(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    public function setPartsUser(Request $request, Car $car, User $user): JsonResponse
+    {
+        $car->load('positions');
+        if ($car->positions->count()) {
+            foreach($car->positions as $position) {
+                $position->update(['user_id' => $user->id]);
+            }
+        }
+        return response()->json([], 204);
+    }
+
+    public function updateICNumber(Request $request, Car $car, CarPdrPositionCard $card): JsonResponse
     {
         $result = app()->make(UpdateIcNumberAction::class)->handle($request, $car, $card);
         return response()->json([
@@ -398,7 +413,7 @@ class EditCarController extends Controller
         ], 202);
     }
 
-    public function updatePriceCurrency(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    public function updatePriceCurrency(Request $request, Car $car, CarPdrPositionCard $card): JsonResponse
     {
         $card->priceCard()->update([
             'price_currency' => strtoupper(trim($request->input('price_currency')))
@@ -406,7 +421,7 @@ class EditCarController extends Controller
         return response()->json([], 204);
     }
 
-    public function updateBuyingPrice(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    public function updateBuyingPrice(Request $request, Car $car, CarPdrPositionCard $card): JsonResponse
     {
         $currency = $card->priceCard->price_currency ?: 'JPY';
         $card->priceCard()->update([
@@ -419,7 +434,7 @@ class EditCarController extends Controller
         return response()->json([], 204);
     }
 
-    public function updateSellingPrice(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    public function updateSellingPrice(Request $request, Car $car, CarPdrPositionCard $card): JsonResponse
     {
         $currency = $card->priceCard->price_currency ?: 'JPY';
         $card->priceCard()->update([
@@ -429,7 +444,7 @@ class EditCarController extends Controller
         return response()->json([], 204);
     }
 
-    public function updateComment(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    public function updateComment(Request $request, Car $car, CarPdrPositionCard $card): JsonResponse
     {
         $card->comments()->create([
            'comment' => trim($request->input('comment')),
@@ -438,13 +453,13 @@ class EditCarController extends Controller
         return response()->json(['comments' => $card->comments()->with('createdBy')->get()], 201);
     }
 
-    public function deleteComments(Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    public function deleteComments(Car $car, CarPdrPositionCard $card): JsonResponse
     {
         $card->comments()->delete();
         return response()->json([]);
     }
 
-    public function updateIcDescription(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    public function updateIcDescription(Request $request, Car $car, CarPdrPositionCard $card): JsonResponse
     {
         $card->update([
             'description' => strtoupper(trim($request->input('ic_description')))
@@ -456,7 +471,7 @@ class EditCarController extends Controller
         return response()->json([], 204);
     }
 
-    public function setPartsPrice(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    public function setPartsPrice(Request $request, Car $car): JsonResponse
     {
         $partIds = $request->input('partIds', []);
         $price = $request->integer('price', []);
@@ -473,7 +488,7 @@ class EditCarController extends Controller
         return response()->json($partIds, 202);
     }
 
-    public function setClient(Request $request, Car $car, CarPdrPositionCard $card): \Illuminate\Http\JsonResponse
+    public function setClient(Request $request, Car $car, CarPdrPositionCard $card): JsonResponse
     {
         if ($card->position->client) {
             //check if we reassign a client
@@ -487,12 +502,12 @@ class EditCarController extends Controller
         return response()->json([], 204);
     }
 
-    public function linksList(Request $request, Car $car): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function linksList(Request $request, Car $car): AnonymousResourceCollection
     {
         return LinkResource::collection($car->links()->with('createdBy')->get());
     }
 
-    public function addLink(Request $request, Car $car): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function addLink(Request $request, Car $car): AnonymousResourceCollection
     {
         $car->links()->create([
             'url' => $request->input('url'),
@@ -502,10 +517,34 @@ class EditCarController extends Controller
         return LinkResource::collection($car->links()->with('createdBy')->get());
     }
 
-    public function deleteLink(Request $request, Car $car, Link $link): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function deleteLink(Request $request, Car $car, Link $link): AnonymousResourceCollection
     {
         $link->update(['deleted_by' => $request->user()->id]);
         $link->delete();
         return LinkResource::collection($car->links()->with('createdBy')->get());
+    }
+
+    public function partsCommentsList(Car $car): AnonymousResourceCollection
+    {
+        $comments = CarPartsComment::with('user')
+            ->where('car_id', $car->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return CarPartsCommentResource::collection($comments);
+    }
+
+    public function addComment(Request $request, Car $car): AnonymousResourceCollection
+    {
+        CarPartsComment::create([
+            'comment' => $request->input('comment'),
+            'user_id' => $request->user()->id,
+            'car_id' => $car->id,
+        ]);
+        $comments = CarPartsComment::with('user')
+            ->where('car_id', $car->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        return CarPartsCommentResource::collection($comments);
     }
 }

@@ -13,6 +13,8 @@ class UserResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'first_name' => $this->first_name,
+            'last_name' => $this->last_name,
             'email' => $this->email,
             'roles' => $this->getRoleNames()->first(),
             'last_login' => $this->last_login_at ? $this->last_login_at->format('d/m/Y H:i') : null,

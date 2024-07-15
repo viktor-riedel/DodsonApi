@@ -58,6 +58,8 @@ class UsersController extends Controller
         $user->update([
            'name' => $request->input('name'),
            'email' => $request->input('email'),
+           'first_name' => $request->input('first_name'),
+           'last_name' => $request->input('last_name'),
            'country_code' => $request->input('country_code'),
            'is_api_user' => (bool) $request->input('is_api_user'),
         ]);
