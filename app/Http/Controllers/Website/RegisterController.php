@@ -12,7 +12,9 @@ class RegisterController extends Controller
     public function register(RegisterRequest $request): \Illuminate\Http\JsonResponse
     {
         $user = User::create([
-            'name' => $request->validated('first_name') . ' ' . $request->validated('last_name'),
+            'name' => $request->validated('last_name') . ' ' . $request->validated('first_name'),
+            'first_name' => $request->validated('first_name'),
+            'last_name' => $request->validated('last_name'),
             'email' => $request->validated('user_email'),
             'password' => bcrypt($request->validated('password')),
             'country_code' => $request->validated('user_country'),

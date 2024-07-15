@@ -37,6 +37,7 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
         Route::put('/add-parts-from-selling-list', [EditCarController::class, 'addSellingListParts']);
         Route::get('/export-parts-list', [EditCarController::class, 'exportPartsListToExcel']);
         Route::patch('/update-modification', [EditCarController::class, 'updateModification']);
+        Route::patch('/set-parts-user/{user}', [EditCarController::class, 'setPartsUser']);
 
         Route::prefix('/update-parts-list')->group(function() {
             Route::patch('/ic-number/{card}', [EditCarController::class, 'updateICNumber']);
@@ -61,6 +62,11 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
            Route::get('/', [EditCarController::class, 'linksList']);
            Route::post('/add-link', [EditCarController::class, 'addLink']);
            Route::delete('/{link}/delete', [EditCarController::class, 'deleteLink']);
+        });
+
+        Route::prefix('/parts-comments')->group(function() {
+            Route::get('/list', [EditCarController::class, 'partsCommentsList']);
+            Route::post('/add-comment', [EditCarController::class, 'addComment']);
         });
     });
 });

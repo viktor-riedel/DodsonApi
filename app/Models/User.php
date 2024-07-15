@@ -31,6 +31,8 @@ class User extends Authenticatable
         'last_login_at',
         'country_code',
         'is_api_user',
+        'first_name',
+        'last_name',
     ];
 
     /**
