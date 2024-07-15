@@ -63,62 +63,42 @@ class UpdateIcNumberAction
         $mnt = $rates->where('currency_code', 'MNT')->first();
         $rub = $rates->where('currency_code', 'RUB')->first();
 
-        //update pricing
-        $card->priceCard()->update([
-            'pricing_nz_retail' => (int) ceil(($baseCard?->price_nz_retail * $nzd->rate_to_jpy) / 100) * 100,
-            'pricing_nz_wholesale' => (int) ceil(($baseCard?->price_nz_wholesale * $nzd->rate_to_jpy) / 100) * 100,
-            'pricing_ru_retail' => (int) ceil(($baseCard?->price_ru_retail * $rub->rate_to_jpy) / 100) * 100,
-            'pricing_ru_wholesale' => (int) ceil(($baseCard?->price_ru_wholesale * $rub->rate_to_jpy) / 100) * 100,
-            'pricing_mng_retail' => (int) ceil(($baseCard?->price_mng_retail * $mnt->rate_to_jpy) / 100) * 100,
-            'pricing_mng_wholesale' => (int) ceil(($baseCard?->price_mng_wholesale * $mnt->rate_to_jpy) / 100) * 100,
-            'pricing_jp_retail' => $baseCard?->price_jp_retail,
-            'pricing_jp_wholesale' => $baseCard?->price_jp_wholesale,
-        ]);
+        $pricing_nz_retail = (int) ceil(($baseCard?->price_nz_retail * $nzd->rate_to_jpy) / 100) * 100;
+        $pricing_nz_wholesale = (int) ceil(($baseCard?->price_nz_wholesale * $nzd->rate_to_jpy) / 100) * 100;
+        $pricing_ru_retail = (int) ceil(($baseCard?->price_ru_retail * $rub->rate_to_jpy) / 100) * 100;
+        $pricing_ru_wholesale = (int) ceil(($baseCard?->price_ru_wholesale * $rub->rate_to_jpy) / 100) * 100;
+        $pricing_mng_retail = (int) ceil(($baseCard?->price_mng_retail * $mnt->rate_to_jpy) / 100) * 100;
+        $pricing_mng_wholesale = (int) ceil(($baseCard?->price_mng_retail * $mnt->rate_to_jpy) / 100) * 100;
+        $pricing_jp_retail = $baseCard?->price_jp_retail;
+        $pricing_jp_wholesale = $baseCard?->price_jp_wholesale;
 
+        $card->priceCard->refresh();
 
-//        $clientCountryCode = $card->position->client?->country_code;
-//        $isWholeSeller = $card->position->client?->wholesaler ?? false;
+        if (!$card->priceCard->pricing_nz_retail) {
+            $card->priceCard()->update(['pricing_nz_retail' => $pricing_nz_retail]);
+        }
+        if (!$card->priceCard->pricing_nz_wholesale) {
+            $card->priceCard()->update(['pricing_nz_wholesale' => $pricing_nz_wholesale]);
+        }
+        if (!$card->priceCard->pricing_ru_retail) {
+            $card->priceCard()->update(['pricing_ru_retail' => $pricing_ru_retail]);
+        }
+        if (!$card->priceCard->pricing_ru_wholesale) {
+            $card->priceCard()->update(['pricing_ru_wholesale' => $pricing_ru_wholesale]);
+        }
+        if (!$card->priceCard->pricing_mng_retail) {
+            $card->priceCard()->update(['pricing_mng_retail' => $pricing_mng_retail]);
+        }
+        if (!$card->priceCard->pricing_mng_wholesale) {
+            $card->priceCard()->update(['pricing_mng_wholesale' => $pricing_mng_wholesale]);
+        }
+        if (!$card->priceCard->pricing_jp_retail) {
+            $card->priceCard()->update(['pricing_jp_retail' => $pricing_jp_retail]);
+        }
+        if (!$card->priceCard->pricing_jp_wholesale) {
+            $card->priceCard()->update(['pricing_jp_wholesale' => $pricing_jp_wholesale]);
+        }
 
-        //update selling and buying prices
-        // NOTE DISABLED FOR NOW
-//        if ($clientCountryCode && !$card->priceCard->selling_price) {
-//            switch ($clientCountryCode) {
-//                case 'RU':
-//                    $card->priceCard()->update([
-//                        'buying_price' => $isWholeSeller ? $baseCard?->price_ru_wholesale : $baseCard?->price_ru_retail,
-//                        'selling_price' => $isWholeSeller && $baseCard?->price_ru_wholesale ?
-//                            $baseCard?->price_ru_wholesale : $baseCard?->price_ru_retail,
-//                    ]);
-//                    break;
-//                case 'NZ':
-//                    if ($card->priceCard->selling_price) {
-//                        $card->priceCard()->update([
-//                            'buying_price' => $isWholeSeller ? $baseCard?->price_nz_wholesale : $baseCard?->price_nz_retail,
-//                            'selling_price' => $isWholeSeller && $baseCard?->price_nz_wholesale ?
-//                                $baseCard?->price_nz_wholesale : $baseCard?->price_nz_retail,
-//                        ]);
-//                    }
-//                    break;
-//                case 'MN':
-//                    if ($card->priceCard->selling_price) {
-//                        $card->priceCard()->update([
-//                            'buying_price' => $isWholeSeller ? $baseCard?->price_mng_wholesale : $baseCard?->price_mng_retail,
-//                            'selling_price' => $isWholeSeller && $baseCard?->price_mng_wholesale ?
-//                                $baseCard?->price_mng_wholesale : $baseCard?->price_mng_retail,
-//                        ]);
-//                    }
-//                    break;
-//                default:
-//                    if ($card->priceCard->selling_price) {
-//                        $card->priceCard()->update([
-//                            'buying_price' => $isWholeSeller ? $baseCard?->price_jp_wholesale : $baseCard?->price_jp_retail,
-//                            'selling_price' => $isWholeSeller && $baseCard?->price_jp_wholesale ?
-//                                $baseCard?->price_jp_wholesale : $baseCard?->price_jp_retail,
-//                        ]);
-//                    }
-//                    break;
-//            }
-//        }
         $card->priceCard->refresh();
         $card->refresh();
         return [
