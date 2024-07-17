@@ -6,7 +6,7 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class OrderResource extends JsonResource
+class UserOrderResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
@@ -18,13 +18,12 @@ class OrderResource extends JsonResource
                 'year' => $this->items->first()?->car?->carAttributes?->year,
                 'chassis' => $this->items->first()?->car?->chassis,
                 'car_mvr' => $this->items->first()?->car?->car_mvr,
-                'photo' => $this->items->first()?->car?->images->first()?->url,
+                'modification' => $this->items->first()?->car?->modifications,
+                'photos' => $this->items->first()?->car?->images()->pluck('url')->toArray(),
             ],
-            'items' => OrderItemResource::collection($this->items),
+            'items' => $this->items,
             'created' => $this->created_at->format('d/m/Y'),
             'status' => Order::ORDER_STATUS_STRING[$this->order_status],
-            'status_en' => $this->status_en,
-            'status_ru' => $this->status_ru,
             'total_amount' => $this->total_amount,
             'order_number' => $this->order_number,
             'order_number_formatted' => number_format($this->order_total),
