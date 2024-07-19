@@ -10,7 +10,7 @@ class BotController extends Controller
 {
     public function car(Car $car): CarResource
     {
-        $car->load('images', 'links', 'modifications', 'markets');
+        $car->load('images', 'links', 'modifications', 'markets', 'carAttributes');
         return new CarResource($car);
     }
 

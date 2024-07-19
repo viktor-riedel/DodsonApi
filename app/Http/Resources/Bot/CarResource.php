@@ -15,6 +15,8 @@ class CarResource extends JsonResource
             'model' => $this->model,
             'chassis' => $this->chassis,
             'car_mvr' => $this->car_mvr,
+            'year' => $this->carAttributes->year,
+            'mileage' => $this->carAttributes->mileage,
             'markets' => CarMarketResource::collection($this->markets),
             'images' => CarImageResource::collection($this->images),
             'modification' => new CarModificationResource($this->modifications),
