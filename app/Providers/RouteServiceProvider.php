@@ -43,6 +43,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('/routes/Directories/ContrAgentRoutes.php'))
                 ->group(base_path('/routes/Directories/SellingPartsMap.php'))
                 ->group(base_path('/routes/SettingsRoutes/SettingsRoutes.php'))
+                ->group(base_path('/routes/Parts/PartsRoutes.php'))
                 //crm
                 ->group(base_path('/routes/CRM/CrmRoutes.php'))
                 //user part
