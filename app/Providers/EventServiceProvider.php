@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Events\Bot\SendBotMessageEvent;
 use App\Events\ModelsEvent\NomenclatureCreateEvent;
 use App\Events\Sync\Export\SendToBotEvent;
+use App\Listeners\Bot\SendBotMessageListener;
 use App\Listeners\NomenclatureCreatedListener;
 use App\Listeners\SendCarToBotListener;
 use Illuminate\Auth\Events\Registered;
@@ -27,6 +29,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         SendToBotEvent::class => [
             SendCarToBotListener::class,
+        ],
+        SendBotMessageEvent::class => [
+            SendBotMessageListener::class,
         ],
     ];
 

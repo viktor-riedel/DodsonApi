@@ -9,3 +9,7 @@ Route::prefix('/crm')->group(
 Route::prefix('/crm')->group(
     base_path('/routes/CRM/Orders/OrdersRoutes.php'),
 );
+
+Route::prefix('/crm')->group(
+    base_path('/routes/CRM/Bot/BotRoutes.php'),
+);
