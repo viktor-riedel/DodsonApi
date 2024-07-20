@@ -5,32 +5,26 @@ namespace App\Http\ExternalApiHelpers;
 use App\Models\Car;
 use Illuminate\Http\Client\PendingRequest;
 use Http;
+use Str;
 
-class SendListedCarToBot
+class InteractWithBot
 {
-    private Car $car;
-
-    public function __construct(Car $car)
+    public function notifyBotNewCar(Car $car): void
     {
-        $this->car = $car;
-    }
-
-    public function notifyBot(): void
-    {
-        $this->car->load('images', 'carAttributes', 'markets', 'modifications');
-        if ($this->car->images->count()) {
-            $subject = $this->car->make . ' ' . $this->car->model . ' ' . $this->car->carAttributes->year;
-            $markets = $this->car->markets->pluck('country_code')->toArray();
+        $car->load('images', 'carAttributes', 'markets', 'modifications');
+        if ($car->images->count()) {
+            $subject = $car->make . ' ' . $car->model . ' ' . $car->carAttributes->year;
+            $markets = $car->markets->pluck('country_code')->toArray();
             if (count($markets)) {
                 $availableIn = implode(', ', $markets);
             } else {
                 $availableIn = '';
             }
-            $subject .= ' ' . $this->car->modifications->header . ' ' .
+            $subject .= ' ' . $car->modifications->header . ' ' .
                 ($availableIn ? 'available for | доступно в ' . $availableIn : '');
             $data = [
                 'message' => $subject,
-                'photo_url' => $this->car->images->first()->url,
+                'photo_url' => $car->images->first()->url,
                 'buttons' =>
                     [
                         [
@@ -38,7 +32,7 @@ class SendListedCarToBot
                             'text' => 'more information | показать больше',
                             'data' => [
                                 'user_id' => 1,
-                                'car_id' => $this->car->id,
+                                'car_id' => $car->id,
                                 'param' => 'show_car'
                             ],
                         ],
@@ -46,19 +40,24 @@ class SendListedCarToBot
             ];
             try {
                 $url = $this->buildUrl();
-                $response = $this->prepareRequest($url)
+                $this->prepareRequest($url)
                     ->accept('application/json')
                     ->post('/api/messages/send-simple-photo-message', $data);
-                if ($response->ok()) {
-                    //update
-                    \Log::info('Car sent to bot: ' . $this->car->id);
-                } else {
-                    \Log::error('Failed to update telegram bot: '. $response->toException()?->getMessage());
-                }
             } catch (\Exception $e) {
                 \Log::error('Failed to update telegram bot: '.$e->getMessage());
             }
         }
+    }
+
+    public function sendNotificationMessage(string $message): void
+    {
+        $data = [
+            'message' => Str::replace(['<p>', '</p>'], '', $message),
+        ];
+        $url = $this->buildUrl();
+        $this->prepareRequest($url)
+            ->accept('application/json')
+            ->post('/api/messages/send-simple-message', $data);
     }
 
     private function buildUrl(): string
