@@ -42,6 +42,17 @@ class PartsController extends Controller
         return PartResource::collection($parts);
     }
 
+    public function delete(Part $part): JsonResponse
+    {
+        $part->delete();
+        return response()->json(null, 204);
+    }
+
+    public function get(Part $part): PartResource
+    {
+        return new PartResource($part);
+    }
+
     public function makes(): AnonymousResourceCollection
     {
         $makes = DB::table('parts')
@@ -62,8 +73,8 @@ class PartsController extends Controller
             ->where('make', '=', $make)
             ->where('model', '!=', '')
             ->whereNull('deleted_at')
-            ->whereNotNull('make')
-            ->orderBy('make')
+            ->whereNotNull('model')
+            ->orderBy('model')
             ->get();
 
         return ModelResource::collection($models);
