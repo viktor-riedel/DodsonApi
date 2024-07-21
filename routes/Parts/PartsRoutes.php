@@ -10,9 +10,10 @@ Route::prefix('parts')->middleware('auth:sanctum')->group(function () {
         Route::get('/models/{make}', [PartsController::class, 'models']);
     });
 
-    Route::prefix('part')->group(function() {
-        Route::get('/{part}', [PartsController::class, 'get']);
-        Route::delete('/delete/{part}', [PartsController::class, 'delete']);
+    Route::prefix('part/{part}')->group(function() {
+        Route::get('/', [PartsController::class, 'get']);
+        Route::delete('/delete', [PartsController::class, 'delete']);
+        Route::patch('/update', [PartsController::class, 'update']);
     });
 
     Route::prefix('import')->group(function() {

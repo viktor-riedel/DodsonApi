@@ -23,6 +23,8 @@ class PartResource extends JsonResource
             'item_name_jp' => $this->item_name_jp,
             'item_name_mng' => $this->item_name_mng,
             'price_jpy' => $this->price_jpy,
+            'price_nzd' => $this->price_nzd,
+            'price_mng' => $this->price_mng,
             'images'=> [],
             'modification' => null,
         ];

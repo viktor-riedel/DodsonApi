@@ -53,6 +53,28 @@ class PartsController extends Controller
         return new PartResource($part);
     }
 
+    public function update(Request $request, Part $part): PartResource
+    {
+        $part->update([
+            'stock_number' => $request->input('stock_number'),
+            'ic_number' => $request->input('ic_number'),
+            'ic_description' => $request->input('ic_description'),
+            'make' => $request->input('make'),
+            'model' => $request->input('model'),
+            'year' => $request->input('year'),
+            'mileage' => $request->integer('mileage'),
+            'item_name_eng' => $request->input('item_name_eng'),
+            'item_name_ru' => $request->input('item_name_ru'),
+            'item_name_jp' => $request->input('item_name_jp'),
+            'item_name_mng' => $request->input('item_name_mng'),
+            'price_jpy' => $request->integer('price_jpy'),
+            'price_nzd' => $request->integer('price_nzd'),
+            'price_mng' => $request->integer('price_mng'),
+        ]);
+        $part->refresh();
+        return new PartResource($part);
+    }
+
     public function makes(): AnonymousResourceCollection
     {
         $makes = DB::table('parts')

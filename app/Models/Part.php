@@ -43,36 +43,4 @@ class Part extends Model
     {
         return $this->morphOne(NomenclatureModification::class, 'modificationable');
     }
-
-    public function scopeWhereIcNumber($query, $icNumber = null)
-    {
-        if (!$icNumber) {
-            return $query;
-        }
-        return $query->where('ic_number', 'like', '%' . $icNumber . '%');
-    }
-
-    public function scopeWhereItemName($query, $itemName = null)
-    {
-        if (!$itemName) {
-            return $query;
-        }
-        return $query->where('item_name_eng', 'like', '%' . $itemName . '%');
-    }
-
-    public function scopeWhereStockNumber($query, $stockNumber = null)
-    {
-        if (!$stockNumber) {
-            return $query;
-        }
-        return $query->where('item_name_eng', 'like', '%' . $stockNumber . '%');
-    }
-
-    public function scopeWhereIcDescription($query, $icDescription = null)
-    {
-        if (!$icDescription) {
-            return $query;
-        }
-        return $query->where('ic_description', 'like', '%' . $icDescription . '%');
-    }
 }
