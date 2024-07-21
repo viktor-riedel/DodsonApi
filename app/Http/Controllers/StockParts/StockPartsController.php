@@ -56,7 +56,7 @@ class StockPartsController extends Controller
                         ->orWhere('ic_number', 'like', "%$searchText%")
                         ->orWhere('ic_description', 'like', "%$searchText%");
                 });
-            })
+            })->where('price_jpy', '>', 0)
             ->orderBy('stock_number')
             ->orderBy('make')
             ->orderBy('model')
