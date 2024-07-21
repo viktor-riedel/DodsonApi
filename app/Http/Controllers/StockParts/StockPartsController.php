@@ -64,6 +64,12 @@ class StockPartsController extends Controller
         return PartResource::collection($parts);
     }
 
+    public function get(Part $part): PartResource
+    {
+        $part->load('images', 'modifications');
+        return new PartResource($part);
+    }
+
     public function makes(): AnonymousResourceCollection
     {
         $makes = DB::table('parts')
