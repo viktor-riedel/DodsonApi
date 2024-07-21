@@ -4,14 +4,69 @@ namespace App\Http\Controllers\Parts;
 
 use App\Actions\Import\ImportFromPinnacleCsvAction;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Part\MakeResource;
+use App\Http\Resources\Part\ModelResource;
+use App\Http\Resources\Part\PartResource;
+use App\Models\Part;
+use DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class PartsController extends Controller
 {
-    public function list()
+    public function list(Request $request): AnonymousResourceCollection
     {
-        return response()->json([]);
+        $make = $request->get('make', '');
+        $model = $request->get('model', '');
+        $text = $request->get('text', '');
+        $parts = Part::with('images', 'modifications')
+            ->when($make, function($query) use ($make) {
+                return $query->where('make', $make);
+            })
+            ->when($model, function($query) use ($model) {
+                return $query->where('model', $model);
+            })
+            ->where(function($query) use ($text) {
+                return $query->when($text, function($query) use ($text) {
+                return $query->where('stock_number', 'like', "%$text%")
+                    ->orWhere('item_name_eng', 'like', "%$text%")
+                    ->orWhere('ic_number', 'like', "%$text%")
+                    ->orWhere('ic_description', 'like', "%$text%");
+                });
+            })
+            ->orderBy('stock_number')
+            ->orderBy('make')
+            ->orderBy('model')
+            ->paginate(50);
+        return PartResource::collection($parts);
+    }
+
+    public function makes(): AnonymousResourceCollection
+    {
+        $makes = DB::table('parts')
+            ->selectRaw('distinct(make)')
+            ->where('make', '!=', '')
+            ->whereNull('deleted_at')
+            ->whereNotNull('make')
+            ->orderBy('make')
+            ->get();
+
+        return MakeResource::collection($makes);
+    }
+
+    public function models(string $make): AnonymousResourceCollection
+    {
+        $models = DB::table('parts')
+            ->selectRaw('distinct(model)')
+            ->where('make', '=', $make)
+            ->where('model', '!=', '')
+            ->whereNull('deleted_at')
+            ->whereNotNull('make')
+            ->orderBy('make')
+            ->get();
+
+        return ModelResource::collection($models);
     }
 
     public function importFromPinnacle(Request $request): JsonResponse

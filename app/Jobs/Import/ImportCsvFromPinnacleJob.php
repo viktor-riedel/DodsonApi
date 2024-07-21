@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Import;
 
+use App\Actions\CsvParsers\ParsePinnacleCsvLineAction;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -21,6 +22,6 @@ class ImportCsvFromPinnacleJob implements ShouldQueue
 
     public function handle(): void
     {
-        ray($this->csv_line);
+        app()->make(ParsePinnacleCsvLineAction::class)->handle($this->csv_line);
     }
 }

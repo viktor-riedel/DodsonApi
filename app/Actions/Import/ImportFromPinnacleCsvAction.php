@@ -35,9 +35,6 @@ class ImportFromPinnacleCsvAction
                 Bus::chain($jobs)->dispatch();
                 $jobs = [];
             }
-            if ($i >= 300) {
-                break;
-            }
         }
     }
 }

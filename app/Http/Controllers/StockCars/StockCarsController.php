@@ -72,13 +72,13 @@ class StockCarsController extends Controller
                 })
                 ->whereHas('carFinance', function ($query) {
                     return $query->where('car_is_for_sale', 1);
-                })->when($searchText, function ($query, $searchText) {
-                return $query->where('make', 'like', '%' . $searchText . '%')
-                    ->orWhere('model', 'like', '%' . $searchText . '%')
-                    ->orWhere('chassis', 'like', '%' . $searchText . '%');
-                })
-
-            ->paginate(20);
+                })->where(function($query) use ($searchText) {
+                    return $query->when($searchText, function($query) use ($searchText) {
+                        return $query->where('make', 'like', '%' . $searchText . '%')
+                            ->orWhere('model', 'like', '%' . $searchText . '%')
+                            ->orWhere('chassis', 'like', '%' . $searchText . '%');
+                    });
+                })->paginate(20);
         return StockCarResource::collection($cars);
     }
 

@@ -28,7 +28,7 @@ class OrderResource extends JsonResource
             'total_amount' => $this->total_amount,
             'order_number' => $this->order_number,
             'order_number_formatted' => number_format($this->order_total),
-            'order_total' => $this->order_total,
+            'order_total' => $this->items->sum('price_jpy'),
         ];
     }
 }
