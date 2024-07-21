@@ -23,21 +23,23 @@ class ParsePinnacleCsvLineAction
         $comment = $csv_string[5];
         $stock = $csv_string[0];
 
+        $ic_number = $ic_description[0] ?? null;
+        $ic_description = $ic_description[1] ?? null;
 
-        $part = Part::where('ic_number', $ic_description[0])
+        $part = Part::where('ic_number')
             ->where('make', $make)
             ->where('model', $model)
             ->where('item_name_eng', $item_name_eng)
-            ->when(isset($ic_description[1]), function ($query) use ($ic_description) {
-                return $query->where('ic_description', $ic_description[1]);
+            ->when(isset($ic_description), function ($query) use ($ic_description) {
+                return $query->where('ic_description', $ic_description);
             })
             ->first();
         if (!$part) {
             $part = Part::create([
                 'inner_id' => '',
                 'stock_number' => $stock,
-                'ic_number' => isset($ic_description[0]) ?: null,
-                'ic_description' => isset($ic_description[1]) ?: null,
+                'ic_number' => $ic_number,
+                'ic_description' => $ic_description,
                 'make' => $make,
                 'model' => $model,
                 'year' => $year,
@@ -60,8 +62,8 @@ class ParsePinnacleCsvLineAction
         } else {
             $part->update([
                 'stock_number' => $stock,
-                'ic_number' => isset($ic_description[0]) ?: null,
-                'ic_description' => isset($ic_description[1]) ?: null,
+                'ic_number' => $ic_number,
+                'ic_description' => $ic_description,
                 'make' => $make,
                 'model' => $model,
                 'year' => $year,
