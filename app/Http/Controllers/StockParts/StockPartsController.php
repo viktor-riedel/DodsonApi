@@ -53,8 +53,7 @@ class StockPartsController extends Controller
                 return $query->when($searchText, function($query) use ($searchText) {
                     return $query->where('stock_number', 'like', "%$searchText%")
                         ->orWhere('item_name_eng', 'like', "%$searchText%")
-                        ->orWhere('ic_number', 'like', "%$searchText%")
-                        ->orWhere('ic_description', 'like', "%$searchText%");
+                        ->orWhere('ic_number', 'like', "%$searchText%");
                 });
             })->where('price_jpy', '>', 0)
             ->orderBy('stock_number')
