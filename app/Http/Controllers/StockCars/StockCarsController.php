@@ -14,14 +14,16 @@ use App\Http\Traits\DefaultSellingMapTrait;
 use App\Models\Car;
 use App\Models\CarAttribute;
 use App\Models\CarFinance;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class StockCarsController extends Controller
 {
 
     use DefaultSellingMapTrait;
 
-    public function list(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function list(Request $request): AnonymousResourceCollection
     {
         $searchText = $request->get('search', null);
         $make = $request->get('make', null);
@@ -32,6 +34,11 @@ class StockCarsController extends Controller
         $sortByYear = $request->get('sortByYear', null);
         $sortByPrice = $request->get('sortByPrice', null);
         $country = $request->get('country', null);
+
+        if ($searchText) {
+            $searchText = '%'.implode('%', explode(' ', $searchText));
+            $searchText .= '%';
+        }
 
         $cars = Car::with('carFinance', 'images', 'carAttributes', 'modifications', 'markets')
                 ->when($make, function ($query, $make) {
@@ -74,15 +81,15 @@ class StockCarsController extends Controller
                     return $query->where('car_is_for_sale', 1);
                 })->where(function($query) use ($searchText) {
                     return $query->when($searchText, function($query) use ($searchText) {
-                        return $query->where('make', 'like', '%' . $searchText . '%')
-                            ->orWhere('model', 'like', '%' . $searchText . '%')
-                            ->orWhere('chassis', 'like', '%' . $searchText . '%');
+                        return $query->where('make', 'like', $searchText)
+                            ->orWhere('model', 'like', $searchText)
+                            ->orWhere('chassis', 'like', $searchText);
                     });
                 })->paginate(20);
         return StockCarResource::collection($cars);
     }
 
-    public function view(Car $car): \Illuminate\Http\JsonResponse
+    public function view(Car $car): JsonResponse
     {
         $car->load('carFinance', 'images', 'links', 'carAttributes', 'modifications');
         return response()->json([
@@ -91,7 +98,7 @@ class StockCarsController extends Controller
         ]);
     }
 
-    public function makes(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function makes(Request $request): AnonymousResourceCollection
     {
         $country = $request->get('country', null);
         $makes = Car::whereHas('carFinance', function ($query) {
@@ -108,7 +115,7 @@ class StockCarsController extends Controller
         return MakeResource::collection($makes);
     }
 
-    public function models(Request $request, string $make): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function models(Request $request, string $make): AnonymousResourceCollection
     {
         $country = $request->get('country', null);
         $makes = Car::whereHas('carFinance', function ($query) {
@@ -126,7 +133,7 @@ class StockCarsController extends Controller
         return ModelResource::collection($makes);
     }
 
-    public function generations(Request $request, string $make, string $model): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function generations(Request $request, string $make, string $model): AnonymousResourceCollection
     {
         $country = $request->get('country', null);
         $makes = Car::whereHas('carFinance', function ($query) {
