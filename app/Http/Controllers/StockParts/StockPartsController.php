@@ -18,6 +18,7 @@ class StockPartsController extends Controller
     {
         $make = $request->get('make', null);
         $model = $request->get('model', null);
+        $year = $request->get('year', null);
         $searchText = $request->get('search', null);
         $sortByMake = $request->get('sortByMake', null);
         $sortByModel = $request->get('sortByModel', null);
@@ -35,6 +36,9 @@ class StockPartsController extends Controller
             })
             ->when($model, function($query) use ($model) {
                 return $query->where('model', $model);
+            })
+            ->when($year, function($query) use ($year) {
+                return $query->where('year', $year);
             })
             ->when($sortByMake, function ($query, $sortByMake) {
                 return $query->orderBy('make', $sortByMake);
