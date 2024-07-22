@@ -36,8 +36,7 @@ class StockCarsController extends Controller
         $country = $request->get('country', null);
 
         if ($searchText) {
-            $searchText = '%'.implode('%', explode(' ', $searchText));
-            $searchText .= '%';
+            $searchText = implode('|', explode(' ', $searchText));
         }
 
         $cars = Car::with('carFinance', 'images', 'carAttributes', 'modifications', 'markets')
@@ -81,9 +80,9 @@ class StockCarsController extends Controller
                     return $query->where('car_is_for_sale', 1);
                 })->where(function($query) use ($searchText) {
                     return $query->when($searchText, function($query) use ($searchText) {
-                        return $query->where('make', 'like', $searchText)
-                            ->orWhere('model', 'like', $searchText)
-                            ->orWhere('chassis', 'like', $searchText);
+                        return $query->where('make', 'REGEXP', $searchText)
+                            ->orWhere('model', 'REGEXP', $searchText)
+                            ->orWhere('chassis', 'REGEXP', $searchText);
                     });
                 })->paginate(20);
         return StockCarResource::collection($cars);

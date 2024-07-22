@@ -26,8 +26,7 @@ class StockPartsController extends Controller
         $country = $request->get('country', null);
 
         if ($searchText) {
-            $searchText = '%'.implode('%', explode(' ', $searchText));
-            $searchText .= '%';
+            $searchText = implode('|', explode(' ', $searchText));
         }
 
         $parts = Part::with('images', 'modifications')
@@ -51,9 +50,11 @@ class StockPartsController extends Controller
             })
             ->where(function($query) use ($searchText) {
                 return $query->when($searchText, function($query) use ($searchText) {
-                    return $query->where('stock_number', 'like', "%$searchText%")
-                        ->orWhere('item_name_eng', 'like', "%$searchText%")
-                        ->orWhere('ic_number', 'like', "%$searchText%");
+                    return $query->where('stock_number', 'REGEXP', $searchText)
+                        ->orWhere('make', 'REGEXP', $searchText)
+                        ->orWhere('model', 'REGEXP', $searchText)
+                        ->orWhere('item_name_eng', 'REGEXP', $searchText)
+                        ->orWhere('ic_number', 'REGEXP', $searchText);
                 });
             })->where('price_jpy', '>', 0)
             ->orderBy('stock_number')
