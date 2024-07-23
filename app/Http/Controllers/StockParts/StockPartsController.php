@@ -74,6 +74,14 @@ class StockPartsController extends Controller
         return new PartResource($part);
     }
 
+    public function similar(Part $part): AnonymousResourceCollection
+    {
+        $parts = Part::where('stock_number', $part->stock_number)
+                ->where('id', '!=', $part->id)
+                ->get();
+        return PartResource::collection($parts);
+    }
+
     public function makes(): AnonymousResourceCollection
     {
         $makes = DB::table('parts')
