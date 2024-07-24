@@ -52,7 +52,8 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('/routes/Auth/auth.php'))
                 ->group(base_path('/routes/Public/Nomenclature/PublicNomenclatureRoutes.php'))
                 ->group(base_path('/routes/Public/StockCars/StockCarsRoutes.php'))
-                ->group(base_path('/routes/Public/StockParts/StockPartsRoutes.php'))
+                ->group(base_path('/routes/Public/StockParts/StockPartsRetail/StockPartsRetailRoutes.php'))
+                ->group(base_path('/routes/Public/StockParts/StockPartsWholesale/StockPartsWholesaleRoutes.php'))
                 ->group(base_path('/routes/Website/WebsiteRoutes.php'));
         });
     }

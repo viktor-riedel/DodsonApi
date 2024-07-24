@@ -12,7 +12,7 @@ use DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
-class StockPartsController extends Controller
+class StockPartsRetailController extends Controller
 {
     public function list(Request $request): AnonymousResourceCollection
     {
@@ -77,8 +77,8 @@ class StockPartsController extends Controller
     public function similar(Part $part): AnonymousResourceCollection
     {
         $parts = Part::where('stock_number', $part->stock_number)
-                ->where('id', '!=', $part->id)
-                ->get();
+            ->where('id', '!=', $part->id)
+            ->get();
         return PartResource::collection($parts);
     }
 
@@ -124,5 +124,4 @@ class StockPartsController extends Controller
             ->get();
 
         return YearResource::collection($years);
-    }
-}
+    }}
