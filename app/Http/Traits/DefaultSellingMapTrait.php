@@ -28,6 +28,15 @@ trait DefaultSellingMapTrait
         }
     }
 
+    private function getPartsNamesByIds(array $ids): array
+    {
+        return SellingMapItem::whereIn('id', $ids)
+            ->where('parent_id', 0)
+            ->get()
+            ->pluck('item_name_eng')
+            ->toArray();
+    }
+
     private function getDefaultSellingMap(): Collection
     {
         $directories = SellingMapItem::where('parent_id', 0)->get();

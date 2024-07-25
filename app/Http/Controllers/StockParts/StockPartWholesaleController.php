@@ -17,6 +17,23 @@ class StockPartWholesaleController extends Controller
 
     public function list(Request $request)
     {
+        $make = $request->get('make');
+        $model = $request->get('model');
+        $year = $request->get('year');
+        $engine = $request->get('engine');
+        $parts = $request->get('parts');
+        $generation = $request->get('generation');
+        $engine = $request->get('engine');
+
+        $sellingPartNames = null;
+
+        if ($parts) {
+            $partsIds = explode(',', $parts);
+            $sellingPartNames = $this->getPartsNamesByIds($partsIds);
+        }
+
+
+
         return response()->json([]);
     }
 
