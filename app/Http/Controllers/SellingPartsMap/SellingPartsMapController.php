@@ -7,6 +7,7 @@ use App\Http\Resources\SellingPartsMap\DefaultItemResource;
 use App\Http\Resources\SellingPartsMap\SellingMapItemResource;
 use App\Http\Traits\DefaultSellingMapTrait;
 use App\Models\SellingMapItem;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class SellingPartsMapController extends Controller
@@ -35,7 +36,7 @@ class SellingPartsMapController extends Controller
         return DefaultItemResource::collection($this->getDefaultPartsListWithoutUsed());
     }
 
-    public function addPartToGroup(Request $request, SellingMapItem $item): \Illuminate\Http\JsonResponse
+    public function addPartToGroup(Request $request, SellingMapItem $item): JsonResponse
     {
         SellingMapItem::create([
             'parent_id' => $item->id,
@@ -47,7 +48,7 @@ class SellingPartsMapController extends Controller
         return response()->json($this->getDefaultMaps());
     }
 
-    public function addPartsToGroup(Request $request, SellingMapItem $item)
+    public function addPartsToGroup(Request $request, SellingMapItem $item): JsonResponse
     {
         if (is_array($request->input('parts'))) {
             foreach($request->input('parts') as $part) {
@@ -61,13 +62,13 @@ class SellingPartsMapController extends Controller
         return response()->json($this->getDefaultMaps());
     }
 
-    public function deletePart(SellingMapItem $item): \Illuminate\Http\JsonResponse
+    public function deletePart(SellingMapItem $item): JsonResponse
     {
         $item->delete();
         return response()->json($this->getDefaultMaps());
     }
 
-    public function updatePartPrice(Request $request, SellingMapItem $item): \Illuminate\Http\JsonResponse
+    public function updatePartPrice(Request $request, SellingMapItem $item): JsonResponse
     {
         $item->update([
             'price_jpy' => $request->input('price'),
