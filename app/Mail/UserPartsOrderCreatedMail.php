@@ -2,17 +2,25 @@
 
 namespace App\Mail;
 
-use Illuminate\Mail\Mailable;
+use App\Models\Order;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Queue\SerializesModels;
 
-class UserPartsOrderCreatedMail extends Mailable{
+class UserPartsOrderCreatedMail extends Mailable
+{
     use Queueable, SerializesModels;
 
-    public function __construct(//|)
+    public User $user;
+    public Order $order;
+
+    public function __construct(User $user, Order $order)
     {
+        $this->user = $user;
+        $this->order = $order;
     }
 
     public function envelope(): Envelope

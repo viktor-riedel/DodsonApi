@@ -14,7 +14,7 @@ Route::prefix('/user-panel')->middleware('auth:sanctum')->group(function() {
     //order
     Route::prefix('/orders')->group(function() {
        Route::get('/', [OrderController::class, 'list']);
-        Route::get('/{order}', [OrderController::class, 'order']);
+       Route::get('/{order}', [OrderController::class, 'order']);
        Route::post('/create', [OrderController::class, 'create']);
     });
 });

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Order\OrderResource;
 use App\Http\Resources\Order\UserOrderResource;
 use App\Models\Car;
+use App\Models\CarPdrPosition;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -30,6 +31,12 @@ class OrderController extends Controller
                 ->where('id', $order->id)
                 ->with('items')
                 ->first();
+        $userOrder?->items->each(function ($item) use ($order) {
+           if ($item->part_id) {
+               $item->pdr = CarPdrPosition::with('carPdr', 'carPdr.car', 'carPdr.car.modifications')
+                ->find($item->part_id);
+           }
+        });
         if (!$userOrder) {
             abort(404, 'Order not found');
         }

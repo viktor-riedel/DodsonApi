@@ -4,9 +4,11 @@ namespace App\Http\Controllers\UserPanel\Cart;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Cart\CarItemResource;
+use App\Http\Resources\Part\CartPartResource;
 use App\Http\Resources\StockCars\StockCarResource;
 use App\Http\Traits\CartTrait;
 use App\Models\Car;
+use App\Models\CarPdrPosition;
 use App\Models\WishList;
 use Illuminate\Http\Request;
 
@@ -33,9 +35,14 @@ class UserCartController extends Controller
                         $request->user()->cart->cartItems->where('car_id', $car->id)
                             ->first()?->comment;
             });
+
+        $partItems = CarPdrPosition::whereIn('id',
+            $request->user()->cart->cartItems->pluck('part_id')->toArray())
+            ->get();
+
         return response()->json([
             'cars' => CarItemResource::collection($cartCars),
-            'parts' => [],
+            'parts' => CartPartResource::collection($partItems),
         ]);
     }
 

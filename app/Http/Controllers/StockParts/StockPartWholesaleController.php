@@ -3,27 +3,41 @@
 namespace App\Http\Controllers\StockParts;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Part\WholesaleIndividualPartResource;
+use App\Http\Resources\Part\WholesalePartResource;
 use App\Http\Resources\SellingPartsMap\SellingMapItemResource;
 use App\Http\Traits\DefaultSellingMapTrait;
 use App\Models\Car;
+use App\Models\CarPdr;
+use App\Models\CarPdrPosition;
+use App\Models\CarPdrPositionCard;
+use App\Models\CarPdrPositionCardPrice;
 use DB;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class StockPartWholesaleController extends Controller
 {
     use DefaultSellingMapTrait;
 
-    public function list(Request $request)
+    private const DODSON_USER = 135;
+
+    public function list(Request $request): AnonymousResourceCollection
     {
         $make = $request->get('make');
         $model = $request->get('model');
         $year = $request->get('year');
-        $engine = $request->get('engine');
         $parts = $request->get('parts');
         $generation = $request->get('generation');
         $engine = $request->get('engine');
+        $sortByMake = $request->get('sortByMake');
+        $sortByModel = $request->get('sortByModel');
+        $sortByYear = $request->get('sortByYear');
+        $sortByPrice = $request->get('sortByPrice');
+        $country = $request->get('country');
+
 
         $sellingPartNames = null;
 
@@ -32,9 +46,107 @@ class StockPartWholesaleController extends Controller
             $sellingPartNames = $this->getPartsNamesByIds($partsIds);
         }
 
+        $parts = CarPdrPosition::with('carPdr', 'carPdr.car',
+                'carPdr.car.carAttributes', 'carPdr.car.modifications',
+                'card', 'card.priceCard')
+            ->where(function($query) use ($make,
+                    $model,
+                    $year,
+                    $engine,
+                    $sellingPartNames
+            ) {
+                $query->when($make, function ($query) use ($make) {
+                   return $query->whereHas('carPdr', function ($query) use ($make) {
+                      return $query->whereHas('car', function ($query) use ($make) {
+                          return $query->where('make', $make);
+                      });
+                   });
+                });
 
+                $query->when($model, function ($query) use ($model) {
+                    return $query->whereHas('carPdr', function ($query) use ($model) {
+                        return $query->whereHas('car', function ($query) use ($model) {
+                            return $query->where('model', $model);
+                        });
+                    });
+                });
 
-        return response()->json([]);
+                $query->when($year, function ($query) use ($year) {
+                    return $query->whereHas('carPdr', function ($query) use ($year) {
+                        return $query->whereHas('car', function ($query) use ($year) {
+                            return $query->whereHas('carAttributes', function($query) use ($year) {
+                                return $query->where('year', $year);
+                            });
+                        });
+                    });
+                });
+
+                $query->when($engine, function ($query) use ($engine) {
+                    return $query->whereHas('carPdr', function ($query) use ($engine) {
+                        return $query->whereHas('car', function ($query) use ($engine) {
+                            return $query->whereHas('modifications', function($query) use ($engine) {
+                                return $query->where('inner_id', $engine);
+                            });
+                        });
+                    });
+                });
+                $query->when($sellingPartNames, function ($query) use ($sellingPartNames) {
+                    return $query->whereIn('item_name_eng', $sellingPartNames);
+                });
+                return $query;
+            })
+            ->when($sortByMake, function ($query, $sortByMake) {
+                return $query->orderBy(
+                    CarPdr::select(['cars.make'])
+                        ->whereColumn('car_pdrs.id', '=', 'car_pdr_positions.car_pdr_id')
+                        ->join('cars', function (JoinClause $join) use ($sortByMake) {
+                            $join->on('cars.id', '=', 'car_id');
+                    }), $sortByMake);
+            })
+            ->when($sortByModel, function ($query, $sortByModel) {
+                return $query->orderBy(
+                    CarPdr::select(['cars.model'])
+                        ->whereColumn('car_pdrs.id', '=', 'car_pdr_positions.car_pdr_id')
+                        ->join('cars', function (JoinClause $join) use ($sortByModel) {
+                            $join->on('cars.id', '=', 'car_pdrs.car_id');
+                        }), $sortByModel);
+            })
+            ->when($sortByYear, function ($query, $sortByYear) {
+                return $query->orderBy(
+                    CarPdr::select(['car_attributes.year'])
+                        ->whereColumn('car_pdrs.id', '=', 'car_pdr_positions.car_pdr_id')
+                        ->join('car_attributes', function (JoinClause $join){
+                            $join->on('car_attributes.car_id', '=', 'car_pdrs.car_id')
+                                ->whereNotNull('car_attributes.year');
+                        }), $sortByYear);
+            })
+            ->when($sortByPrice, function ($query, $sortByPrice) {
+                return $query->orderBy(
+                    CarPdrPositionCard::select(['car_pdr_position_card_prices.buying_price'])
+                        ->whereColumn('car_pdr_position_cards.car_pdr_position_id',
+                                '=', 'car_pdr_positions.id')
+                        ->join('car_pdr_position_card_prices', function (JoinClause $join) {
+                            $join->on('car_pdr_position_card_prices.car_pdr_position_card_id', '=',
+                                'car_pdr_position_cards.id')
+                                ->whereNotNull('car_pdr_position_card_prices.buying_price');
+                        }), $sortByPrice);
+            })
+            ->where('user_id', self::DODSON_USER)
+            ->paginate(50);
+
+        return WholesalePartResource::collection($parts);
+    }
+
+    public function get(CarPdrPosition $part): WholesaleIndividualPartResource
+    {
+        $part->load(
+            'carPdr',
+            'carPdr.car',
+            'carPdr.car.carAttributes',
+            'carPdr.car.modifications',
+            'card',
+            'card.priceCard');
+        return new WholesaleIndividualPartResource($part);
     }
 
     public function defaultPartsList(): JsonResponse
@@ -55,7 +167,7 @@ class StockPartWholesaleController extends Controller
                     ->whereNull('car_pdr_positions.deleted_at');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', 135)
+            ->where('car_pdr_positions.user_id', self::DODSON_USER)
             ->orderBy('cars.make')
             ->get();
 
@@ -75,7 +187,7 @@ class StockPartWholesaleController extends Controller
                     ->whereNull('car_pdr_positions.deleted_at');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', 135)
+            ->where('car_pdr_positions.user_id', self::DODSON_USER)
             ->where('cars.make', $make)
             ->orderBy('cars.model')
             ->get();
@@ -99,15 +211,16 @@ class StockPartWholesaleController extends Controller
                     ->whereNull('car_pdr_positions.deleted_at');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', 135)
+            ->where('car_pdr_positions.user_id', self::DODSON_USER)
             ->where('cars.make', $make)
-            ->orderBy('cars.model')
+            ->whereNotNull('car_attributes.year')
+            ->orderBy('car_attributes.year')
             ->get();
 
         return response()->json($years);
     }
 
-    public function engines(string $make, string $model): JsonResponse
+    public function engines(string $make, string $model, string $year): JsonResponse
     {
         $carsIds = DB::table('cars')
             ->selectRaw('distinct(cars.id)')
@@ -119,10 +232,14 @@ class StockPartWholesaleController extends Controller
                 $join->on('car_pdr_positions.car_pdr_id', '=', 'car_pdrs.id')
                     ->whereNull('car_pdr_positions.deleted_at');
             })
+            ->join('car_attributes', function (JoinClause $join) use ($year) {
+                $join->on('car_attributes.car_id', '=', 'cars.id');
+            })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', 135)
+            ->where('car_pdr_positions.user_id', self::DODSON_USER)
             ->where('cars.make', $make)
             ->where('cars.model', $model)
+            ->where('car_attributes.year', $year)
             ->get()
             ->pluck('id')
             ->toArray();

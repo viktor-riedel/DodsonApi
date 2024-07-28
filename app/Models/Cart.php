@@ -27,14 +27,17 @@ class Cart extends Model
             ->where('cart_id', $this->id);
     }
 
-    public function carItems(): HasManyThrough
+    public function carItems(): HasMany
     {
-        return $this->hasManyThrough(Car::class, CartItem::class,
-            'car_id', 'id')
-            ->where('cart_id', $this->id);
+        return $this->HasMany(CartItem::class)
+            ->where('cart_id', $this->id)
+            ->whereNotNull('car_id');
     }
 
-    public function partItems(): void
+    public function partItems(): HasMany
     {
+        return $this->HasMany(CartItem::class)
+            ->where('cart_id', $this->id)
+            ->whereNotNull('part_id');
     }
 }
