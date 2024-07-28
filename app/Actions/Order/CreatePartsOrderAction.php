@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 
 class CreatePartsOrderAction
 {
+    private const DODSON_USER = 135;
+
     public function handle(Request $request): bool
     {
         $user = $request->user();
@@ -28,30 +30,37 @@ class CreatePartsOrderAction
             ]);
             foreach ($parts as $part) {
                 $position = CarPdrPosition::find($part['id']);
-                $position->update([
-                   'user_id' => $user->id,
-                ]);
-                $order->items()->create([
-                    'car_id' => null,
-                    'part_id' => $part['id'],
-                    'with_engine' => false,
-                    'item_name_eng' => $part['item_name_eng'],
-                    'item_name_ru' => $part['item_name_ru'],
-                    'price_jpy' => (int) $part['price_jpy'],
-                    'user_id' => $user->id,
-                    'currency' => 'JPY',
-                ]);
+                if ($position->user_id === self::DODSON_USER) {
+                    $position->update([
+                        'user_id' => $user->id,
+                    ]);
+                    $order->items()->create([
+                        'car_id' => null,
+                        'part_id' => $part['id'],
+                        'with_engine' => false,
+                        'item_name_eng' => $part['item_name_eng'],
+                        'item_name_ru' => $part['item_name_ru'],
+                        'price_jpy' => (int) $part['price_jpy'],
+                        'user_id' => $user->id,
+                        'currency' => 'JPY',
+                    ]);
+                }
             }
             $order->update(['order_total' => $order->items->sum('price_jpy')]);
 
             //delete all from cart
             $cart->partItems()->delete();
 
-            //send email
-            $emails = explode(',', config('mail.info_email'));
-            if (count($emails)) {
-                foreach ($emails as $email) {
-                    \Mail::to($email)->send(new UserPartsOrderCreatedMail($user, $order));
+            if ($order->items->count() === 0) {
+                // no parts in the order
+                $order->delete();
+            } else {
+                //send email
+                $emails = explode(',', config('mail.info_email'));
+                if (count($emails)) {
+                    foreach ($emails as $email) {
+                        \Mail::to($email)->send(new UserPartsOrderCreatedMail($user, $order));
+                    }
                 }
             }
 
