@@ -8,6 +8,7 @@ use App\Http\Resources\CRM\Orders\OrderResource;
 use App\Http\Resources\CRM\Orders\ViewOrderResource;
 use App\Http\Resources\Order\OrderItemResource;
 use App\Models\Car;
+use App\Models\CarPdrPosition;
 use App\Models\Order;
 use Illuminate\Http\Request;
 
@@ -55,10 +56,16 @@ class OrdersController extends Controller
             $car->load('images', 'carAttributes', 'modifications');
         }
 
+        if ($order->items()->count()) {
+            $order->items->each(function($item) {
+                $item->pdr = CarPdrPosition::with('carPdr', 'carPdr.car')->find($item->part_id);
+            });
+        }
+
         return [
-            'car' => new CarResource($car),
+            'car' => $car ? new CarResource($car) : null,
             'order_items' => OrderItemResource::collection($order->items),
-            'order' => new OrderResource($order)
+            'order' => new OrderResource($order),
         ];
     }
 }
