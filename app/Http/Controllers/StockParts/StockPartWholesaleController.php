@@ -11,7 +11,6 @@ use App\Models\Car;
 use App\Models\CarPdr;
 use App\Models\CarPdrPosition;
 use App\Models\CarPdrPositionCard;
-use App\Models\CarPdrPositionCardPrice;
 use DB;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\JsonResponse;
@@ -26,9 +25,18 @@ class StockPartWholesaleController extends Controller
 
     public function list(Request $request): AnonymousResourceCollection
     {
-        $make = $request->get('make');
-        $model = $request->get('model');
-        $year = $request->get('year');
+        $makes = [];
+        $models = [];
+        $years = [];
+        if ($request->get('make')) {
+            $makes = explode(',', $request->get('make'));
+        }
+        if ($request->get('model')) {
+            $models = explode(',', $request->get('model'));
+        }
+        if ($request->get('year')) {
+            $years = explode(',', $request->get('year'));
+        }
         $parts = $request->get('parts');
         $generation = $request->get('generation');
         $engine = $request->get('engine');
@@ -37,7 +45,6 @@ class StockPartWholesaleController extends Controller
         $sortByYear = $request->get('sortByYear');
         $sortByPrice = $request->get('sortByPrice');
         $country = $request->get('country');
-
 
         $sellingPartNames = null;
 
@@ -49,33 +56,33 @@ class StockPartWholesaleController extends Controller
         $parts = CarPdrPosition::with('carPdr', 'carPdr.car',
                 'carPdr.car.carAttributes', 'carPdr.car.modifications',
                 'card', 'card.priceCard')
-            ->where(function($query) use ($make,
-                    $model,
-                    $year,
+            ->where(function($query) use ($makes,
+                    $models,
+                $years,
                     $engine,
                     $sellingPartNames
             ) {
-                $query->when($make, function ($query) use ($make) {
-                   return $query->whereHas('carPdr', function ($query) use ($make) {
-                      return $query->whereHas('car', function ($query) use ($make) {
-                          return $query->where('make', $make);
+                $query->when(count($makes), function ($query) use ($makes) {
+                   return $query->whereHas('carPdr', function ($query) use ($makes) {
+                      return $query->whereHas('car', function ($query) use ($makes) {
+                          return $query->whereIn('make', $makes);
                       });
                    });
                 });
 
-                $query->when($model, function ($query) use ($model) {
-                    return $query->whereHas('carPdr', function ($query) use ($model) {
-                        return $query->whereHas('car', function ($query) use ($model) {
-                            return $query->where('model', $model);
+                $query->when(count($models), function ($query) use ($models) {
+                    return $query->whereHas('carPdr', function ($query) use ($models) {
+                        return $query->whereHas('car', function ($query) use ($models) {
+                            return $query->whereIn('model', $models);
                         });
                     });
                 });
 
-                $query->when($year, function ($query) use ($year) {
-                    return $query->whereHas('carPdr', function ($query) use ($year) {
-                        return $query->whereHas('car', function ($query) use ($year) {
-                            return $query->whereHas('carAttributes', function($query) use ($year) {
-                                return $query->where('year', $year);
+                $query->when($years, function ($query) use ($years) {
+                    return $query->whereHas('carPdr', function ($query) use ($years) {
+                        return $query->whereHas('car', function ($query) use ($years) {
+                            return $query->whereHas('carAttributes', function($query) use ($years) {
+                                return $query->whereIn('year', $years);
                             });
                         });
                     });
