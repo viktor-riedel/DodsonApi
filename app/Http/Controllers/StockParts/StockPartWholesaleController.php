@@ -58,7 +58,7 @@ class StockPartWholesaleController extends Controller
                 'card', 'card.priceCard')
             ->where(function($query) use ($makes,
                     $models,
-                $years,
+                    $years,
                     $engine,
                     $sellingPartNames
             ) {
