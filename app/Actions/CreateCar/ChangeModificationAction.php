@@ -24,7 +24,7 @@ class ChangeModificationAction
 
         $baseCar = NomenclatureBaseItem::where('make', strtoupper(trim($request->input('make'))))
             ->where('model', strtoupper(trim($request->input('model'))))
-            ->where('generation', trim($request->input('generation')))
+            ->where('generation', $request->input('catalog_generation.generation_number'))
             ->first();
 
         if (!$baseCar) {
