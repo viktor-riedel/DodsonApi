@@ -44,7 +44,7 @@ class ChangeModificationAction
 
         $car->update([
             'parent_inner_id' => $baseCar->inner_id,
-            'generation' => trim($request->input('generation')),
+            'generation' => $request->input('catalog_generation.generation_number'),
         ]);
 
         $car->carAttributes()->create([
@@ -52,6 +52,8 @@ class ChangeModificationAction
         ]);
 
         $car->modification()?->delete();
+
+        ray($modification);
 
         $car->modification()->create([
             'body_type' => $modification->body_type,
