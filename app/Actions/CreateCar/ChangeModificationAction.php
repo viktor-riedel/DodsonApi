@@ -53,8 +53,6 @@ class ChangeModificationAction
 
         $car->modification()?->delete();
 
-        ray($modification);
-
         $car->modification()->create([
             'body_type' => $modification->body_type,
             'chassis' => $modification->chassis,
