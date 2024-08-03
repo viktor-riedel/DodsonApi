@@ -110,7 +110,7 @@ class PartsController extends Controller
         return response()->json(['loaded' => 100]);
     }
 
-    public function importFromOneC(Request $request)
+    public function importFromOneC(Request $request): JsonResponse
     {
         return response()->json([]);
     }

@@ -20,4 +20,6 @@ Route::prefix('parts')->middleware('auth:sanctum')->group(function () {
         Route::post('/from-pinnacle', [PartsController::class, 'importFromPinnacle']);
         Route::post('/from-one-c', [PartsController::class, 'importFromOneC']);
     });
+
+    //create parts
 });

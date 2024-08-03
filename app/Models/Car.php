@@ -40,6 +40,7 @@ class Car extends Model
         'created_by',
         'deleted_by',
         'contr_agent_name',
+        'virtual',
     ];
 
     protected $casts = [

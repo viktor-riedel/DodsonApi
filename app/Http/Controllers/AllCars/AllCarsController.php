@@ -50,6 +50,7 @@ class AllCarsController extends Controller
                         ->orWhere('car_mvr', 'like', "%$text%");
                 });
             })
+            ->where('virtual', false)
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
@@ -70,13 +71,16 @@ class AllCarsController extends Controller
 
     public function makes(): AnonymousResourceCollection
     {
-        $makes = Car::orderBy('make')->get()->pluck('make')->unique();
+        $makes = Car::orderBy('make')
+            ->where('virtual', false)
+            ->get()->pluck('make')->unique();
         return MakeResource::collection($makes);
     }
 
     public function models(string $make): AnonymousResourceCollection
     {
         $models = Car::where('make', $make)
+            ->where('virtual', false)
             ->orderBy('model')
             ->get()->pluck('model')->unique();
         return ModelResource::collection($models);
@@ -85,6 +89,7 @@ class AllCarsController extends Controller
     public function generations(string $make, string $model): AnonymousResourceCollection
     {
         $generations = Car::where('make', $make)
+            ->where('virtual', false)
             ->where('model', $model)
             ->orderBy('generation')
             ->get()->pluck('generation')->unique();
@@ -99,6 +104,7 @@ class AllCarsController extends Controller
     public function usersList(): AnonymousResourceCollection
     {
         $users = Car::with('createdBy')
+            ->where('virtual', false)
             ->orderBy('created_by')
             ->get()
             ->pluck('createdBy')
