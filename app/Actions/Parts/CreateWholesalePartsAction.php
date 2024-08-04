@@ -7,7 +7,6 @@ use App\Http\Traits\InnerIdTrait;
 use App\Models\Car;
 use App\Models\CarPdr;
 use App\Models\NomenclatureBaseItem;
-use App\Models\NomenclatureBaseItemPdrCard;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -115,10 +114,7 @@ class CreateWholesalePartsAction
 
     private function createPartCards(array $part, CarPdr $folder): void
     {
-        $originalCard = NomenclatureBaseItemPdrCard::where('ic_number', $part['ic_number'])
-            ->where('description', $part['ic_description'])
-            ->where('name_eng', $part['item_name_eng'])
-            ->first();
+        $originalCard = $part['card'];
 
         $position = $folder->positions()->create([
             'item_name_ru' => $part['item_name_ru'] ?? '',
@@ -143,25 +139,25 @@ class CreateWholesalePartsAction
         ]);
         $card->priceCard()->create([
             'price_currency' => 'JPY',
-            'price_nz_wholesale' => $originalCard?->price_nz_wholesale ?? 0,
-            'price_nz_retail' => $originalCard?->price_nz_retail ?? 0,
-            'price_ru_wholesale' => $originalCard?->price_ru_wholesale ?? 0,
-            'price_ru_retail' => $originalCard?->price_ru_retail ?? 0,
-            'price_mng_retail' => $originalCard?->price_mng_retail ?? 0,
-            'price_mng_wholesale' => $originalCard?->price_mng_wholesale ?? 0,
-            'price_jp_minimum_buy' => $originalCard?->price_jp_minimum_buy ?? 0,
-            'price_jp_maximum_buy' => $originalCard?->price_jp_maximum_buy ?? 0,
-            'minimum_threshold_nz_retail' => $originalCard?->minimum_threshold_nz_retail ?? 0,
-            'minimum_threshold_nz_wholesale' => $originalCard?->minimum_threshold_nz_wholesale ?? 0,
-            'minimum_threshold_ru_retail' => $originalCard?->minimum_threshold_ru_retail ?? 0,
-            'minimum_threshold_ru_wholesale' => $originalCard?->minimum_threshold_ru_wholesale ?? 0,
-            'delivery_price_nz' => $originalCard?->delivery_price_nz ?? 0,
-            'delivery_price_ru' => $originalCard?->delivery_price_ru ?? 0,
-            'pinnacle_price' => $originalCard?->pinnacle_price ?? 0,
-            'minimum_threshold_jp_retail' => $originalCard?->minimum_threshold_jp_retail ?? 0,
-            'minimum_threshold_jp_wholesale' => $originalCard?->minimum_threshold_jp_wholesale ?? 0,
-            'minimum_threshold_mng_retail' => $originalCard?->minimum_threshold_mng_retail ?? 0,
-            'minimum_threshold_mng_wholesale' => $originalCard?->minimum_threshold_mng_wholesale ?? 0,
+            'price_nz_wholesale' => $originalCard['price_nz_wholesale'] ?? 0,
+            'price_nz_retail' => $originalCard['price_nz_retail'] ?? 0,
+            'price_ru_wholesale' => $originalCard['price_ru_wholesale'] ?? 0,
+            'price_ru_retail' => $originalCard['price_ru_retail'] ?? 0,
+            'price_mng_retail' => $originalCard['price_mng_retail'] ?? 0,
+            'price_mng_wholesale' => $originalCard['price_mng_wholesale'] ?? 0,
+            'price_jp_minimum_buy' => $originalCard['price_jp_minimum_buy'] ?? 0,
+            'price_jp_maximum_buy' => $originalCard['price_jp_maximum_buy'] ?? 0,
+            'minimum_threshold_nz_retail' => $originalCard['minimum_threshold_nz_retail'] ?? 0,
+            'minimum_threshold_nz_wholesale' => $originalCard['minimum_threshold_nz_wholesale'] ?? 0,
+            'minimum_threshold_ru_retail' => $originalCard['minimum_threshold_ru_retail'] ?? 0,
+            'minimum_threshold_ru_wholesale' => $originalCard['minimum_threshold_ru_wholesale'] ?? 0,
+            'delivery_price_nz' => $originalCard['delivery_price_nz'] ?? 0,
+            'delivery_price_ru' => $originalCard['delivery_price_ru'] ?? 0,
+            'pinnacle_price' => $originalCard['pinnacle_price'] ?? 0,
+            'minimum_threshold_jp_retail' => $originalCard['minimum_threshold_jp_retail'] ?? 0,
+            'minimum_threshold_jp_wholesale' => $originalCard['minimum_threshold_jp_wholesale'] ?? 0,
+            'minimum_threshold_mng_retail' => $originalCard['minimum_threshold_mng_retail'] ?? 0,
+            'minimum_threshold_mng_wholesale' => $originalCard['minimum_threshold_mng_wholesale'] ?? 0,
             'selling_price' => null,
             'buying_price' => null,
         ]);

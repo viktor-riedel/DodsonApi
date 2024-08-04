@@ -37,6 +37,7 @@ class ListWholesalePartsController extends Controller
         $sortByModel = $request->get('sortByModel');
         $sortByYear = $request->get('sortByYear');
         $sortByPrice = $request->get('sortByPrice');
+        $search = $request->get('search');
         $country = $request->get('country');
 
         $sellingPartNames = null;
@@ -53,7 +54,8 @@ class ListWholesalePartsController extends Controller
                 $models,
                 $years,
                 $engine,
-                $sellingPartNames
+                $sellingPartNames,
+                $search
             )
             {
                 $query->when(count($makes), function ($query) use ($makes) {
@@ -94,6 +96,11 @@ class ListWholesalePartsController extends Controller
                 $query->when($sellingPartNames, function ($query) use ($sellingPartNames) {
                     return $query->whereIn('item_name_eng', $sellingPartNames);
                 });
+                $query->when($search, function ($query) use ($search) {
+                    return $query->where('item_name_eng', 'REGEXP', $search)
+                            ->orWhere('ic_number', 'REGEXP', $search);
+                });
+
                 return $query;
             })
             ->where(function ($query) {
