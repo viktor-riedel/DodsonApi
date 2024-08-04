@@ -6,17 +6,16 @@ use App\Http\Resources\ContrAgents\ContrAgentResource;
 use App\Models\ContrAgent;
 use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemModification;
-use App\Models\NomenclatureBaseItemPdr;
 use App\Models\NomenclatureBaseItemPdrCard;
-use App\Models\NomenclatureBaseItemPdrPosition;
 use App\Models\NomenclatureBaseItemPdrPositionPhoto;
 use App\Models\PartList;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 trait BaseCarTrait
 {
-    public function makes(): \Illuminate\Http\JsonResponse
+    public function makes(): JsonResponse
     {
         $result = [];
         $positions = NomenclatureBaseItem::with('NomenclaturePositionsNotVirtual')
@@ -35,7 +34,7 @@ trait BaseCarTrait
         return response()->json($result);
     }
 
-    public function models(string $make): \Illuminate\Http\JsonResponse
+    public function models(string $make): JsonResponse
     {
         $result = [];
         $positions = NomenclatureBaseItem::with('NomenclaturePositionsNotVirtual')
@@ -55,7 +54,7 @@ trait BaseCarTrait
         return response()->json($result);
     }
 
-    public function generations(string $make, string $model): \Illuminate\Http\JsonResponse
+    public function generations(string $make, string $model): JsonResponse
     {
         $generations = NomenclatureBaseItem::where('make', $make)
             ->where('model', $model)
@@ -78,7 +77,7 @@ trait BaseCarTrait
         return response()->json($generations);
     }
 
-    public function modifications(string $make, string $model, string $generation): \Illuminate\Http\JsonResponse
+    public function modifications(string $make, string $model, string $generation): JsonResponse
     {
         $baseItem = NomenclatureBaseItem::with(
                 'baseItemPDR',
@@ -115,12 +114,13 @@ trait BaseCarTrait
         return response()->json($baseItem->modifications);
     }
 
-    public function partsList(Request $request,
-        string $make,
-        string $model,
-        string $generation,
+    public function partsList(
+        ?Request $request,
+        ?string $make,
+        ?string $model,
+        ?string $generation,
         string $modification
-    ): \Illuminate\Http\JsonResponse
+    ): JsonResponse
     {
         $cards = \DB::table('nomenclature_base_item_pdr_positions')
             ->selectRaw('distinct nomenclature_base_item_pdr_positions.id,
@@ -154,12 +154,49 @@ trait BaseCarTrait
         return response()->json($cards);
     }
 
-    public function contrAgents(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function partsListByModification(string $modification): JsonResponse
+    {
+        $cards = \DB::table('nomenclature_base_item_pdr_positions')
+            ->selectRaw('distinct nomenclature_base_item_pdr_positions.id,
+                                   nomenclature_base_item_pdrs.item_name_eng,
+                                   nomenclature_base_item_pdrs.item_name_ru,
+                                   nomenclature_base_item_pdr_positions.ic_number,
+                                   nomenclature_base_item_pdr_positions.oem_number,
+                                   nomenclature_base_item_pdr_positions.ic_description,
+                                   null as comment,
+                                   nomenclature_modifications.generation')
+            ->join('nomenclature_modifications', 'nomenclature_modifications.modificationable_id',
+                '=', 'nomenclature_base_item_pdr_positions.id')
+            ->join('nomenclature_base_item_pdr_cards',
+                'nomenclature_base_item_pdr_cards.nomenclature_base_item_pdr_position_id',
+                '=', 'nomenclature_base_item_pdr_positions.id')
+            ->join('nomenclature_base_item_pdrs', 'nomenclature_base_item_pdrs.id',
+                '=', 'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id')
+            ->whereNull('nomenclature_modifications.deleted_at')
+            ->where('nomenclature_modifications.inner_id', $modification)
+            ->where('nomenclature_base_item_pdr_positions.is_virtual', false)
+            ->whereNull('nomenclature_base_item_pdr_cards.deleted_at')
+            ->get()->each(function ($item) use ($modification) {
+                $item->photos = NomenclatureBaseItemPdrPositionPhoto::where('nomenclature_base_item_pdr_position_id',
+                    $item->id)
+                    ->get();
+                $item->modifications = NomenclatureBaseItemModification::where('nomenclature_base_item_pdr_position_id',
+                    $item->id)
+                    ->where('inner_id', $modification)
+                    ->get();
+                $item->card = NomenclatureBaseItemPdrCard::where('nomenclature_base_item_pdr_position_id',
+                    $item->id)->first();
+            });
+
+        return response()->json($cards);
+    }
+
+    public function contrAgents(): AnonymousResourceCollection
     {
         return ContrAgentResource::collection(ContrAgent::orderBy('name')->get());
     }
 
-    public function miscPartsList(): \Illuminate\Http\JsonResponse
+    public function miscPartsList(): JsonResponse
     {
         $list = PartList::where("is_folder", 0)
             ->where("is_virtual", 0)
@@ -169,7 +206,7 @@ trait BaseCarTrait
         return response()->json($list);
     }
 
-    public function slicedMiscPartsList(): \Illuminate\Http\JsonResponse
+    public function slicedMiscPartsList(): JsonResponse
     {
         $parts = [
             'BONNET',

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Parts\CreateWholesalePart\CreateWholesalePartController;
+use App\Http\Controllers\Parts\ListWholesalePartsController;
 use App\Http\Controllers\Parts\PartsController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,4 +24,22 @@ Route::prefix('parts')->middleware('auth:sanctum')->group(function () {
     });
 
     //create parts
+    Route::prefix('wholesale')->group(function() {
+        Route::prefix('create')->group(function() {
+            Route::get('makes', [CreateWholesalePartController::class, 'getMakes']);
+            Route::get('models/{make}', [CreateWholesalePartController::class, 'getModels']);
+            Route::get('generations/{make}/{model}', [CreateWholesalePartController::class, 'getGenerations']);
+            Route::get('modifications/{make}/{model}/{generation}', [CreateWholesalePartController::class, 'getModifications']);
+            Route::get('parts/{modification}', [CreateWholesalePartController::class, 'getParts']);
+            Route::post('create-parts', [CreateWholesalePartController::class, 'createParts']);
+        });
+
+        Route::prefix('list')->group(function() {
+            Route::get('/', [ListWholesalePartsController::class, 'list']);
+            Route::get('/makes', [ListWholesalePartsController::class, 'makes']);
+            Route::get('/models/{make}', [ListWholesalePartsController::class, 'models']);
+            Route::get('/years/{make}', [ListWholesalePartsController::class, 'years']);
+            Route::get('/engines/{make}/{model}/{year}', [ListWholesalePartsController::class, 'engines']);
+        });
+    });
 });

@@ -5,7 +5,7 @@ namespace App\Http\Resources\Part;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class WholesalePartResource extends JsonResource
+class WholesalePartAdminResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
@@ -22,7 +22,10 @@ class WholesalePartResource extends JsonResource
             'mileage' => $this->carPdr?->car?->carAttributes?->mileage,
             'chassis' => $this->carPdr?->car?->carAttributes?->chassis,
             'generation' => $this->carPdr?->car?->modifications?->generation,
-            'price_jpy' => $this->card->priceCard->buying_price ?? $this->card->priceCard->price_nz_wholesale,
+            'price_nz_wholesale' => $this->card->priceCard->price_nz_wholesale,
+            'price_mng_wholesale' => $this->card->priceCard->price_mng_wholesale,
+            'price_ru_wholesale' => $this->card->priceCard->price_ru_wholesale,
+            'client' => $this->client ? $this->client->name : null,
         ];
     }
 }
