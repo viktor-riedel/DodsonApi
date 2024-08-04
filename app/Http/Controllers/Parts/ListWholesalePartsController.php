@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Parts;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Part\WholesalePartAdminResource;
+use App\Http\Resources\Part\WholesalePartsAdminResource;
 use App\Models\Car;
 use App\Models\CarPdr;
 use App\Models\CarPdrPosition;
@@ -148,7 +149,14 @@ class ListWholesalePartsController extends Controller
             })
             ->paginate(50);
 
-        return WholesalePartAdminResource::collection($parts);
+        return WholesalePartsAdminResource::collection($parts);
+    }
+
+    public function get(CarPdrPosition $part): WholesalePartAdminResource
+    {
+        $part->load('carPdr', 'carPdr.car', 'carPdr.car.carAttributes', 'carPdr.car.modifications',
+            'card', 'card.priceCard', 'client', 'images');
+        return new WholesalePartAdminResource($part);
     }
 
     public function makes(): JsonResponse
@@ -246,5 +254,45 @@ class ListWholesalePartsController extends Controller
             ->pluck('modifications');
 
         return response()->json($modifications);
+    }
+
+    public function delete(Request $request, CarPdrPosition $part)
+    {
+        $part->load('orderItem');
+        if (!$part->orderItem) {
+            $part->update(['deleted_by' => $request->user()->id]);
+            $part->delete();
+            return response()->json([]);
+        }
+        abort(403, 'Part is in order');
+    }
+
+    public function update(Request $request, Car $car): JsonResponse
+    {
+        $car->load('carAttributes');
+        $car->update(['chassis' => strtoupper($request->input('chassis'))]);
+        $car->carAttributes()->update([
+            'chassis' => strtoupper($request->input('chassis')),
+            'year' => $request->integer('year'),
+            'color' => $request->input('color'),
+            'mileage' => $request->integer('mileage'),
+        ]);
+        return response()->json([]);
+    }
+
+    public function prices(Request $request, CarPdrPosition $part)
+    {
+        $part->load('card', 'card.priceCard');
+        $part->card->priceCard()->update([
+             'pricing_nz_retail' => $request->integer('pricing_nz_retail'),
+             'pricing_nz_wholesale' => $request->integer('pricing_nz_wholesale'),
+             'pricing_ru_retail' => $request->integer('pricing_ru_retail'),
+             'pricing_ru_wholesale' => $request->integer('pricing_ru_wholesale'),
+             'pricing_mng_retail' => $request->integer('pricing_mng_retail'),
+             'pricing_mng_wholesale' => $request->integer('pricing_mng_wholesale'),
+             'pricing_jp_retail' => $request->integer('pricing_jp_retail'),
+             'pricing_jp_wholesale' => $request->integer('pricing_jp_wholesale'),
+        ]);
+        return response()->json([]);
     }
 }

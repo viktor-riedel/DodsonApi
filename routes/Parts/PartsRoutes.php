@@ -36,10 +36,14 @@ Route::prefix('parts')->middleware('auth:sanctum')->group(function () {
 
         Route::prefix('list')->group(function() {
             Route::get('/', [ListWholesalePartsController::class, 'list']);
+            Route::get('/part/{part}', [ListWholesalePartsController::class, 'get']);
             Route::get('/makes', [ListWholesalePartsController::class, 'makes']);
             Route::get('/models/{make}', [ListWholesalePartsController::class, 'models']);
             Route::get('/years/{make}', [ListWholesalePartsController::class, 'years']);
             Route::get('/engines/{make}/{model}/{year}', [ListWholesalePartsController::class, 'engines']);
+            Route::delete('/delete/{part}', [ListWholesalePartsController::class, 'delete']);
+            Route::patch('/update-attributes/{car}', [ListWholesalePartsController::class, 'update']);
+            Route::patch('/update-prices/{part}', [ListWholesalePartsController::class, 'prices']);
         });
     });
 });

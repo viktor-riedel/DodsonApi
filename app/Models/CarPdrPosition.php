@@ -52,4 +52,9 @@ class CarPdrPosition extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function orderItem(): BelongsTo
+    {
+        return $this->belongsTo(OrderItem::class, 'part_id', 'id');
+    }
 }
