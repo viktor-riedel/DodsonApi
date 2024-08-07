@@ -25,6 +25,7 @@ Route::prefix('parts')->middleware('auth:sanctum')->group(function () {
 
     //create parts
     Route::prefix('wholesale')->group(function() {
+        Route::get('/default-selling-parts', [ListWholesalePartsController::class, 'defaultSellingParts']);
         Route::prefix('create')->group(function() {
             Route::get('makes', [CreateWholesalePartController::class, 'getMakes']);
             Route::get('models/{make}', [CreateWholesalePartController::class, 'getModels']);

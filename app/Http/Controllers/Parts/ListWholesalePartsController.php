@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Parts;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Part\WholesalePartAdminResource;
 use App\Http\Resources\Part\WholesalePartsAdminResource;
+use App\Http\Resources\SellingPartsMap\SellingMapItemResource;
+use App\Http\Traits\DefaultSellingMapTrait;
 use App\Models\Car;
 use App\Models\CarPdr;
 use App\Models\CarPdrPosition;
@@ -17,6 +19,9 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ListWholesalePartsController extends Controller
 {
+
+    use DefaultSellingMapTrait;
+
     public function list(Request $request): AnonymousResourceCollection
     {
         $makes = [];
@@ -157,6 +162,12 @@ class ListWholesalePartsController extends Controller
         $part->load('carPdr', 'carPdr.car', 'carPdr.car.carAttributes', 'carPdr.car.modifications',
             'card', 'card.priceCard', 'client', 'images');
         return new WholesalePartAdminResource($part);
+    }
+
+    public function defaultSellingParts(): AnonymousResourceCollection
+    {
+        $parts = $this->getDefaultSellingMap();
+        return SellingMapItemResource::collection($parts);
     }
 
     public function makes(): JsonResponse
