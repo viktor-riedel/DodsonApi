@@ -35,16 +35,24 @@ Route::prefix('parts')->middleware('auth:sanctum')->group(function () {
             Route::post('create-parts', [CreateWholesalePartController::class, 'createParts']);
         });
 
+        Route::prefix('images')->group(function() {
+            Route::post('upload-part-image/{part}', [CreateWholesalePartController::class, 'uploadPartImages']);
+            Route::delete('delete-part-photo/{part}/{photo}', [CreateWholesalePartController::class, 'deletePartPhoto']);
+        });
+
         Route::prefix('list')->group(function() {
             Route::get('/', [ListWholesalePartsController::class, 'list']);
             Route::get('/part/{part}', [ListWholesalePartsController::class, 'get']);
+            Route::get('/part-ic-numbers/{part}', [ListWholesalePartsController::class, 'icNumbers']);
             Route::get('/makes', [ListWholesalePartsController::class, 'makes']);
             Route::get('/models/{make}', [ListWholesalePartsController::class, 'models']);
             Route::get('/years/{make}', [ListWholesalePartsController::class, 'years']);
             Route::get('/engines/{make}/{model}/{year}', [ListWholesalePartsController::class, 'engines']);
             Route::delete('/delete/{part}', [ListWholesalePartsController::class, 'delete']);
             Route::patch('/update-attributes/{car}', [ListWholesalePartsController::class, 'update']);
+            Route::patch('/update-part-attributes/{part}', [ListWholesalePartsController::class, 'attributes']);
             Route::patch('/update-prices/{part}', [ListWholesalePartsController::class, 'prices']);
+            Route::patch('/update-standard-prices/{nomenclatureBaseItemPdrCard}', [ListWholesalePartsController::class, 'updateStandardPrices']);
         });
     });
 });

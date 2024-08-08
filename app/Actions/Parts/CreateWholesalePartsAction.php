@@ -35,9 +35,8 @@ class CreateWholesalePartsAction
         $modificationInnerId = $request->input('modification');
         $parts = $request->input('parts');
         $this->user = $request->user();
-        $defaultParts = $request->input('default_parts');
-        $mvr_data = $request->input('mvr');
         //selling parts
+        $data = $request->input('default_parts');
         $this->engine = $data['engine'];
         $this->front = $data['front'];
         $this->exterior = $data['exterior'];
@@ -59,7 +58,7 @@ class CreateWholesalePartsAction
         }
 
         $this->car = Car::create([
-            'car_mvr' => strtoupper($mvr_data['mvr']),
+            'car_mvr' => strtoupper($request->input('mvr.mvr')),
             'parent_inner_id' => $baseCar->inner_id,
             'make' => $make,
             'model' => $model,
@@ -75,7 +74,7 @@ class CreateWholesalePartsAction
         ]);
 
         $this->car->carAttributes()->create([
-            'color' => strtoupper($mvr_data['color']),
+            'color' => strtoupper($request->input('mvr.color')),
             'chassis' => ($modification->chassis) . '-',
             'engine' => $modification->engine_name,
         ]);
@@ -98,7 +97,7 @@ class CreateWholesalePartsAction
         ]);
 
         //polymorph relation
-        $car->modifications()->create($modification->toArray());
+        $this->car->modifications()->create($modification->toArray());
 
         if (is_array($parts) && count($parts)) {
             $this->createParts($parts);
@@ -237,7 +236,7 @@ class CreateWholesalePartsAction
                 'oem_number' => null,
                 'ic_description' => null,
                 'is_virtual' => false,
-                'created_by' => $this->userId,
+                'created_by' => $this->user->id,
                 'user_id' => null,
             ]);
             $card = $position->card()->create([
@@ -248,7 +247,7 @@ class CreateWholesalePartsAction
                 'description' => null,
                 'ic_number' => '',
                 'oem_number' => null,
-                'created_by' => $this->userId,
+                'created_by' => $this->user->id,
                 'barcode' => $this->generateNextBarcode(),
             ]);
             $card->priceCard()->create([
@@ -301,7 +300,7 @@ class CreateWholesalePartsAction
                 'is_folder' => true,
                 'is_deleted' => false,
                 'parts_list_id' => null,
-                'created_by' => $this->userId,
+                'created_by' => $this->user->id,
             ]);
         }
         return $folder;

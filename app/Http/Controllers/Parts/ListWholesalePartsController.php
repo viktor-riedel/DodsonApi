@@ -11,6 +11,8 @@ use App\Models\Car;
 use App\Models\CarPdr;
 use App\Models\CarPdrPosition;
 use App\Models\CarPdrPositionCard;
+use App\Models\NomenclatureBaseItem;
+use App\Models\NomenclatureBaseItemPdrCard;
 use DB;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\JsonResponse;
@@ -159,9 +161,40 @@ class ListWholesalePartsController extends Controller
 
     public function get(CarPdrPosition $part): WholesalePartAdminResource
     {
-        $part->load('carPdr', 'carPdr.car', 'carPdr.car.carAttributes', 'carPdr.car.modifications',
+        $part->load('carPdr', 'carPdr.car',
+            'carPdr.car.carAttributes', 'carPdr.car.modifications',
             'card', 'card.priceCard', 'client', 'images');
+        $part->original_card = null;
+        if ($part->ic_number) {
+            $part->original_card = NomenclatureBaseItemPdrCard::where('ic_number', $part->ic_number)
+                ->where('description', $part->ic_description)
+                ->where('name_eng', $part->item_name_eng)
+                ->first();
+        }
+        //find price card
         return new WholesalePartAdminResource($part);
+    }
+
+    public function icNumbers(CarPdrPosition $part): JsonResponse
+    {
+        $part->load('carPdr', 'carPdr.car');
+        $modificationId = $part->carPdr->car->modifications->inner_id;
+        $items = NomenclatureBaseItem::with(
+                'nomenclaturePositions',
+                'nomenclaturePositions.nomenclatureBaseItemPdrCard'
+            )->whereHas('modifications', function ($q) use ($modificationId) {
+                return $q->where('inner_id', $modificationId);
+            })
+            ->get()
+            ->pluck('nomenclaturePositions')
+            ->flatten();
+        $cards = collect();
+        foreach($items as $item) {
+            if ($item->nomenclatureBaseItemPdrCard->ic_number && $item->nomenclatureBaseItemPdrCard->name_eng === $part->item_name_eng) {
+                $cards->push($item->nomenclatureBaseItemPdrCard);
+            }
+        }
+        return response()->json($cards);
     }
 
     public function defaultSellingParts(): AnonymousResourceCollection
@@ -291,7 +324,21 @@ class ListWholesalePartsController extends Controller
         return response()->json([]);
     }
 
-    public function prices(Request $request, CarPdrPosition $part)
+    public function attributes(Request $request, CarPdrPosition $part): JsonResponse
+    {
+        $part->load('card');
+        $part->update([
+            'ic_number' => $request->input('ic_number'),
+            'ic_description' => $request->input('ic_description'),
+        ]);
+        $part->card()->update([
+            'ic_number' => $request->input('ic_number'),
+            'description' => $request->input('ic_description'),
+        ]);
+        return response()->json([]);
+    }
+
+    public function prices(Request $request, CarPdrPosition $part): JsonResponse
     {
         $part->load('card', 'card.priceCard');
         $part->card->priceCard()->update([
@@ -303,7 +350,34 @@ class ListWholesalePartsController extends Controller
              'pricing_mng_wholesale' => $request->integer('pricing_mng_wholesale'),
              'pricing_jp_retail' => $request->integer('pricing_jp_retail'),
              'pricing_jp_wholesale' => $request->integer('pricing_jp_wholesale'),
+             'buying_price' => $request->integer('buying_price'),
+             'selling_price' => $request->integer('selling_price'),
         ]);
+        return response()->json([]);
+    }
+
+    public function updateStandardPrices(Request $request, NomenclatureBaseItemPdrCard $nomenclatureBaseItemPdrCard): JsonResponse
+    {
+        $nomenclatureBaseItemPdrCard->update([
+            'price_nz_wholesale' => $request->integer('price_nz_wholesale'),
+            'price_nz_retail' => $request->integer('price_nz_retail'),
+            'price_ru_wholesale' => $request->integer('price_ru_wholesale'),
+            'price_ru_retail' => $request->integer('price_ru_retail'),
+            'price_jp_minimum_buy' => $request->integer('price_jp_minimum_buy'),
+            'price_jp_maximum_buy' => $request->integer('price_jp_maximum_buy'),
+            'price_jp_wholesale' => $request->integer('price_jp_wholesale'),
+            'price_jp_retail' => $request->integer('price_jp_retail'),
+            'price_mng_retail' => $request->integer('price_mng_retail'),
+            'price_mng_wholesale' => $request->integer('price_mng_wholesale'),
+            'nz_needs' => $request->integer('nz_needs'),
+            'ru_needs' => $request->integer('ru_needs'),
+            'mng_needs' => $request->integer('mng_needs'),
+            'jp_needs' => $request->integer('jp_needs'),
+            'pinnacle_price' => $request->integer('pinnacle_price'),
+            'nz_team_price' => $request->integer('nz_team_price'),
+            'nz_team_needs' => $request->integer('nz_team_needs'),
+        ]);
+
         return response()->json([]);
     }
 }

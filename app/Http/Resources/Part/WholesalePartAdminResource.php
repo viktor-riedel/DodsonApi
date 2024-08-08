@@ -47,8 +47,11 @@ class WholesalePartAdminResource extends JsonResource
                 'pricing_mng_wholesale' => $this->card->priceCard->pricing_mng_wholesale,
                 'pricing_jp_retail' => $this->card->priceCard->pricing_jp_retail,
                 'pricing_jp_wholesale' => $this->card->priceCard->pricing_jp_wholesale,
+                'buying_price' => $this->card->priceCard->buying_price,
+                'selling_price' => $this->card->priceCard->selling_price,
+                'original_card' => $this->original_card,
             ],
-            'photos' => $this->images ? $this->images->pluck('url')->toArray() : [],
+            'photos' => $this->images ? PartImageResource::collection($this->images) : [],
         ];
     }
 }

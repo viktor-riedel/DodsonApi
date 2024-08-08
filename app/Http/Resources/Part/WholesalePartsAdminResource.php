@@ -11,6 +11,7 @@ class WholesalePartsAdminResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'mvr' => $this->carPdr?->car?->car_mvr,
             'item_name_eng' => $this->item_name_eng,
             'item_name_ru' => $this->item_name_ru,
             'ic_number' => $this->ic_number,
@@ -25,6 +26,8 @@ class WholesalePartsAdminResource extends JsonResource
             'price_nz_wholesale' => $this->card->priceCard->price_nz_wholesale,
             'price_mng_wholesale' => $this->card->priceCard->price_mng_wholesale,
             'price_ru_wholesale' => $this->card->priceCard->price_ru_wholesale,
+            'buying_price' => $this->card->priceCard->selling_price,
+            'selling_price' => $this->card->priceCard->buying_price,
             'client' => $this->client ? $this->client->name : null,
         ];
     }
