@@ -23,6 +23,8 @@ class WholesalePartAdminResource extends JsonResource
                 'chassis' => $this->carPdr->car->carAttributes->chassis,
                 'color' => $this->carPdr->car->carAttributes->color,
                 'mileage' => $this->carPdr->car->carAttributes->mileage,
+                'markets' => $this->carPdr->car->markets,
+                'parts_for_sale' => $this->carPdr->car->carFinance->parts_for_sale,
                 'modification' => [
                     'inner_id' => $this->carPdr->car->modifications->inner_id,
                     'header' => $this->carPdr->car->modifications->header,

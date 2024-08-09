@@ -29,6 +29,10 @@ class WholesalePartsAdminResource extends JsonResource
             'buying_price' => $this->card->priceCard->selling_price,
             'selling_price' => $this->card->priceCard->buying_price,
             'client' => $this->client ? $this->client->name : null,
+            'for_sale' =>  $this->carPdr?->car?->carFinance?->parts_for_sale ?? false,
+            'markets' => $this->carPdr?->car?->markets ?
+                    implode(',', $this->carPdr?->car?->markets?->pluck('country_code')->toArray()) :
+                    '',
         ];
     }
 }

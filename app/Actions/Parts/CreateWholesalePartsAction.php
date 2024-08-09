@@ -237,7 +237,7 @@ class CreateWholesalePartsAction
                 'ic_description' => null,
                 'is_virtual' => false,
                 'created_by' => $this->user->id,
-                'user_id' => null,
+                'user_id' => self::DODSON_USER,
             ]);
             $card = $position->card()->create([
                 'parent_inner_id' => $this->generateInnerId(\Str::random(10) . now()),

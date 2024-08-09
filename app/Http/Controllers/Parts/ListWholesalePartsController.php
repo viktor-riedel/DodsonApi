@@ -57,7 +57,7 @@ class ListWholesalePartsController extends Controller
 
         $parts = CarPdrPosition::with('carPdr', 'carPdr.car',
             'carPdr.car.carAttributes', 'carPdr.car.modifications',
-            'card', 'card.priceCard', 'client')
+            'card', 'card.priceCard', 'client', 'carPdr.car.carFinance')
             ->where(function($query) use ($makes,
                 $models,
                 $years,
@@ -161,9 +161,18 @@ class ListWholesalePartsController extends Controller
 
     public function get(CarPdrPosition $part): WholesalePartAdminResource
     {
-        $part->load('carPdr', 'carPdr.car',
-            'carPdr.car.carAttributes', 'carPdr.car.modifications',
-            'card', 'card.priceCard', 'client', 'images');
+        $part->load('carPdr', 'carPdr.car', 'carPdr.car.markets',
+            'carPdr.car.carFinance', 'carPdr.car.carAttributes',
+            'carPdr.car.modifications', 'card', 'card.priceCard', 'client',
+            'images');
+        if ($part->carPdr->car->markets) {
+            $part->carPdr->car->markets->transform(function($market) {
+                return [
+                    'name' => findCountryByCode($market->country_code),
+                    'country_code' => $market->country_code,
+                ];
+            });
+        }
         $part->original_card = null;
         if ($part->ic_number) {
             $part->original_card = NomenclatureBaseItemPdrCard::where('ic_number', $part->ic_number)
@@ -313,8 +322,19 @@ class ListWholesalePartsController extends Controller
 
     public function update(Request $request, Car $car): JsonResponse
     {
-        $car->load('carAttributes');
-        $car->update(['chassis' => strtoupper($request->input('chassis'))]);
+        $car->load('carAttributes', 'carFinance');
+        $car->markets()->delete();
+        foreach($request->input('markets') as $market) {
+            $car->markets()->create([
+                'country_code' => $market['country_code'],
+            ]);
+        }
+        $car->update([
+            'chassis' => strtoupper($request->input('chassis')),
+        ]);
+        $car->carFinance()->update([
+            'parts_for_sale' => (bool) $request->input('parts_for_sale'),
+        ]);
         $car->carAttributes()->update([
             'chassis' => strtoupper($request->input('chassis')),
             'year' => $request->integer('year'),
