@@ -55,12 +55,14 @@ class StockPartWholesaleController extends Controller
 
         $parts = CarPdrPosition::with('carPdr', 'carPdr.car',
                 'carPdr.car.carAttributes', 'carPdr.car.modifications',
-                'card', 'card.priceCard')
+                'card', 'card.priceCard', 'carPdr.car.carFinance',
+                'carPdr.car.markets', 'carPdr.car.images', 'images')
             ->where(function($query) use ($makes,
                     $models,
                     $years,
                     $engine,
-                    $sellingPartNames
+                    $sellingPartNames,
+                    $country
             ) {
                 $query->when(count($makes), function ($query) use ($makes) {
                    return $query->whereHas('carPdr', function ($query) use ($makes) {
@@ -100,6 +102,25 @@ class StockPartWholesaleController extends Controller
                 $query->when($sellingPartNames, function ($query) use ($sellingPartNames) {
                     return $query->whereIn('item_name_eng', $sellingPartNames);
                 });
+
+                $query->whereHas('carPdr', function ($query) {
+                    return $query->whereHas('car', function ($query) {
+                        return $query->whereHas('carFinance', function($query) {
+                            return $query->where('parts_for_sale', 1);
+                        });
+                    });
+                });
+
+                $query->when($country, function ($query) use ($country) {
+                    $query->whereHas('carPdr', function ($query) use ($country) {
+                        return $query->whereHas('car', function ($query) use ($country) {
+                            return $query->whereHas('markets', function ($query) use ($country) {
+                                return $query->where('country_code', $country);
+                            });
+                        });
+                    });
+                });
+
                 return $query;
             })
             ->when($sortByMake, function ($query, $sortByMake) {
@@ -151,20 +172,34 @@ class StockPartWholesaleController extends Controller
             'carPdr.car',
             'carPdr.car.carAttributes',
             'carPdr.car.modifications',
+            'carPdr.car.images',
             'card',
+            'images',
             'card.priceCard');
         return new WholesaleIndividualPartResource($part);
     }
 
-    public function defaultPartsList(): JsonResponse
+    public function defaultPartsList(): AnonymousResourceCollection
     {
-        return response()->json(SellingMapItemResource::collection($this->getDefaultSellingMap()));
+        $parts = $this->getDefaultSellingMap();
+        return SellingMapItemResource::collection($parts);
     }
 
-    public function makes(): JsonResponse
+    public function makes(Request $request): JsonResponse
     {
+        $country = $request->get('country');
         $makes = DB::table('cars')
             ->selectRaw('distinct(make)')
+            ->join('car_finances', function (JoinClause $join) {
+                $join->on('cars.id', '=', 'car_finances.car_id')
+                    ->where('car_finances.parts_for_sale', 1);
+            })
+            ->when($country, function ($query) use ($country) {
+                $query->join('car_markets', function (JoinClause $join) use ($country) {
+                    $join->on('car_markets.car_id', '=', 'cars.id')
+                        ->where('car_markets.country_code', $country);
+                });
+            })
             ->join('car_pdrs', function (JoinClause $join) {
                 $join->on('cars.id', '=', 'car_pdrs.car_id')
                     ->whereNull('car_pdrs.deleted_at');
@@ -181,10 +216,21 @@ class StockPartWholesaleController extends Controller
         return response()->json($makes);
     }
 
-    public function models(string $make): JsonResponse
+    public function models(Request $request, string $make): JsonResponse
     {
+        $country = $request->get('country');
         $models = DB::table('cars')
             ->selectRaw('distinct(model)')
+            ->join('car_finances', function (JoinClause $join) {
+                $join->on('cars.id', '=', 'car_finances.car_id')
+                    ->where('car_finances.parts_for_sale', 1);
+            })
+            ->when($country, function ($query) use ($country) {
+                $query->join('car_markets', function (JoinClause $join) use ($country) {
+                    $join->on('car_markets.car_id', '=', 'cars.id')
+                        ->where('car_markets.country_code', $country);
+                });
+            })
             ->join('car_pdrs', function (JoinClause $join) {
                 $join->on('cars.id', '=', 'car_pdrs.car_id')
                     ->whereNull('car_pdrs.deleted_at');
@@ -202,10 +248,21 @@ class StockPartWholesaleController extends Controller
         return response()->json($models);
     }
 
-    public function years(string $make): JsonResponse
+    public function years(Request $request, string $make): JsonResponse
     {
+        $country = $request->get('country');
         $years = DB::table('cars')
             ->selectRaw('distinct(car_attributes.year)')
+            ->join('car_finances', function (JoinClause $join) {
+                $join->on('cars.id', '=', 'car_finances.car_id')
+                    ->where('car_finances.parts_for_sale', 1);
+            })
+            ->when($country, function ($query) use ($country) {
+                $query->join('car_markets', function (JoinClause $join) use ($country) {
+                    $join->on('car_markets.car_id', '=', 'cars.id')
+                        ->where('car_markets.country_code', $country);
+                });
+            })
             ->join('car_attributes', function (JoinClause $join) {
                 $join->on('car_attributes.car_id', '=', 'cars.id');
             })
@@ -227,10 +284,21 @@ class StockPartWholesaleController extends Controller
         return response()->json($years);
     }
 
-    public function engines(string $make, string $model, string $year): JsonResponse
+    public function engines(Request $request, string $make, string $model, string $year): JsonResponse
     {
+        $country = $request->get('country');
         $carsIds = DB::table('cars')
             ->selectRaw('distinct(cars.id)')
+            ->join('car_finances', function (JoinClause $join) {
+                $join->on('cars.id', '=', 'car_finances.car_id')
+                    ->where('car_finances.parts_for_sale', 1);
+            })
+            ->when($country, function ($query) use ($country) {
+                $query->join('car_markets', function (JoinClause $join) use ($country) {
+                    $join->on('car_markets.car_id', '=', 'cars.id')
+                        ->where('car_markets.country_code', $country);
+                });
+            })
             ->join('car_pdrs', function (JoinClause $join) {
                 $join->on('cars.id', '=', 'car_pdrs.car_id')
                     ->whereNull('car_pdrs.deleted_at');
