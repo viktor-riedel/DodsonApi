@@ -13,7 +13,7 @@ Route::prefix('stock-parts-wholesale')->group(function () {
         Route::get('/makes', [StockPartWholesaleController::class, 'makes']);
         Route::get('/models/{make}', [StockPartWholesaleController::class, 'models']);
         Route::get('/years/{make}/{model}', [StockPartWholesaleController::class, 'years']);
-        Route::get('/generations/{make}/{model}', [StockPartWholesaleController::class, 'years']);
+        Route::get('/generations/{make}/{model}', [StockPartWholesaleController::class, 'generations']);
         Route::get('/engines/{make}/{model}/{year}', [StockPartWholesaleController::class, 'engines']);
     });
 

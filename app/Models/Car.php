@@ -147,6 +147,11 @@ class Car extends Model
         return $this->hasMany(CarMarket::class);
     }
 
+    public function baseCar(): BelongsTo
+    {
+        return $this->belongsTo(NomenclatureBaseItem::class, 'parent_inner_id', 'inner_id');
+    }
+
     public function getHasActiveOrderAttribute(): bool
     {
         return OrderItem::where('car_id', $this->id)->count() === $this->getDefaultMapItemsCount();

@@ -29,6 +29,7 @@ class StockPartWholesaleController extends Controller
         $makes = [];
         $models = [];
         $years = [];
+        $generations = [];
         if ($request->get('make')) {
             $makes = explode(',', $request->get('make'));
         }
@@ -38,8 +39,10 @@ class StockPartWholesaleController extends Controller
         if ($request->get('year')) {
             $years = explode(',', $request->get('year'));
         }
+        if ($request->get('generation')) {
+            $generations = explode(',', $request->get('generation'));
+        }
         $parts = $request->get('parts');
-        $generation = $request->get('generation');
         $engine = $request->get('engine');
         $sortByMake = $request->get('sortByMake');
         $sortByModel = $request->get('sortByModel');
@@ -63,7 +66,8 @@ class StockPartWholesaleController extends Controller
                     $years,
                     $engine,
                     $sellingPartNames,
-                    $country
+                    $country,
+                    $generations
             ) {
                 $query->when(count($makes), function ($query) use ($makes) {
                    return $query->whereHas('carPdr', function ($query) use ($makes) {
@@ -118,6 +122,24 @@ class StockPartWholesaleController extends Controller
                             return $query->whereHas('markets', function ($query) use ($country) {
                                 return $query->where('country_code', $country);
                             });
+                        });
+                    });
+                });
+
+                $query->when(count($generations), function ($query) use ($generations) {
+                    return $query->whereHas('carPdr', function ($query) use ($generations) {
+                        return $query->whereHas('car', function ($query) use ($generations) {
+                            return $query->whereHas('baseCar', function($query) use ($generations) {
+                               return $query->whereIn('generation', $generations);
+                            });
+                        });
+                    });
+                });
+
+                $query->whereHas('carPdr', function ($query) use ($country) {
+                    return $query->whereHas('car', function ($query) use ($country) {
+                        return $query->whereHas('markets', function ($query) use ($country) {
+                            return $query->where('country_code', $country);
                         });
                     });
                 });
@@ -284,6 +306,45 @@ class StockPartWholesaleController extends Controller
             ->get();
 
         return response()->json($years);
+    }
+
+    public function generations(Request $request, string $make, string $model): JsonResponse
+    {
+        $country = $request->get('country');
+        $generations = DB::table('cars')
+            ->selectRaw('distinct(nomenclature_base_items.generation)')
+            ->join('car_finances', function (JoinClause $join) {
+                $join->on('cars.id', '=', 'car_finances.car_id')
+                    ->where('car_finances.parts_for_sale', 1);
+            })
+            ->when($country, function ($query) use ($country) {
+                $query->join('car_markets', function (JoinClause $join) use ($country) {
+                    $join->on('car_markets.car_id', '=', 'cars.id')
+                        ->where('car_markets.country_code', $country);
+                });
+            })
+            ->join('nomenclature_base_items', function (JoinClause $join) {
+                $join->on('nomenclature_base_items.inner_id', '=', 'cars.parent_inner_id');
+            })
+            ->join('car_attributes', function (JoinClause $join) {
+                $join->on('car_attributes.car_id', '=', 'cars.id');
+            })
+            ->join('car_pdrs', function (JoinClause $join) {
+                $join->on('cars.id', '=', 'car_pdrs.car_id')
+                    ->whereNull('car_pdrs.deleted_at');
+            })
+            ->join('car_pdr_positions', function(JoinClause $join) {
+                $join->on('car_pdr_positions.car_pdr_id', '=', 'car_pdrs.id')
+                    ->whereNull('car_pdr_positions.deleted_at');
+            })
+            ->whereNull('cars.deleted_at')
+            ->where('car_pdr_positions.user_id', self::DODSON_USER)
+            ->where('cars.make', $make)
+            ->where('cars.model', $model)
+            ->orderBy('nomenclature_base_items.generation')
+            ->get();
+
+        return response()->json($generations);
     }
 
     public function engines(Request $request, string $make, string $model, string $year): JsonResponse
