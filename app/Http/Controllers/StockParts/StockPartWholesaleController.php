@@ -30,6 +30,7 @@ class StockPartWholesaleController extends Controller
         $models = [];
         $years = [];
         $generations = [];
+
         if ($request->get('make')) {
             $makes = explode(',', $request->get('make'));
         }
@@ -42,7 +43,7 @@ class StockPartWholesaleController extends Controller
         if ($request->get('generation')) {
             $generations = explode(',', $request->get('generation'));
         }
-        $parts = $request->get('parts');
+        $sellingParts = $request->get('parts');
         $engine = $request->get('engine');
         $sortByMake = $request->get('sortByMake');
         $sortByModel = $request->get('sortByModel');
@@ -52,8 +53,8 @@ class StockPartWholesaleController extends Controller
 
         $sellingPartNames = null;
 
-        if ($parts) {
-            $partsIds = explode(',', $parts);
+        if ($sellingParts) {
+            $partsIds = explode(',', $sellingParts);
             $sellingPartNames = $this->getPartsNamesByIds($partsIds);
         }
 
@@ -132,14 +133,6 @@ class StockPartWholesaleController extends Controller
                             return $query->whereHas('baseCar', function($query) use ($generations) {
                                return $query->whereIn('generation', $generations);
                             });
-                        });
-                    });
-                });
-
-                $query->whereHas('carPdr', function ($query) use ($country) {
-                    return $query->whereHas('car', function ($query) use ($country) {
-                        return $query->whereHas('markets', function ($query) use ($country) {
-                            return $query->where('country_code', $country);
                         });
                     });
                 });
