@@ -42,7 +42,7 @@ class CreatePartsOrderAction
                         'item_name_ru' => $part['item_name_ru'],
                         'price_jpy' => (int) $part['price_jpy'],
                         'user_id' => $user->id,
-                        'currency' => 'JPY',
+                        'currency' => $user->country_code,
                     ]);
                 }
             }

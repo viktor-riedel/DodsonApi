@@ -61,6 +61,7 @@ class CreateNewCarAction
             'engine' => $modification->engine_name,
         ]);
         $car->modification()->create([
+            'gen_number' => $baseCar->gen_number,
             'body_type' => $modification->body_type,
             'chassis' => $modification->chassis,
             'generation' => $modification->generation,

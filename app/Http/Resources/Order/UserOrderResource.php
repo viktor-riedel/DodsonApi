@@ -10,6 +10,13 @@ class UserOrderResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $currency = match ($this->country_code) {
+            'RU' => '₽',
+            'NZ' => 'NZD',
+            'MNG' => '₮',
+            default => '¥',
+        };
+
         return [
             'id' => $this->id,
             'car' => [
@@ -29,6 +36,7 @@ class UserOrderResource extends JsonResource
             'order_number' => $this->order_number,
             'order_total_formatted' => number_format($this->items->sum('price_jpy')),
             'order_total' => $this->items->sum('price_jpy'),
+            'currency' => $this->items->first()?->car?->make ? '¥' : $currency,
         ];
     }
 }

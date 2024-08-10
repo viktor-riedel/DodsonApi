@@ -12,29 +12,24 @@ class WholesaleIndividualPartResource extends JsonResource
 
         $country = $request->get('country');
 
-        $buyingPrice = 0;
-        if ($this->card->priceCard->buying_price) {
+        if (!$country) {
             $buyingPrice = $this->card->priceCard->buying_price;
+        } else {
+            $buyingPrice = match ($country) {
+                'RU' => $this->card->priceCard->pricing_ru_wholesale,
+                'NZ' => $this->card->priceCard->pricing_nz_wholesale,
+                'MNG' => $this->card->priceCard->pricing_mng_wholesale,
+                'JP' => $this->card->priceCard->pricing_jp_wholesale,
+                default => 0,
+            };
         }
 
-        if (!$buyingPrice) {
-            switch ($country) {
-                case 'RU':
-                    $buyingPrice = $this->card->priceCard->price_ru_wholesale;
-                    break;
-                case 'NZ':
-                    $buyingPrice = $this->card->priceCard->price_nz_wholesale;
-                    break;
-                case 'MNG':
-                    $buyingPrice = $this->card->priceCard->price_mng_wholesale;
-                    break;
-                case 'JP':
-                    $buyingPrice = $this->card->priceCard->price_jp_wholesale;
-                    break;
-                default:
-                    $buyingPrice = $this->card->priceCard->buying_price;
-            }
-        }
+        $currency = match ($country) {
+            'RU' => '₽',
+            'NZ' => 'NZD',
+            'MNG' => '₮',
+            default => '¥',
+        };
 
         return [
             'id' => $this->id,
@@ -50,6 +45,7 @@ class WholesaleIndividualPartResource extends JsonResource
             'chassis' => $this->carPdr->car->carAttributes->chassis,
             'generation' => $this->carPdr->car->modifications?->generation,
             'price_jpy' => $buyingPrice,
+            'currency' => $currency,
             'car_images' => PartImageResource::collection($this->carPdr->car->images),
             'part_images' => PartImageResource::collection($this->images),
         ];

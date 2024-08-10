@@ -25,12 +25,12 @@
             <ol>
                 @foreach($order->items as $orderItem)
                     <li @if($orderItem->price_jpy === 0) style="color: red" @endif>
-                        Item: {{$orderItem->item_name_eng}} / {{$orderItem->item_name_ru}} Price: {{$orderItem->price_jpy}} ¥
+                        Item: {{$orderItem->item_name_eng}} / {{$orderItem->item_name_ru}} Price: {{$orderItem->price_jpy}} {{$orderItem->currency}}
                     </li>
                 @endforeach
             </ol>
         <li>
-            Total for order: {{$order->order_total}} ¥
+            Total for order: {{$order->order_total}} {{$order->items->first()->currency}}
         </li>
         <li>
             <p>-------------END ORDERED PARTS------------</p>

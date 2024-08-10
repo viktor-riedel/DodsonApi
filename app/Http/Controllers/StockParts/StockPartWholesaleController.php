@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\StockParts;
 
+use App\Actions\Parts\DefaultPartsFilteredWithExistedAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Part\WholesaleIndividualPartResource;
 use App\Http\Resources\Part\WholesalePartResource;
@@ -179,9 +180,10 @@ class StockPartWholesaleController extends Controller
         return new WholesaleIndividualPartResource($part);
     }
 
-    public function defaultPartsList(): AnonymousResourceCollection
+    public function defaultPartsList(Request $request): AnonymousResourceCollection
     {
-        $parts = $this->getDefaultSellingMap();
+        $country = $request->get('country');
+        $parts = app()->make(DefaultPartsFilteredWithExistedAction::class)->handle($country);
         return SellingMapItemResource::collection($parts);
     }
 

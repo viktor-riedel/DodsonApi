@@ -17,6 +17,7 @@ class NomenclatureModification extends Model
         'inner_id',
         'header',
         'generation',
+        'gen_number',
         'modification',
         'engine_name',
         'engine_type',
