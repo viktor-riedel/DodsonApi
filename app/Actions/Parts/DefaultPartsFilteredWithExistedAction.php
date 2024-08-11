@@ -2,6 +2,7 @@
 
 namespace App\Actions\Parts;
 
+use App\Helpers\Consts;
 use App\Http\Traits\DefaultSellingMapTrait;
 use App\Models\CarPdrPosition;
 use Cache;
@@ -10,7 +11,6 @@ use Illuminate\Support\Collection;
 class DefaultPartsFilteredWithExistedAction
 {
     use DefaultSellingMapTrait;
-    private const DODSON_USER = 143;
 
     public function handle(?string $country): Collection
     {
@@ -53,7 +53,7 @@ class DefaultPartsFilteredWithExistedAction
 
                 return $query;
             })
-            ->where('user_id', self::DODSON_USER)
+            ->where('user_id', Consts::DODSON_USER)
             ->get()
             ->pluck('item_name_eng')
             ->toArray();

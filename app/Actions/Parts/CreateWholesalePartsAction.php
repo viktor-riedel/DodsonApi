@@ -2,6 +2,7 @@
 
 namespace App\Actions\Parts;
 
+use App\Helpers\Consts;
 use App\Http\Controllers\SellingPartsMap\SellingPartsMapController;
 use App\Http\Traits\DefaultSellingMapTrait;
 use App\Http\Traits\InnerIdTrait;
@@ -16,7 +17,6 @@ class CreateWholesalePartsAction
     use InnerIdTrait, DefaultSellingMapTrait;
 
     private User $user;
-    private const DODSON_USER = 143;
     private array $engine = [];
     private array $front = [];
     private array $exterior = [];
@@ -149,7 +149,7 @@ class CreateWholesalePartsAction
             'ic_description' => $part['ic_description'] ?? '',
             'is_virtual' => false,
             'created_by' => $this->user->id,
-            'user_id' => self::DODSON_USER,
+            'user_id' => Consts::DODSON_USER,
         ]);
         $card = $position->card()->create([
             'parent_inner_id' => $this->generateInnerId(\Str::random(10) . now()),
@@ -238,7 +238,7 @@ class CreateWholesalePartsAction
                 'ic_description' => null,
                 'is_virtual' => false,
                 'created_by' => $this->user->id,
-                'user_id' => self::DODSON_USER,
+                'user_id' => Consts::DODSON_USER,
             ]);
             $card = $position->card()->create([
                 'parent_inner_id' => $this->generateInnerId(\Str::random(10) . now()),

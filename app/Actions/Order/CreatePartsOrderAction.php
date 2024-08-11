@@ -6,11 +6,10 @@ use App\Mail\UserPartsOrderCreatedMail;
 use App\Models\CarPdrPosition;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Helpers\Consts;
 
 class CreatePartsOrderAction
 {
-    private const DODSON_USER = 143;
-
     public function handle(Request $request): bool
     {
         $user = $request->user();
@@ -30,7 +29,7 @@ class CreatePartsOrderAction
             ]);
             foreach ($parts as $part) {
                 $position = CarPdrPosition::find($part['id']);
-                if ($position->user_id === self::DODSON_USER) {
+                if ($position->user_id === Consts::DODSON_USER) {
                     $position->update([
                         'user_id' => $user->id,
                     ]);

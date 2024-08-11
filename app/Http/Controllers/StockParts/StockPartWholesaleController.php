@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\StockParts;
 
 use App\Actions\Parts\DefaultPartsFilteredWithExistedAction;
+use App\Helpers\Consts;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Part\WholesaleIndividualPartResource;
 use App\Http\Resources\Part\WholesalePartResource;
@@ -21,8 +22,6 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 class StockPartWholesaleController extends Controller
 {
     use DefaultSellingMapTrait;
-
-    private const DODSON_USER = 143;
 
     public function list(Request $request): AnonymousResourceCollection
     {
@@ -175,7 +174,7 @@ class StockPartWholesaleController extends Controller
                                 ->whereNotNull('car_pdr_position_card_prices.buying_price');
                         }), $sortByPrice);
             })
-            ->where('user_id', self::DODSON_USER)
+            ->where('user_id', Consts::DODSON_USER)
             ->paginate(50);
 
         return WholesalePartResource::collection($parts);
@@ -226,7 +225,7 @@ class StockPartWholesaleController extends Controller
                     ->whereNull('car_pdr_positions.deleted_at');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', self::DODSON_USER)
+            ->where('car_pdr_positions.user_id', Consts::DODSON_USER)
             ->orderBy('cars.make')
             ->get();
 
@@ -257,7 +256,7 @@ class StockPartWholesaleController extends Controller
                     ->whereNull('car_pdr_positions.deleted_at');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', self::DODSON_USER)
+            ->where('car_pdr_positions.user_id', Consts::DODSON_USER)
             ->where('cars.make', $make)
             ->orderBy('cars.model')
             ->get();
@@ -292,7 +291,7 @@ class StockPartWholesaleController extends Controller
                     ->whereNull('car_pdr_positions.deleted_at');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', self::DODSON_USER)
+            ->where('car_pdr_positions.user_id', Consts::DODSON_USER)
             ->where('cars.make', $make)
             ->whereNotNull('car_attributes.year')
             ->orderBy('car_attributes.year')
@@ -331,7 +330,7 @@ class StockPartWholesaleController extends Controller
                     ->whereNull('car_pdr_positions.deleted_at');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', self::DODSON_USER)
+            ->where('car_pdr_positions.user_id', Consts::DODSON_USER)
             ->where('cars.make', $make)
             ->where('cars.model', $model)
             ->orderBy('nomenclature_base_items.generation')
@@ -367,7 +366,7 @@ class StockPartWholesaleController extends Controller
                 $join->on('car_attributes.car_id', '=', 'cars.id');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', self::DODSON_USER)
+            ->where('car_pdr_positions.user_id', Consts::DODSON_USER)
             ->where('cars.make', $make)
             ->where('cars.model', $model)
             ->where('car_attributes.year', $year)
