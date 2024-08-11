@@ -10,6 +10,7 @@ use App\Http\Resources\Car\CarResource;
 use App\Http\Resources\Car\CreatedByResource;
 use App\Models\Car;
 use App\Models\CarPdrPositionCardPrice;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
@@ -17,12 +18,12 @@ class AllCarsController extends Controller
 {
     public function list(Request $request): AnonymousResourceCollection
     {
-        $make = $request->get('make', '');
-        $model = $request->get('model', '');
-        $generation = $request->get('generation', '');
+        $make = $request->get('make');
+        $model = $request->get('model');
+        $generation = $request->get('generation');
         $car_status = $request->get('status', -1);
         $user = $request->get('user', -1);
-        $text = $request->get('text', '');
+        $text = $request->get('search');
 
         $cars = Car::with(['images', 'carAttributes', 'carFinance',
             'modification', 'positions', 'positions.card', 'latestSyncData',
@@ -36,10 +37,10 @@ class AllCarsController extends Controller
             ->when($generation, function ($query) use ($generation) {
                 return $query->where('generation', $generation);
             })
-            ->when($car_status >= 0, function ($query) use ($car_status) {
+            ->when($car_status, function ($query) use ($car_status) {
                 return $query->where('car_status', $car_status);
             })
-            ->when($user >= 0, function ($query) use ($user) {
+            ->when($user, function ($query) use ($user) {
                 return $query->where('created_by', $user);
             })
             ->where(function ($query) use ($text) {
@@ -52,7 +53,7 @@ class AllCarsController extends Controller
             })
             ->where('virtual', false)
             ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->paginate(30);
 
         $cars->getCollection()->each(function ($car) {
             $car->parts_price =  (int) $car->carFinance->purchase_price === 0 ?
@@ -64,7 +65,7 @@ class AllCarsController extends Controller
         return CarResource::collection($cars);
     }
 
-    public function currencyList(): \Illuminate\Http\JsonResponse
+    public function currencyList(): JsonResponse
     {
         return response()->json(CarPdrPositionCardPrice::getCurrenciesJson());
     }
@@ -96,7 +97,7 @@ class AllCarsController extends Controller
         return GenerationResource::collection($generations);
     }
 
-    public function statusList(): \Illuminate\Http\JsonResponse
+    public function statusList(): JsonResponse
     {
         return response()->json(['status' => Car::getStatusesJson()]);
     }
