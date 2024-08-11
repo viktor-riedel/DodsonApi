@@ -19,10 +19,12 @@ class CarFinance extends Model
         'price_with_engine_jp',
         'price_without_engine_jp',
         'car_is_for_sale',
+        'parts_for_sale',
     ];
 
     protected $casts = [
         'car_is_for_sale' => 'boolean',
+        'parts_for_sale' => 'boolean',
     ];
 
     protected $hidden = ['created_at', 'updated_at', 'deleted_at'];

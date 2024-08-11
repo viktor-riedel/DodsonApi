@@ -17,6 +17,7 @@ class OrderItemResource extends JsonResource
             'status_en' => $this->item_status_en,
             'status_ru' => Order::ORDER_STATUS_STRING[$this->order->order_status],
             'price' => $this->price_jpy,
+            'pdr' => $this->pdr,
             'currency' => $this->currency,
         ];
     }

@@ -28,6 +28,15 @@ trait DefaultSellingMapTrait
         }
     }
 
+    private function getPartsNamesByIds(array $ids): array
+    {
+        return SellingMapItem::whereIn('id', $ids)
+            ->where('parent_id', '>', 0)
+            ->get()
+            ->pluck('item_name_eng')
+            ->toArray();
+    }
+
     private function getDefaultSellingMap(): Collection
     {
         $directories = SellingMapItem::where('parent_id', 0)->get();
@@ -73,6 +82,17 @@ trait DefaultSellingMapTrait
             ->whereNotIn('item_name_eng', $usedPartsInMap)
             ->orderBy('item_name_eng')
             ->get();
+    }
+
+    private function findPartParentName(string $itemNameEng): string
+    {
+        $item = SellingMapItem::where('item_name_eng', strtoupper($itemNameEng))
+            ->first();
+        if ($item) {
+            $name = SellingMapItem::where('id', $item->parent_id)->first()->name;
+        }
+
+        return $name ?? 'Other Parts';
     }
 
     private function getDefaultMapItemsCount(): int

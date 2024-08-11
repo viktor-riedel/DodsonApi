@@ -40,6 +40,7 @@ class Car extends Model
         'created_by',
         'deleted_by',
         'contr_agent_name',
+        'virtual',
     ];
 
     protected $casts = [
@@ -144,6 +145,11 @@ class Car extends Model
     public function markets(): HasMany
     {
         return $this->hasMany(CarMarket::class);
+    }
+
+    public function baseCar(): BelongsTo
+    {
+        return $this->belongsTo(NomenclatureBaseItem::class, 'parent_inner_id', 'inner_id');
     }
 
     public function getHasActiveOrderAttribute(): bool

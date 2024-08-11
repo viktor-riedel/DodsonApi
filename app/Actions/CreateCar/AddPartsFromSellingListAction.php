@@ -7,9 +7,6 @@ use App\Http\Traits\BadgeGeneratorTrait;
 use App\Http\Traits\InnerIdTrait;
 use App\Models\Car;
 use App\Models\CarPdr;
-use App\Models\CarPdrPositionCard;
-use App\Models\Order;
-use App\Models\User;
 
 class AddPartsFromSellingListAction
 {

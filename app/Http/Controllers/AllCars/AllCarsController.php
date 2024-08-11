@@ -11,10 +11,11 @@ use App\Http\Resources\Car\CreatedByResource;
 use App\Models\Car;
 use App\Models\CarPdrPositionCardPrice;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class AllCarsController extends Controller
 {
-    public function list(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function list(Request $request): AnonymousResourceCollection
     {
         $make = $request->get('make', '');
         $model = $request->get('model', '');
@@ -41,12 +42,15 @@ class AllCarsController extends Controller
             ->when($user >= 0, function ($query) use ($user) {
                 return $query->where('created_by', $user);
             })
-            ->when($text, function ($query) use ($text) {
-                return $query->where('make', 'like', "%$text")
-                    ->orWhere('model', 'like', "%$text")
-                    ->orWhere('chassis', 'like', "%$text")
-                    ->orWhere('car_mvr', 'like', "%$text");
+            ->where(function ($query) use ($text) {
+                return $query->when($text, function ($query) use ($text) {
+                    return $query->where('make', 'like', "%$text%")
+                        ->orWhere('model', 'like', "%$text%")
+                        ->orWhere('chassis', 'like', "%$text%")
+                        ->orWhere('car_mvr', 'like', "%$text%");
+                });
             })
+            ->where('virtual', false)
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
@@ -65,23 +69,27 @@ class AllCarsController extends Controller
         return response()->json(CarPdrPositionCardPrice::getCurrenciesJson());
     }
 
-    public function makes(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function makes(): AnonymousResourceCollection
     {
-        $makes = Car::orderBy('make')->get()->pluck('make')->unique();
+        $makes = Car::orderBy('make')
+            ->where('virtual', false)
+            ->get()->pluck('make')->unique();
         return MakeResource::collection($makes);
     }
 
-    public function models(string $make): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function models(string $make): AnonymousResourceCollection
     {
         $models = Car::where('make', $make)
+            ->where('virtual', false)
             ->orderBy('model')
             ->get()->pluck('model')->unique();
         return ModelResource::collection($models);
     }
 
-    public function generations(string $make, string $model): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function generations(string $make, string $model): AnonymousResourceCollection
     {
         $generations = Car::where('make', $make)
+            ->where('virtual', false)
             ->where('model', $model)
             ->orderBy('generation')
             ->get()->pluck('generation')->unique();
@@ -93,9 +101,10 @@ class AllCarsController extends Controller
         return response()->json(['status' => Car::getStatusesJson()]);
     }
 
-    public function usersList(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function usersList(): AnonymousResourceCollection
     {
         $users = Car::with('createdBy')
+            ->where('virtual', false)
             ->orderBy('created_by')
             ->get()
             ->pluck('createdBy')

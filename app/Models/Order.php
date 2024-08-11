@@ -65,7 +65,7 @@ class Order extends Model
         return $this->items()->whereNotNull('car_id');
     }
 
-    public function partsItems(): HasMany
+    public function partItems(): HasMany
     {
         return $this->items()->whereNotNull('part_id');
     }

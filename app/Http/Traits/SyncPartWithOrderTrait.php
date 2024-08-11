@@ -34,8 +34,7 @@ trait SyncPartWithOrderTrait
             //create order for that client
             $orderNumber = Order::getNextOrderNumber();
             $user = User::find($userId);
-            $order = Order::create([
-                'user_id' => $userId,
+            $order = $user->orders()->create([
                 'order_number' => $orderNumber,
                 'order_status' =>  Order::ORDER_STATUS_INT[Order::ORDER_STATUS_STRING[0]],
                 'invoice_url' => null,

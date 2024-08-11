@@ -15,9 +15,9 @@ class CartItem extends Model
         'cart_id',
         'user_id',
         'car_id',
+        'part_id',
         'with_engine',
         'without_engine',
-        'part_id',
         'comment',
     ];
 
@@ -33,6 +33,11 @@ class CartItem extends Model
 
     public function car(): BelongsTo
     {
-        return $this->belongsTo(Car::class);
+        return $this->belongsTo(Car::class, 'car_id', 'id');
+    }
+
+    public function part(): BelongsTo
+    {
+        return $this->belongsTo(CarPdrPosition::class, 'part_id', 'id');
     }
 }

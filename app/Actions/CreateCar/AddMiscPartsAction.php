@@ -6,7 +6,6 @@ use App\Http\Traits\BadgeGeneratorTrait;
 use App\Http\Traits\InnerIdTrait;
 use App\Http\Traits\SyncPartWithOrderTrait;
 use App\Models\Car;
-use App\Models\CarPdrPositionCard;
 
 class AddMiscPartsAction
 {
