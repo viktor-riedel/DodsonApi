@@ -22,7 +22,7 @@ class StockPartWholesaleController extends Controller
 {
     use DefaultSellingMapTrait;
 
-    private const DODSON_USER = 135;
+    private const DODSON_USER = 143;
 
     public function list(Request $request): AnonymousResourceCollection
     {
