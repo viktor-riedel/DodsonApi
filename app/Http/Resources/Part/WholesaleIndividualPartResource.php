@@ -16,10 +16,10 @@ class WholesaleIndividualPartResource extends JsonResource
             $buyingPrice = $this->card->priceCard->buying_price;
         } else {
             $buyingPrice = match ($country) {
-                'RU' => $this->card->priceCard->pricing_ru_wholesale,
-                'NZ' => $this->card->priceCard->pricing_nz_wholesale,
-                'MNG' => $this->card->priceCard->pricing_mng_wholesale,
-                'JP' => $this->card->priceCard->pricing_jp_wholesale,
+                'RU' => $this->card->priceCard->price_ru_wholesale,
+                'NZ' => $this->card->priceCard->price_nz_wholesale,
+                'MNG' => $this->card->priceCard->price_mng_wholesale,
+                'JP' => $this->card->priceCard->price_jp_wholesale,
                 default => 0,
             };
         }

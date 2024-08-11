@@ -108,8 +108,6 @@ class ListWholesalePartsController extends Controller
                     return $query->where('item_name_eng', 'REGEXP', $search)
                             ->orWhere('ic_number', 'REGEXP', $search);
                 });
-
-                return $query;
             })
             ->where(function ($query) {
                 return $query->whereHas('carPdr', function ($query) {
@@ -122,7 +120,7 @@ class ListWholesalePartsController extends Controller
                 return $query->orderBy(
                     CarPdr::select(['cars.make'])
                         ->whereColumn('car_pdrs.id', '=', 'car_pdr_positions.car_pdr_id')
-                        ->join('cars', function (JoinClause $join) use ($sortByMake) {
+                        ->join('cars', function (JoinClause $join) {
                             $join->on('cars.id', '=', 'car_id');
                         }), $sortByMake);
             })
@@ -130,7 +128,7 @@ class ListWholesalePartsController extends Controller
                 return $query->orderBy(
                     CarPdr::select(['cars.model'])
                         ->whereColumn('car_pdrs.id', '=', 'car_pdr_positions.car_pdr_id')
-                        ->join('cars', function (JoinClause $join) use ($sortByModel) {
+                        ->join('cars', function (JoinClause $join) {
                             $join->on('cars.id', '=', 'car_pdrs.car_id');
                         }), $sortByModel);
             })
@@ -153,6 +151,15 @@ class ListWholesalePartsController extends Controller
                                 'car_pdr_position_cards.id')
                                 ->whereNotNull('car_pdr_position_card_prices.buying_price');
                         }), $sortByPrice);
+            })
+            // yes its strange
+            ->when((1 === 1), function ($query) {
+                return $query->orderBy(
+                    CarPdr::select(['cars.car_mvr'])
+                    ->whereColumn('car_pdrs.id', '=', 'car_pdr_positions.car_pdr_id')
+                    ->join('cars', function (JoinClause $join) {
+                        $join->on('cars.id', '=', 'car_id');
+                    }), 'desc');
             })
             ->paginate(50);
 
@@ -362,14 +369,14 @@ class ListWholesalePartsController extends Controller
     {
         $part->load('card', 'card.priceCard');
         $part->card->priceCard()->update([
-             'pricing_nz_retail' => $request->integer('pricing_nz_retail'),
-             'pricing_nz_wholesale' => $request->integer('pricing_nz_wholesale'),
-             'pricing_ru_retail' => $request->integer('pricing_ru_retail'),
-             'pricing_ru_wholesale' => $request->integer('pricing_ru_wholesale'),
-             'pricing_mng_retail' => $request->integer('pricing_mng_retail'),
-             'pricing_mng_wholesale' => $request->integer('pricing_mng_wholesale'),
-             'pricing_jp_retail' => $request->integer('pricing_jp_retail'),
-             'pricing_jp_wholesale' => $request->integer('pricing_jp_wholesale'),
+             'price_nz_retail' => $request->integer('price_nz_retail'),
+             'price_nz_wholesale' => $request->integer('price_nz_wholesale'),
+             'price_ru_retail' => $request->integer('price_ru_retail'),
+             'price_ru_wholesale' => $request->integer('price_ru_wholesale'),
+             'price_mng_retail' => $request->integer('price_mng_retail'),
+             'price_mng_wholesale' => $request->integer('price_mng_wholesale'),
+             'price_jp_retail' => $request->integer('price_jp_retail'),
+             'price_jp_wholesale' => $request->integer('price_jp_wholesale'),
              'buying_price' => $request->integer('buying_price'),
              'selling_price' => $request->integer('selling_price'),
         ]);

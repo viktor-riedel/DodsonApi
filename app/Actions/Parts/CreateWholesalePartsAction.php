@@ -59,22 +59,22 @@ class CreateWholesalePartsAction
 
         $this->car = Car::create([
             'car_mvr' => strtoupper($request->input('mvr.mvr')),
+            'contr_agent_name' => $request->input('mvr.contr_agent'),
             'parent_inner_id' => $baseCar->inner_id,
             'make' => $make,
             'model' => $model,
             'generation' => $generation,
             'chassis' => ($modification->chassis) . '-',
             'created_by' => $this->user->id,
-            'contr_agent_name' => '',
             'virtual' => true,
         ]);
 
         $this->car->carFinance()->create([
-            'purchase_price' => 0,
+            'purchase_price' => $request->integer('mvr.purchase_price'),
         ]);
 
         $this->car->carAttributes()->create([
-            'color' => strtoupper($request->input('mvr.color')),
+            'color' => null,
             'chassis' => ($modification->chassis) . '-',
             'engine' => $modification->engine_name,
         ]);

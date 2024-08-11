@@ -6,6 +6,7 @@ use App\Actions\Parts\CreateWholesalePartsAction;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\BaseCarTrait;
 use App\Models\CarPdrPosition;
+use App\Models\ContrAgent;
 use App\Models\MediaFile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,6 +14,12 @@ use Illuminate\Http\Request;
 class CreateWholesalePartController extends Controller
 {
     use BaseCarTrait;
+
+    public function getAgents(): JsonResponse
+    {
+        $agents = ContrAgent::orderBy('name')->get();
+        return response()->json($agents);
+    }
 
     public function getMakes(): JsonResponse
     {
