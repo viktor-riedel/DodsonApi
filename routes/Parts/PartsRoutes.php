@@ -43,6 +43,7 @@ Route::prefix('parts')->middleware('auth:sanctum')->group(function () {
 
         Route::prefix('list')->group(function() {
             Route::get('/', [ListWholesalePartsController::class, 'list']);
+            Route::get('/document/{mvr}', [ListWholesalePartsController::class, 'document']);
             Route::get('/part/{part}', [ListWholesalePartsController::class, 'get']);
             Route::get('/part-ic-numbers/{part}', [ListWholesalePartsController::class, 'icNumbers']);
             Route::get('/makes', [ListWholesalePartsController::class, 'makes']);
