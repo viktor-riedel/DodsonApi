@@ -53,7 +53,7 @@ class ListWholesalePartsController extends Controller
             ->orderBy('cars.created_at', 'desc')
             ->groupBy('cars.car_mvr')
             ->groupBy('cars.created_by')
-            ->groupBy('created_at')
+            ->groupBy('cars.created_at')
             ->paginate(50);
 
 
