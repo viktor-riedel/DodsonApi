@@ -50,10 +50,10 @@ class ListWholesalePartsController extends Controller
                 $query->where('cars.car_mvr', 'LIKE', "%$search%");
             })
             ->where('cars.virtual', true)
-            ->orderBy('cars.created_at', 'desc')
+            ->orderBy('created_at', 'desc')
             ->groupBy('cars.car_mvr')
             ->groupBy('cars.created_by')
-            ->groupBy('cars.created_at')
+            ->groupBy('created_at')
             ->paginate(50);
 
 
