@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Parts;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Part\DocumentResource;
+use App\Http\Resources\Part\PartsDocumentResource;
 use App\Http\Resources\Part\WholesalePartAdminResource;
 use App\Http\Resources\Part\WholesalePartsAdminResource;
 use App\Http\Resources\SellingPartsMap\SellingMapItemResource;
@@ -59,9 +60,17 @@ class ListWholesalePartsController extends Controller
         return DocumentResource::collection($documents);
     }
 
-    public function document(string $mvr)
+    public function document(string $mvr): AnonymousResourceCollection
     {
-        return response()->json([]);
+        $parts = CarPdrPosition::with('card', 'card.priceCard', 'carPdr.car',
+            'carPdr.car.modifications', 'carPdr.car.createdBy', 'client', 'carPdr.car.carFinance')
+            ->whereHas('carPdr', function($q) use ($mvr) {
+                return $q->whereHas('car', function($q) use ($mvr) {
+                    return $q->where('car_mvr', $mvr);
+                });
+            })->get();
+        //return response()->json($parts);
+        return PartsDocumentResource::collection($parts);
     }
 
     public function get(CarPdrPosition $part): WholesalePartAdminResource
