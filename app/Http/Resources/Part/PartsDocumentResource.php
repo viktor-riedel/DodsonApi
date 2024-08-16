@@ -29,7 +29,10 @@ class PartsDocumentResource extends JsonResource
             'ic_number' => $this->ic_number,
             'ic_description' => $this->ic_description,
             'buying_price' => $this->card->priceCard->buying_price,
-            'selling_price' => $this->card->priceCard->buying_price,
+            'selling_price' => $this->card->priceCard->selling_price,
+            'price_ru_wholesale' => $this->card->priceCard->price_ru_wholesale,
+            'price_nz_wholesale' => $this->card->priceCard->price_nz_wholesale,
+            'price_mng_wholesale' => $this->card->priceCard->price_mng_wholesale,
             'client' => $this->client,
         ];
     }
