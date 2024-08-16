@@ -41,8 +41,8 @@ class WholesalePartAdminResource extends JsonResource
                 ],
             ],
             'prices' => [
-                'price_nz_retail' => $this->card->priceCard->pricing_nz_retail,
-                'price_nz_wholesale' => $this->card->priceCard->pricing_nz_wholesale,
+                'price_nz_retail' => $this->card->priceCard->price_nz_retail,
+                'price_nz_wholesale' => $this->card->priceCard->price_nz_wholesale,
                 'price_ru_retail' => $this->card->priceCard->price_ru_retail,
                 'price_ru_wholesale' => $this->card->priceCard->price_ru_wholesale,
                 'price_mng_retail' => $this->card->priceCard->price_mng_retail,
