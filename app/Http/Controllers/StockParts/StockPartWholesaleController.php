@@ -13,6 +13,7 @@ use App\Models\Car;
 use App\Models\CarPdr;
 use App\Models\CarPdrPosition;
 use App\Models\CarPdrPositionCard;
+use App\Models\NomenclatureBaseItem;
 use DB;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\JsonResponse;
@@ -303,8 +304,8 @@ class StockPartWholesaleController extends Controller
     public function generations(Request $request, string $make, string $model): JsonResponse
     {
         $country = $request->get('country');
-        $generations = DB::table('cars')
-            ->selectRaw('distinct(nomenclature_base_items.generation)')
+        $ids = DB::table('cars')
+            ->selectRaw('distinct nomenclature_base_items.id')
             ->join('car_finances', function (JoinClause $join) {
                 $join->on('cars.id', '=', 'car_finances.car_id')
                     ->where('car_finances.parts_for_sale', 1);
@@ -334,7 +335,27 @@ class StockPartWholesaleController extends Controller
             ->where('cars.make', $make)
             ->where('cars.model', $model)
             ->orderBy('nomenclature_base_items.generation')
-            ->get();
+            ->get()
+            ->pluck('id')
+            ->toArray();
+
+        $generations = [];
+
+        NomenclatureBaseItem::with('modifications')
+            ->whereIn('id', $ids)
+            ->get()
+            ->each(function($modification) use (&$generations) {
+                $monthStart = $modification->modifications->min("month_from");
+                $monthEnd = $modification->modifications->max("month_to");
+                $yearFrom = $modification->modifications->min("year_from");
+                $yearTo = $modification->modifications->max("year_to");
+                $yearsString = $monthStart . '.' . $yearFrom . ' - ' . $monthEnd . '.' . $yearTo;
+
+                $generations[] = [
+                    'generation_number' => (int) $modification->generation,
+                    'years_string' => $yearsString,
+                ];
+            });
 
         return response()->json($generations);
     }

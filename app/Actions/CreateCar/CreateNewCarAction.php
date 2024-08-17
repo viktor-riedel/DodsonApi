@@ -24,10 +24,6 @@ class CreateNewCarAction
         $this->request = $request;
         $includeParts = $request->input('parts');
         $ignoreModification = !$request->input('modification');
-        $monthStart = 0;
-        $monthEnd = 0;
-        $yearFrom = 0;
-        $yearTo = 0;
 
         $baseCar = NomenclatureBaseItem::with('modifications')
             ->where('make', strtoupper(trim($request->input('make'))))
