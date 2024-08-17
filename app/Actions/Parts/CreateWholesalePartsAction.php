@@ -149,7 +149,7 @@ class CreateWholesalePartsAction
             'ic_description' => $part['ic_description'] ?? '',
             'is_virtual' => false,
             'created_by' => $this->user->id,
-            'user_id' => Consts::DODSON_USER,
+            'user_id' => Consts::getPartsSaleUserId(),
         ]);
         $card = $position->card()->create([
             'parent_inner_id' => $this->generateInnerId(\Str::random(10) . now()),
@@ -238,7 +238,7 @@ class CreateWholesalePartsAction
                 'ic_description' => null,
                 'is_virtual' => false,
                 'created_by' => $this->user->id,
-                'user_id' => Consts::DODSON_USER,
+                'user_id' => Consts::getPartsSaleUserId(),
             ]);
             $card = $position->card()->create([
                 'parent_inner_id' => $this->generateInnerId(\Str::random(10) . now()),

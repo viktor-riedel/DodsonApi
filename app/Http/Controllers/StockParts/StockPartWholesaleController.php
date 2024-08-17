@@ -174,7 +174,7 @@ class StockPartWholesaleController extends Controller
                                 ->whereNotNull('car_pdr_position_card_prices.buying_price');
                         }), $sortByPrice);
             })
-            ->where('user_id', Consts::DODSON_USER)
+            ->where('user_id', Consts::getPartsSaleUserId())
             ->paginate(50);
 
         return WholesalePartResource::collection($parts);
@@ -225,7 +225,7 @@ class StockPartWholesaleController extends Controller
                     ->whereNull('car_pdr_positions.deleted_at');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', Consts::DODSON_USER)
+            ->where('car_pdr_positions.user_id', Consts::getPartsSaleUserId())
             ->orderBy('cars.make')
             ->get();
 
@@ -256,7 +256,7 @@ class StockPartWholesaleController extends Controller
                     ->whereNull('car_pdr_positions.deleted_at');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', Consts::DODSON_USER)
+            ->where('car_pdr_positions.user_id', Consts::getPartsSaleUserId())
             ->where('cars.make', $make)
             ->orderBy('cars.model')
             ->get();
@@ -291,7 +291,7 @@ class StockPartWholesaleController extends Controller
                     ->whereNull('car_pdr_positions.deleted_at');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', Consts::DODSON_USER)
+            ->where('car_pdr_positions.user_id', Consts::getPartsSaleUserId())
             ->where('cars.make', $make)
             ->whereNotNull('car_attributes.year')
             ->orderBy('car_attributes.year')
@@ -330,7 +330,7 @@ class StockPartWholesaleController extends Controller
                     ->whereNull('car_pdr_positions.deleted_at');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', Consts::DODSON_USER)
+            ->where('car_pdr_positions.user_id', Consts::getPartsSaleUserId())
             ->where('cars.make', $make)
             ->where('cars.model', $model)
             ->orderBy('nomenclature_base_items.generation')
@@ -366,7 +366,7 @@ class StockPartWholesaleController extends Controller
                 $join->on('car_attributes.car_id', '=', 'cars.id');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', Consts::DODSON_USER)
+            ->where('car_pdr_positions.user_id', Consts::getPartsSaleUserId())
             ->where('cars.make', $make)
             ->where('cars.model', $model)
             ->where('car_attributes.year', $year)

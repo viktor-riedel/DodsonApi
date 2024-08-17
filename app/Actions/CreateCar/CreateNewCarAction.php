@@ -6,7 +6,6 @@ use App\Http\Traits\BaseItemPdrTreeTrait;
 use App\Http\Traits\InnerIdTrait;
 use App\Models\Car;
 use App\Models\NomenclatureBaseItem;
-use App\Models\NomenclatureBaseItemModification;
 use App\Models\NomenclatureBaseItemPdrPosition;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -25,17 +24,29 @@ class CreateNewCarAction
         $this->request = $request;
         $includeParts = $request->input('parts');
         $ignoreModification = !$request->input('modification');
+        $monthStart = 0;
+        $monthEnd = 0;
+        $yearFrom = 0;
+        $yearTo = 0;
 
-        $baseCar = NomenclatureBaseItem::where('make', strtoupper(trim($request->input('make'))))
+        $baseCar = NomenclatureBaseItem::with('modifications')
+            ->where('make', strtoupper(trim($request->input('make'))))
             ->where('model', strtoupper(trim($request->input('model'))))
             ->where('generation', trim($request->input('generation')))
             ->first();
 
-        $modification = $baseCar->modifications()->where('inner_id', $this->request->input('modification'))->first();
+        $modification = $baseCar?->modifications()->where('inner_id', $this->request->input('modification'))->first();
         //raise exception if modification not found
         if (!$modification && !$ignoreModification) {
             throw new \Exception('Nomenclature modification not found');
         }
+
+        $monthStart = $baseCar?->modifications->min("month_from");
+        $monthEnd = $baseCar?->modifications->max("month_to");
+        $yearFrom = $baseCar?->modifications->min("year_from");
+        $yearTo = $baseCar?->modifications->max("year_to");
+        $yearsString = $monthStart . '.' . $yearFrom . '-' . $monthEnd . '.' . $yearTo;
+
 
         $car = Car::create([
             'parent_inner_id' => $baseCar->inner_id,
@@ -72,14 +83,14 @@ class CreateNewCarAction
             'engine_size' => $modification?->engine_size,
             'drive_train' => $modification?->drive_train,
             'header' => $modification?->header,
-            'month_from' => $modification?->month_from,
-            'month_to' => $modification?->month_to,
+            'month_from' => $ignoreModification ? $monthStart : $modification?->month_from,
+            'month_to' => $ignoreModification ? $monthEnd : $modification?->month_to,
             'restyle' => $modification?->restyle,
             'doors' => $modification?->doors,
             'transmission' => $modification?->transmission,
-            'year_from' => $modification?->year_from,
-            'year_to' => $modification?->year_to,
-            'years_string' => $modification?->years_string,
+            'year_from' => $ignoreModification ? $yearFrom : $modification?->year_from,
+            'year_to' => $ignoreModification ? $yearTo : $modification?->year_to,
+            'years_string' => $ignoreModification ? $yearsString : $modification?->years_string,
         ]);
 
         //polymorph relation

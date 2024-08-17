@@ -20,6 +20,7 @@ class UserCardResource extends JsonResource
             'country' => $this->country,
             'comment' => $this->comment,
             'wholesaler' => $this->wholesaler,
+            'parts_sale_user' => $this->parts_sale_user,
         ];
     }
 }
