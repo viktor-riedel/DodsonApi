@@ -334,7 +334,7 @@ class StockPartWholesaleController extends Controller
             ->where('car_pdr_positions.user_id', Consts::getPartsSaleUserId())
             ->where('cars.make', $make)
             ->where('cars.model', $model)
-            ->orderBy('nomenclature_base_items.generation')
+            ->orderBy('nomenclature_base_items.id')
             ->get()
             ->pluck('id')
             ->toArray();
