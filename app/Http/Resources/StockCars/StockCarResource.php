@@ -21,6 +21,7 @@ class StockCarResource extends JsonResource
             'color' => $this->carAttributes->color,
             'engine' => $this->carAttributes->engine,
             'mileage' => number_format($this->carAttributes->mileage),
+            'no_modification' => $this->ignore_modification,
             'price' => [
                 'price_with_engine_nz' => number_format($this->carFinance?->price_with_engine_nz),
                 'price_without_engine_nz' => number_format($this->carFinance?->price_without_engine_nz),
