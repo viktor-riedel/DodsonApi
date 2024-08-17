@@ -41,11 +41,13 @@ class Car extends Model
         'deleted_by',
         'contr_agent_name',
         'virtual',
+        'ignore_modification',
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'ignore_modification' => 'boolean',
     ];
 
     protected $hidden = ['updated_at', 'deleted_at'];

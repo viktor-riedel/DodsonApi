@@ -24,6 +24,7 @@ class CreateNewCarAction
         $this->user = $request->user();
         $this->request = $request;
         $includeParts = $request->input('parts');
+        $ignoreModification = !$request->input('modification');
 
         $baseCar = NomenclatureBaseItem::where('make', strtoupper(trim($request->input('make'))))
             ->where('model', strtoupper(trim($request->input('model'))))
@@ -32,7 +33,7 @@ class CreateNewCarAction
 
         $modification = $baseCar->modifications()->where('inner_id', $this->request->input('modification'))->first();
         //raise exception if modification not found
-        if (!$modification) {
+        if (!$modification && !$ignoreModification) {
             throw new \Exception('Nomenclature modification not found');
         }
 
@@ -41,9 +42,10 @@ class CreateNewCarAction
             'make' => strtoupper(trim($request->input('make'))),
             'model' => strtoupper(trim($request->input('model'))),
             'generation' => trim($request->input('generation')),
-            'chassis' => ($modification->chassis) . '-',
+            'chassis' => ($modification?->chassis) . '-',
             'created_by' => $request->user()->id,
             'contr_agent_name' => ucwords(trim($request->input('contr_agent_name'))),
+            'ignore_modification' => $ignoreModification,
         ]);
 
         $car->carFinance()->create([
@@ -57,29 +59,35 @@ class CreateNewCarAction
         }
 
         $car->carAttributes()->create([
-            'chassis' => ($modification->chassis) . '-',
-            'engine' => $modification->engine_name,
+            'chassis' => ($modification?->chassis) . '-',
+            'engine' => $modification?->engine_name,
         ]);
         $car->modification()->create([
             'gen_number' => $baseCar->gen_number,
-            'body_type' => $modification->body_type,
-            'chassis' => $modification->chassis,
-            'generation' => $modification->generation,
-            'engine_size' => $modification->engine_size,
-            'drive_train' => $modification->drive_train,
-            'header' => $modification->header,
-            'month_from' => $modification->month_from,
-            'month_to' => $modification->month_to,
-            'restyle' => $modification->restyle,
-            'doors' => $modification->doors,
-            'transmission' => $modification->transmission,
-            'year_from' => $modification->year_from,
-            'year_to' => $modification->year_to,
-            'years_string' => $modification->years_string,
+            'body_type' => $modification?->body_type,
+            'chassis' => $modification?->chassis,
+            'generation' => !$ignoreModification ?
+                $modification?->generation :
+                trim($request->input('generation')),
+            'engine_size' => $modification?->engine_size,
+            'drive_train' => $modification?->drive_train,
+            'header' => $modification?->header,
+            'month_from' => $modification?->month_from,
+            'month_to' => $modification?->month_to,
+            'restyle' => $modification?->restyle,
+            'doors' => $modification?->doors,
+            'transmission' => $modification?->transmission,
+            'year_from' => $modification?->year_from,
+            'year_to' => $modification?->year_to,
+            'years_string' => $modification?->years_string,
         ]);
 
         //polymorph relation
-        $car->modifications()->create($modification->toArray());
+        if (!$ignoreModification) {
+            $car->modifications()->create($modification->toArray());
+        } else {
+            $car->modifications()->create($car->modification->toArray());
+        }
 
         if (is_array($request->photos) && count($request->photos)) {
             foreach($request->photos as $photo) {

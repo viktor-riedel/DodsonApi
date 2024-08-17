@@ -5,13 +5,14 @@ namespace App\Http\Controllers\CreateCar;
 use App\Actions\CreateCar\CreateNewCarAction;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\BaseCarTrait;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class CreateCarController extends Controller
 {
     use BaseCarTrait;
 
-    public function uploadPhoto(Request $request): \Illuminate\Http\JsonResponse
+    public function uploadPhoto(Request $request): JsonResponse
     {
         $uploaded = [];
         if ($request->file('uploadNewCarPhotos')) {
@@ -40,7 +41,7 @@ class CreateCarController extends Controller
         return response()->json(['files' => $uploaded], 201);
     }
 
-    public function createNewCar(Request $request): \Illuminate\Http\JsonResponse
+    public function createNewCar(Request $request): JsonResponse
     {
         $carId = app()->make(CreateNewCarAction::class)->handle($request);
         return response()->json(['id' => $carId]);

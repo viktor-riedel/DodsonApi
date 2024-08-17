@@ -21,6 +21,7 @@ class CarPdrPositionCard extends Model
         'name_eng',
         'name_ru',
         'comment',
+        'part_comment', //USED FOR IMPORT PARTS!!!
         'description',
         'ic_number',
         'oem_number',
