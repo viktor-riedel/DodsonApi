@@ -15,6 +15,7 @@ use App\Models\CarPdrPosition;
 use App\Models\CarPdrPositionCard;
 use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemPdrCard;
+use App\Models\NomenclatureBaseItemPdrPosition;
 use DB;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\JsonResponse;
@@ -100,13 +101,38 @@ class ListWholesalePartsController extends Controller
 
     public function icNumbers(CarPdrPosition $part): JsonResponse
     {
-        $part->load('carPdr', 'carPdr.car');
+        $part->load('carPdr', 'carPdr.car', 'carPdr.car.modifications');
         $modificationId = $part->carPdr->car->modifications->inner_id;
+        $modificationIds = [];
+        if ($part->carPdr->car->ignore_modification) {
+            NomenclatureBaseItemPdrPosition::with('modifications')
+                ->whereHas('nomenclatureBaseItemPdr', function($q) use ($part) {
+                    return $q->whereHas('nomenclatureBaseItem', function($q) use ($part) {
+                        return $q->where('make', $part->carPdr->car->make)
+                            ->where('model', $part->carPdr->car->model)
+                            ->where('generation', $part->carPdr->car->generation);
+                    })->where('item_name_eng', $part->item_name_eng);
+                })
+                ->where('ic_number', '!=', 'virtual')
+                ->get()
+                ->each(function($position) use (&$modificationIds) {
+                    $position->modifications->each(function($modification) use (&$modificationIds) {
+                        $modificationIds[] = $modification->inner_id;
+                    });
+                });
+        }
         $items = NomenclatureBaseItem::with(
                 'nomenclaturePositions',
-                'nomenclaturePositions.nomenclatureBaseItemPdrCard'
-            )->whereHas('modifications', function ($q) use ($modificationId) {
-                return $q->where('inner_id', $modificationId);
+                'nomenclaturePositions.nomenclatureBaseItemPdrCard')
+            ->when($modificationId, function ($query) use ($modificationId) {
+                return $query->whereHas('modifications', function ($query) use ($modificationId) {
+                    return $query->where('inner_id', $modificationId);
+                });
+            })
+            ->when($part->carPdr->car->ignore_modification, function ($query) use ($modificationIds) {
+                return $query->whereHas('modifications', function ($query) use ($modificationIds) {
+                    return $query->whereIn('inner_id', $modificationIds);
+                });
             })
             ->get()
             ->pluck('nomenclaturePositions')
