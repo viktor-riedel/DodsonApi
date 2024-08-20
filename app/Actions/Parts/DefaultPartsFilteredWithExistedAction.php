@@ -53,7 +53,7 @@ class DefaultPartsFilteredWithExistedAction
 
                 return $query;
             })
-            ->where('user_id', Consts::DODSON_USER)
+            ->where('user_id', Consts::getPartsSaleUserId())
             ->get()
             ->pluck('item_name_eng')
             ->toArray();

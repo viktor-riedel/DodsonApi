@@ -29,7 +29,7 @@ class CreatePartsOrderAction
             ]);
             foreach ($parts as $part) {
                 $position = CarPdrPosition::find($part['id']);
-                if ($position->user_id === Consts::DODSON_USER) {
+                if ($position->user_id === Consts::getPartsSaleUserId()) {
                     $position->update([
                         'user_id' => $user->id,
                     ]);

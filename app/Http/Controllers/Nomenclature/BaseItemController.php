@@ -11,12 +11,13 @@ use App\Http\Resources\BaseItem\BaseItemResource;
 use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemPdrPosition;
 use http\Env\Response;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class BaseItemController extends Controller
 {
 
-    public function makes(): \Illuminate\Http\JsonResponse
+    public function makes(): JsonResponse
     {
          $result = collect();
          $makes = array_unique(NomenclatureBaseItem::orderBy('make')
@@ -61,7 +62,7 @@ class BaseItemController extends Controller
         return BaseItemModelResource::collection($filtered);
     }
 
-    public function save(Request $request): \Illuminate\Http\JsonResponse
+    public function save(Request $request): JsonResponse
     {
         $newBaseItemId = app()->make(BaseItemCreateAction::class)->handle($request);
         return response()->json(['id' =>  $newBaseItemId], 201);
@@ -77,7 +78,7 @@ class BaseItemController extends Controller
         return new BaseItemResource($baseItem);
     }
 
-    public function findByIcNumber(Request $request): \Illuminate\Http\JsonResponse
+    public function findByIcNumber(Request $request): JsonResponse
     {
         if ($request->query('search')) {
             $partName = $request->get('partName');
@@ -112,7 +113,7 @@ class BaseItemController extends Controller
         return new BaseItemResource($baseItem);
     }
 
-    public function baseItemDelete(NomenclatureBaseItem $baseItem): \Illuminate\Http\JsonResponse
+    public function baseItemDelete(NomenclatureBaseItem $baseItem): JsonResponse
     {
         $baseItem->update(['deleted_by' => null]);
         $baseItem->baseItemPDR()->delete();
@@ -120,7 +121,7 @@ class BaseItemController extends Controller
         return response()->json([], 202);
     }
 
-    public function saveItemPdr(Request $request, NomenclatureBaseItem $baseItem): \Illuminate\Http\JsonResponse
+    public function saveItemPdr(Request $request, NomenclatureBaseItem $baseItem): JsonResponse
     {
         app()->make(BaseItemUpdatePartsList::class)->handle($request->toArray(), $baseItem);
         return response()->json([], 202);

@@ -13,6 +13,7 @@ use App\Models\Car;
 use App\Models\CarPdr;
 use App\Models\CarPdrPosition;
 use App\Models\CarPdrPositionCard;
+use App\Models\NomenclatureBaseItem;
 use DB;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\JsonResponse;
@@ -174,7 +175,7 @@ class StockPartWholesaleController extends Controller
                                 ->whereNotNull('car_pdr_position_card_prices.buying_price');
                         }), $sortByPrice);
             })
-            ->where('user_id', Consts::DODSON_USER)
+            ->where('user_id', Consts::getPartsSaleUserId())
             ->paginate(50);
 
         return WholesalePartResource::collection($parts);
@@ -225,7 +226,7 @@ class StockPartWholesaleController extends Controller
                     ->whereNull('car_pdr_positions.deleted_at');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', Consts::DODSON_USER)
+            ->where('car_pdr_positions.user_id', Consts::getPartsSaleUserId())
             ->orderBy('cars.make')
             ->get();
 
@@ -256,7 +257,7 @@ class StockPartWholesaleController extends Controller
                     ->whereNull('car_pdr_positions.deleted_at');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', Consts::DODSON_USER)
+            ->where('car_pdr_positions.user_id', Consts::getPartsSaleUserId())
             ->where('cars.make', $make)
             ->orderBy('cars.model')
             ->get();
@@ -291,7 +292,7 @@ class StockPartWholesaleController extends Controller
                     ->whereNull('car_pdr_positions.deleted_at');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', Consts::DODSON_USER)
+            ->where('car_pdr_positions.user_id', Consts::getPartsSaleUserId())
             ->where('cars.make', $make)
             ->whereNotNull('car_attributes.year')
             ->orderBy('car_attributes.year')
@@ -303,8 +304,8 @@ class StockPartWholesaleController extends Controller
     public function generations(Request $request, string $make, string $model): JsonResponse
     {
         $country = $request->get('country');
-        $generations = DB::table('cars')
-            ->selectRaw('distinct(nomenclature_base_items.generation)')
+        $ids = DB::table('cars')
+            ->selectRaw('distinct nomenclature_base_items.id')
             ->join('car_finances', function (JoinClause $join) {
                 $join->on('cars.id', '=', 'car_finances.car_id')
                     ->where('car_finances.parts_for_sale', 1);
@@ -330,11 +331,31 @@ class StockPartWholesaleController extends Controller
                     ->whereNull('car_pdr_positions.deleted_at');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', Consts::DODSON_USER)
+            ->where('car_pdr_positions.user_id', Consts::getPartsSaleUserId())
             ->where('cars.make', $make)
             ->where('cars.model', $model)
-            ->orderBy('nomenclature_base_items.generation')
-            ->get();
+            ->orderBy('nomenclature_base_items.id')
+            ->get()
+            ->pluck('id')
+            ->toArray();
+
+        $generations = [];
+
+        NomenclatureBaseItem::with('modifications')
+            ->whereIn('id', $ids)
+            ->get()
+            ->each(function($modification) use (&$generations) {
+                $monthStart = $modification->modifications->min("month_from");
+                $monthEnd = $modification->modifications->max("month_to");
+                $yearFrom = $modification->modifications->min("year_from");
+                $yearTo = $modification->modifications->max("year_to");
+                $yearsString = $monthStart . '.' . $yearFrom . ' - ' . $monthEnd . '.' . $yearTo;
+
+                $generations[] = [
+                    'generation_number' => (int) $modification->generation,
+                    'years_string' => $yearsString,
+                ];
+            });
 
         return response()->json($generations);
     }
@@ -366,7 +387,7 @@ class StockPartWholesaleController extends Controller
                 $join->on('car_attributes.car_id', '=', 'cars.id');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', Consts::DODSON_USER)
+            ->where('car_pdr_positions.user_id', Consts::getPartsSaleUserId())
             ->where('cars.make', $make)
             ->where('cars.model', $model)
             ->where('car_attributes.year', $year)

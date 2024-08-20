@@ -9,6 +9,8 @@ use App\Models\NomenclatureBaseItemModification;
 use App\Models\NomenclatureBaseItemPdrCard;
 use App\Models\NomenclatureBaseItemPdrPositionPhoto;
 use App\Models\PartList;
+use DB;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -24,6 +26,7 @@ trait BaseCarTrait
                 return count($item->NomenclaturePositionsNotVirtual);
             });
         $makes = array_unique($positions->pluck('make')->toArray());
+        sort($makes, SORT_NATURAL);
         foreach($makes as $make) {
             $result[] = [
                 'make' => $make,
@@ -44,6 +47,7 @@ trait BaseCarTrait
                 return count($item->NomenclaturePositionsNotVirtual);
             });
         $models = array_unique($positions->pluck('model')->toArray());
+        sort($models, SORT_NATURAL);
         foreach ($models as $model) {
             $result[] = [
                 'model' => $model,
@@ -119,10 +123,23 @@ trait BaseCarTrait
         ?string $make,
         ?string $model,
         ?string $generation,
-        string $modification
+        ?string $modification
     ): JsonResponse
     {
-        $cards = \DB::table('nomenclature_base_item_pdr_positions')
+        $modifications = [];
+        if ($modification === 'null') {
+            $modifications = NomenclatureBaseItem::with('modifications')
+                ->where('make', $make)
+                ->where('model', $model)
+                ->where('generation', $generation)
+                ->get()
+                ->pluck('modifications')
+                ->first()
+                ->transform(function($item) {
+                    return $item->inner_id;
+                })->toArray();
+        }
+        $cards = DB::table('nomenclature_base_item_pdr_positions')
             ->selectRaw('distinct nomenclature_base_item_pdr_positions.id,
                                    nomenclature_base_item_pdrs.item_name_eng,
                                    nomenclature_base_item_pdrs.item_name_ru,
@@ -131,15 +148,22 @@ trait BaseCarTrait
                                    nomenclature_base_item_pdr_positions.ic_description,
                                    null as comment,
                                    nomenclature_modifications.generation')
-            ->join('nomenclature_modifications', 'nomenclature_modifications.modificationable_id',
-                '=', 'nomenclature_base_item_pdr_positions.id')
-            ->join('nomenclature_base_item_pdr_cards',
-                'nomenclature_base_item_pdr_cards.nomenclature_base_item_pdr_position_id',
-                '=', 'nomenclature_base_item_pdr_positions.id')
-            ->join('nomenclature_base_item_pdrs', 'nomenclature_base_item_pdrs.id',
-                '=', 'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id')
+            ->join('nomenclature_modifications', function(JoinClause $join) {
+                $join->on('nomenclature_modifications.modificationable_id', '=', 'nomenclature_base_item_pdr_positions.id');
+            })
+            ->join('nomenclature_base_item_pdr_cards', function(JoinClause $join) {
+                $join->on('nomenclature_base_item_pdr_cards.nomenclature_base_item_pdr_position_id', '=', 'nomenclature_base_item_pdr_positions.id');
+            })
+            ->join('nomenclature_base_item_pdrs', function(JoinClause $join) {
+                $join->on('nomenclature_base_item_pdrs.id', '=', 'nomenclature_base_item_pdr_positions.nomenclature_base_item_pdr_id');
+            })
             ->whereNull('nomenclature_modifications.deleted_at')
-            ->where('nomenclature_modifications.inner_id', $modification)
+            ->when($modification && $modification !== 'null', function ($query) use ($modification) {
+                return $query->where('nomenclature_modifications.inner_id', $modification);
+            })
+            ->when($modification === 'null', function ($query) use ($modifications) {
+                return $query->whereIn('nomenclature_modifications.inner_id', $modifications);
+            })
             ->where('nomenclature_base_item_pdr_positions.is_virtual', false)
             ->whereNull('nomenclature_base_item_pdr_cards.deleted_at')
             ->get()->each(function ($item) {

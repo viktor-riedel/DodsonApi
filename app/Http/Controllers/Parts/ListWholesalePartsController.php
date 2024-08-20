@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Parts;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Part\DocumentResource;
+use App\Http\Resources\Part\PartsDocumentResource;
 use App\Http\Resources\Part\WholesalePartAdminResource;
 use App\Http\Resources\Part\WholesalePartsAdminResource;
 use App\Http\Resources\SellingPartsMap\SellingMapItemResource;
@@ -13,6 +15,7 @@ use App\Models\CarPdrPosition;
 use App\Models\CarPdrPositionCard;
 use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemPdrCard;
+use App\Models\NomenclatureBaseItemPdrPosition;
 use DB;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\JsonResponse;
@@ -26,144 +29,49 @@ class ListWholesalePartsController extends Controller
 
     public function list(Request $request): AnonymousResourceCollection
     {
-        $makes = [];
-        $models = [];
-        $years = [];
-        if ($request->get('make')) {
-            $makes = explode(',', $request->get('make'));
-        }
-        if ($request->get('model')) {
-            $models = explode(',', $request->get('model'));
-        }
-        if ($request->get('year')) {
-            $years = explode(',', $request->get('year'));
-        }
-        $parts = $request->get('parts');
-        $generation = $request->get('generation');
-        $engine = $request->get('engine');
-        $sortByMake = $request->get('sortByMake');
-        $sortByModel = $request->get('sortByModel');
-        $sortByYear = $request->get('sortByYear');
-        $sortByPrice = $request->get('sortByPrice');
         $search = $request->get('search');
-        $country = $request->get('country');
 
-        $sellingPartNames = null;
-
-        if ($parts) {
-            $partsIds = explode(',', $parts);
-            $sellingPartNames = $this->getPartsNamesByIds($partsIds);
-        }
-
-        $parts = CarPdrPosition::with('carPdr', 'carPdr.car',
-            'carPdr.car.carAttributes', 'carPdr.car.modifications',
-            'card', 'card.priceCard', 'client', 'carPdr.car.carFinance')
-            ->where(function($query) use ($makes,
-                $models,
-                $years,
-                $engine,
-                $sellingPartNames,
-                $search
-            )
-            {
-                $query->when(count($makes), function ($query) use ($makes) {
-                    return $query->whereHas('carPdr', function ($query) use ($makes) {
-                        return $query->whereHas('car', function ($query) use ($makes) {
-                            return $query->whereIn('make', $makes);
-                        });
-                    });
-                });
-
-                $query->when(count($models), function ($query) use ($models) {
-                    return $query->whereHas('carPdr', function ($query) use ($models) {
-                        return $query->whereHas('car', function ($query) use ($models) {
-                            return $query->whereIn('model', $models);
-                        });
-                    });
-                });
-
-                $query->when($years, function ($query) use ($years) {
-                    return $query->whereHas('carPdr', function ($query) use ($years) {
-                        return $query->whereHas('car', function ($query) use ($years) {
-                            return $query->whereHas('carAttributes', function($query) use ($years) {
-                                return $query->whereIn('year', $years);
-                            });
-                        });
-                    });
-                });
-
-                $query->when($engine, function ($query) use ($engine) {
-                    return $query->whereHas('carPdr', function ($query) use ($engine) {
-                        return $query->whereHas('car', function ($query) use ($engine) {
-                            return $query->whereHas('modifications', function($query) use ($engine) {
-                                return $query->where('inner_id', $engine);
-                            });
-                        });
-                    });
-                });
-                $query->when($sellingPartNames, function ($query) use ($sellingPartNames) {
-                    return $query->whereIn('item_name_eng', $sellingPartNames);
-                });
-                $query->when($search, function ($query) use ($search) {
-                    return $query->where('item_name_eng', 'REGEXP', $search)
-                            ->orWhere('ic_number', 'REGEXP', $search);
-                });
+        $documents = DB::table('cars')
+            ->selectRaw('
+                distinct cars.car_mvr,
+                count(car_pdr_positions.id) as parts_count,
+                cars.created_by,
+                (select group_concat(distinct contr_agent_name) from cars c where c.car_mvr = cars.car_mvr) as contr_agent_name,
+                DATE(cars.created_at) as created_at
+            ')
+            ->join('car_pdrs',function(JoinClause $join) {
+                $join->on('cars.id','=','car_pdrs.car_id')
+                    ->whereNull('car_pdrs.deleted_at');
             })
-            ->where(function ($query) {
-                return $query->whereHas('carPdr', function ($query) {
-                    return $query->whereHas('car', function ($query) {
-                        return $query->where('virtual', true);
-                    });
-                });
+            ->join('car_pdr_positions', function(JoinClause $join) {
+                $join->on('car_pdrs.id','=','car_pdr_positions.car_pdr_id')
+                    ->whereNull('car_pdr_positions.deleted_at');
             })
-            ->when($sortByMake, function ($query, $sortByMake) {
-                return $query->orderBy(
-                    CarPdr::select(['cars.make'])
-                        ->whereColumn('car_pdrs.id', '=', 'car_pdr_positions.car_pdr_id')
-                        ->join('cars', function (JoinClause $join) {
-                            $join->on('cars.id', '=', 'car_id');
-                        }), $sortByMake);
+            ->when($search, function ($query, $search) {
+                $query->where('cars.car_mvr', 'LIKE', "%$search%");
             })
-            ->when($sortByModel, function ($query, $sortByModel) {
-                return $query->orderBy(
-                    CarPdr::select(['cars.model'])
-                        ->whereColumn('car_pdrs.id', '=', 'car_pdr_positions.car_pdr_id')
-                        ->join('cars', function (JoinClause $join) {
-                            $join->on('cars.id', '=', 'car_pdrs.car_id');
-                        }), $sortByModel);
-            })
-            ->when($sortByYear, function ($query, $sortByYear) {
-                return $query->orderBy(
-                    CarPdr::select(['car_attributes.year'])
-                        ->whereColumn('car_pdrs.id', '=', 'car_pdr_positions.car_pdr_id')
-                        ->join('car_attributes', function (JoinClause $join){
-                            $join->on('car_attributes.car_id', '=', 'car_pdrs.car_id')
-                                ->whereNotNull('car_attributes.year');
-                        }), $sortByYear);
-            })
-            ->when($sortByPrice, function ($query, $sortByPrice) {
-                return $query->orderBy(
-                    CarPdrPositionCard::select(['car_pdr_position_card_prices.buying_price'])
-                        ->whereColumn('car_pdr_position_cards.car_pdr_position_id',
-                            '=', 'car_pdr_positions.id')
-                        ->join('car_pdr_position_card_prices', function (JoinClause $join) {
-                            $join->on('car_pdr_position_card_prices.car_pdr_position_card_id', '=',
-                                'car_pdr_position_cards.id')
-                                ->whereNotNull('car_pdr_position_card_prices.buying_price');
-                        }), $sortByPrice);
-            })
-            // yes its strange
-            ->when((1 === 1), function ($query) {
-                return $query->orderBy(
-                    CarPdr::select(['cars.car_mvr'])
-                    ->whereColumn('car_pdrs.id', '=', 'car_pdr_positions.car_pdr_id')
-                    ->join('cars', function (JoinClause $join) {
-                        $join->on('cars.id', '=', 'car_id');
-                    }), 'desc');
-            })
+            ->where('cars.virtual', true)
+            ->orderBy('created_at', 'desc')
+            ->groupBy('cars.car_mvr')
+            ->groupBy('cars.created_by')
+            ->groupBy('created_at')
             ->paginate(50);
 
-        return WholesalePartsAdminResource::collection($parts);
+
+        return DocumentResource::collection($documents);
+    }
+
+    public function document(string $mvr): AnonymousResourceCollection
+    {
+        $parts = CarPdrPosition::with('card', 'card.priceCard', 'carPdr.car',
+            'carPdr.car.modifications', 'carPdr.car.createdBy', 'client', 'carPdr.car.carFinance')
+            ->whereHas('carPdr', function($q) use ($mvr) {
+                return $q->whereHas('car', function($q) use ($mvr) {
+                    return $q->where('car_mvr', $mvr);
+                });
+            })->get();
+        //return response()->json($parts);
+        return PartsDocumentResource::collection($parts);
     }
 
     public function get(CarPdrPosition $part): WholesalePartAdminResource
@@ -193,13 +101,38 @@ class ListWholesalePartsController extends Controller
 
     public function icNumbers(CarPdrPosition $part): JsonResponse
     {
-        $part->load('carPdr', 'carPdr.car');
+        $part->load('carPdr', 'carPdr.car', 'carPdr.car.modifications');
         $modificationId = $part->carPdr->car->modifications->inner_id;
+        $modificationIds = [];
+        if ($part->carPdr->car->ignore_modification) {
+            NomenclatureBaseItemPdrPosition::with('modifications')
+                ->whereHas('nomenclatureBaseItemPdr', function($q) use ($part) {
+                    return $q->whereHas('nomenclatureBaseItem', function($q) use ($part) {
+                        return $q->where('make', $part->carPdr->car->make)
+                            ->where('model', $part->carPdr->car->model)
+                            ->where('generation', $part->carPdr->car->generation);
+                    })->where('item_name_eng', $part->item_name_eng);
+                })
+                ->where('ic_number', '!=', 'virtual')
+                ->get()
+                ->each(function($position) use (&$modificationIds) {
+                    $position->modifications->each(function($modification) use (&$modificationIds) {
+                        $modificationIds[] = $modification->inner_id;
+                    });
+                });
+        }
         $items = NomenclatureBaseItem::with(
                 'nomenclaturePositions',
-                'nomenclaturePositions.nomenclatureBaseItemPdrCard'
-            )->whereHas('modifications', function ($q) use ($modificationId) {
-                return $q->where('inner_id', $modificationId);
+                'nomenclaturePositions.nomenclatureBaseItemPdrCard')
+            ->when($modificationId, function ($query) use ($modificationId) {
+                return $query->whereHas('modifications', function ($query) use ($modificationId) {
+                    return $query->where('inner_id', $modificationId);
+                });
+            })
+            ->when($part->carPdr->car->ignore_modification, function ($query) use ($modificationIds) {
+                return $query->whereHas('modifications', function ($query) use ($modificationIds) {
+                    return $query->whereIn('inner_id', $modificationIds);
+                });
             })
             ->get()
             ->pluck('nomenclaturePositions')

@@ -20,11 +20,15 @@ class UserCard extends Model
         'country',
         'comment',
         'wholesaler',
+        'parts_sale_user',
     ];
 
     protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
 
-    protected $casts = ['wholesaler' => 'boolean'];
+    protected $casts = [
+        'wholesaler' => 'boolean',
+        'parts_sale_user' => 'boolean',
+    ];
 
     public function user(): BelongsTo
     {

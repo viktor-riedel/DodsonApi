@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Users;
 
+use App\Helpers\Consts;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Users\UserResource;
 use App\Models\User;
+use App\Models\UserCard;
+use Cache;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 
@@ -14,6 +17,7 @@ class UsersController extends Controller
     {
         $search = $request->get('search');
         $users = User::withTrashed()
+                ->with('userCard')
                 ->orderBy('name')
                 ->when($search, function($q) use ($search) {
                     return $q->where('name', 'like', '%' . $search . '%')
@@ -54,7 +58,7 @@ class UsersController extends Controller
 
     public function update(Request $request, User $user): UserResource
     {
-        $user->refresh();
+        $user->load('userCard');
         $user->update([
            'name' => $request->input('name'),
            'email' => $request->input('email'),
@@ -74,6 +78,16 @@ class UsersController extends Controller
             }
             $user->assignRole($role);
         }
+
+        if ($request->boolean('card.parts_sale_user')) {
+            //only ine user can sell parts for now
+            $cards = UserCard::all();
+            $cards->each(function($card) {
+                $card->update(['parts_sale_user' => false]);
+            });
+            Cache::put(Consts::DODSON_USER_KEY, $user->id);
+        }
+
         $user->userCard()->update([
             'mobile_phone' => $request->input('card.mobile_phone'),
             'landline_phone' => $request->input('card.landline_phone'),
@@ -82,8 +96,11 @@ class UsersController extends Controller
             'address' => $request->input('card.address'),
             'country' => strtoupper($request->input('card.country')),
             'comment' => $request->input('card.comment'),
-            'wholesaler' => $request->input('card.wholesaler'),
+            'wholesaler' => $request->boolean('card.wholesaler'),
+            'parts_sale_user' => $request->boolean('card.parts_sale_user'),
         ]);
+
+        $user->refresh();
         return new UserResource($user);
     }
 }

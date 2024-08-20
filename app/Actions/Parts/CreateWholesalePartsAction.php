@@ -44,18 +44,28 @@ class CreateWholesalePartsAction
         $this->frontSuspension = $data['frontSuspension'];
         $this->rearSuspension = $data['rearSuspension'];
         $this->other = $data['other'];
+        $ignoreModification = !$modificationInnerId;
 
 
-        $baseCar = NomenclatureBaseItem::where('make', $make)
+        $baseCar = NomenclatureBaseItem::with('modifications')
+            ->where('make', $make)
             ->where('model', $model)
             ->where('generation', $generation)
             ->first();
 
+
         $modification = $baseCar->modifications()->where('inner_id', $modificationInnerId)->first();
 
-        if (!$modification) {
+        if (!$modification && !$ignoreModification) {
             throw new \Exception('Nomenclature modification not found');
         }
+
+        $monthStart = $baseCar->modifications->min("month_from");
+        $monthEnd = $baseCar->modifications->max("month_to");
+        $yearFrom = $baseCar->modifications->min("year_from");
+        $yearTo = $baseCar->modifications->max("year_to");
+        $yearsString = $monthStart . '.' . $yearFrom . '-' . $monthEnd . '.' . $yearTo;
+
 
         $this->car = Car::create([
             'car_mvr' => strtoupper($request->input('mvr.mvr')),
@@ -64,9 +74,10 @@ class CreateWholesalePartsAction
             'make' => $make,
             'model' => $model,
             'generation' => $generation,
-            'chassis' => ($modification->chassis) . '-',
+            'chassis' => ($modification?->chassis) . '-',
             'created_by' => $this->user->id,
             'virtual' => true,
+            'ignore_modification' => $ignoreModification,
         ]);
 
         $this->car->carFinance()->create([
@@ -75,30 +86,34 @@ class CreateWholesalePartsAction
 
         $this->car->carAttributes()->create([
             'color' => null,
-            'chassis' => ($modification->chassis) . '-',
-            'engine' => $modification->engine_name,
+            'chassis' => ($modification?->chassis) . '-',
+            'engine' => $modification?->engine_name,
         ]);
 
         $this->car->modification()->create([
             'gen_number' => $baseCar->gen_number,
-            'body_type' => $modification->body_type,
-            'chassis' => $modification->chassis,
-            'generation' => $modification->generation,
-            'engine_size' => $modification->engine_size,
-            'drive_train' => $modification->drive_train,
-            'header' => $modification->header,
-            'month_from' => $modification->month_from,
-            'month_to' => $modification->month_to,
-            'restyle' => $modification->restyle,
-            'doors' => $modification->doors,
-            'transmission' => $modification->transmission,
-            'year_from' => $modification->year_from,
-            'year_to' => $modification->year_to,
-            'years_string' => $modification->years_string,
+            'body_type' => $modification?->body_type,
+            'chassis' => $modification?->chassis,
+            'generation' => $modification?->generation,
+            'engine_size' => $modification?->engine_size,
+            'drive_train' => $modification?->drive_train,
+            'header' => $modification?->header,
+            'month_from' => $ignoreModification ? $monthStart : $modification?->month_from,
+            'month_to' => $ignoreModification ? $monthEnd : $modification?->month_to,
+            'restyle' => $modification?->restyle,
+            'doors' => $modification?->doors,
+            'transmission' => $modification?->transmission,
+            'year_from' => $ignoreModification ? $yearFrom : $modification?->year_from,
+            'year_to' => $ignoreModification ? $yearTo : $modification?->year_to,
+            'years_string' => $ignoreModification ? $yearsString : $modification?->years_string,
         ]);
 
         //polymorph relation
-        $this->car->modifications()->create($modification->toArray());
+        if (!$ignoreModification) {
+            $this->car->modifications()->create($modification->toArray());
+        } else {
+            $this->car->modifications()->create($this->car->modification->toArray());
+        }
 
         if (is_array($parts) && count($parts)) {
             $this->createParts($parts);
@@ -149,7 +164,7 @@ class CreateWholesalePartsAction
             'ic_description' => $part['ic_description'] ?? '',
             'is_virtual' => false,
             'created_by' => $this->user->id,
-            'user_id' => Consts::DODSON_USER,
+            'user_id' => Consts::getPartsSaleUserId(),
         ]);
         $card = $position->card()->create([
             'parent_inner_id' => $this->generateInnerId(\Str::random(10) . now()),
@@ -238,7 +253,7 @@ class CreateWholesalePartsAction
                 'ic_description' => null,
                 'is_virtual' => false,
                 'created_by' => $this->user->id,
-                'user_id' => Consts::DODSON_USER,
+                'user_id' => Consts::getPartsSaleUserId(),
             ]);
             $card = $position->card()->create([
                 'parent_inner_id' => $this->generateInnerId(\Str::random(10) . now()),
