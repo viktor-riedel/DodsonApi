@@ -14,7 +14,7 @@ class BaseItemModificationsGlobalUpdateAction
 
     public function handle(Request $request, NomenclatureBaseItem $nomenclatureBaseItem): bool
     {
-        if (count($request->input('ic_list'))) {
+        if (is_array($request->input('ic_list')) && count($request->input('ic_list'))) {
             foreach($request->input('ic_list') as $icNumber) {
                 $icNum = NomenclatureBaseItemPdrPosition::with('nomenclatureBaseItemModifications')->find($icNumber['id']);
                 $icNum->nomenclatureBaseItemModifications()?->delete();
