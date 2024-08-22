@@ -7,9 +7,11 @@ use App\Http\Resources\AvailableCars\GenerationResource;
 use App\Http\Resources\AvailableCars\MakeResource;
 use App\Http\Resources\AvailableCars\ModelResource;
 use App\Http\Resources\Car\CarResource;
+use App\Http\Resources\Car\ContrAgentResource;
 use App\Http\Resources\Car\CreatedByResource;
 use App\Models\Car;
 use App\Models\CarPdrPositionCardPrice;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -23,7 +25,24 @@ class AllCarsController extends Controller
         $generation = $request->get('generation');
         $car_status = $request->get('status', -1);
         $user = $request->get('user', -1);
+        $agent = $request->get('agent');
         $text = $request->get('search');
+        $dateStart = null;
+        $dateStop = null;
+        if ($request->get('dateStart')) {
+            try {
+                $dateStart = Carbon::createFromFormat('d/m/Y', $request->get('dateStart'))->format('Y-m-d');
+            } catch (\Exception $e) {
+                //
+            }
+        }
+        if ($request->get('dateStop')) {
+            try {
+                $dateStop = Carbon::createFromFormat('d/m/Y', $request->get('dateStop'))->format('Y-m-d');
+            } catch (\Exception $e) {
+                //
+            }
+        }
 
         $cars = Car::with(['images', 'carAttributes', 'carFinance',
             'modification', 'positions', 'positions.card', 'latestSyncData',
@@ -40,8 +59,17 @@ class AllCarsController extends Controller
             ->when($car_status, function ($query) use ($car_status) {
                 return $query->where('car_status', $car_status);
             })
+            ->when($agent, function($query) use ($agent) {
+                return $query->where('contr_agent_name', $agent);
+            })
             ->when($user, function ($query) use ($user) {
                 return $query->where('created_by', $user);
+            })
+            ->when($dateStart, function ($query) use ($dateStart) {
+                return $query->where('created_at', '>=', $dateStart);
+            })
+            ->when($dateStop, function ($query) use ($dateStop) {
+                return $query->where('created_at', '<=', $dateStop);
             })
             ->where(function ($query) use ($text) {
                 return $query->when($text, function ($query) use ($text) {
@@ -111,5 +139,21 @@ class AllCarsController extends Controller
             ->pluck('createdBy')
             ->unique();
         return CreatedByResource::collection($users);
+    }
+
+    public function agentsList(): AnonymousResourceCollection
+    {
+        $agents = Car::where('virtual', false)
+            ->whereNotNull('contr_agent_name')
+            ->where('contr_agent_name', '!=', '')
+            ->orderBy('contr_agent_name')
+            ->get()
+            ->pluck('contr_agent_name')
+            ->unique()
+            ->flatten()
+            ->transform(function ($item) {
+                return ['name' => $item];
+            });
+        return ContrAgentResource::collection($agents);
     }
 }
