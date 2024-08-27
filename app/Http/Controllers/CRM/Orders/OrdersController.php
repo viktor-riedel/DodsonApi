@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\CRM\Orders;
 
+use App\Exports\Excel\CreatedCarsOrdersExcelExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Car\CarResource;
 use App\Http\Resources\CRM\Orders\OrderResource;
@@ -11,6 +12,7 @@ use App\Http\Resources\Order\OrderItemResource;
 use App\Models\Car;
 use App\Models\CarPdrPosition;
 use App\Models\Order;
+use Excel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -68,6 +70,22 @@ class OrdersController extends Controller
     {
         $order->update(['order_status' => (int) $request->input('status')]);
         return response()->json($this->getFullOrderData($order));
+    }
+
+    public function export(Request $request): JsonResponse
+    {
+        $userId = $request->get('userId');
+        $orders = Order::with('items', 'createdBy')
+            ->when($userId, function ($query) use ($userId) {
+                return $query->where('user_id', $userId);
+            })
+            ->withCount('items')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        $filename = 'orders/export/orders_' . now()->toDateTimeString() . '.xlsx';
+        Excel::store(new CreatedCarsOrdersExcelExport($orders), $filename, 's3', null, ['visibility' => 'public']);
+        $url = \Storage::disk('s3')->url($filename);
+        return response()->json(['link' => $url]);
     }
 
     private function getFullOrderData(Order $order): array
