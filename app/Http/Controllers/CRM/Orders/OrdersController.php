@@ -82,7 +82,7 @@ class OrdersController extends Controller
             ->withCount('items')
             ->orderBy('created_at', 'desc')
             ->get();
-        $filename = 'orders/export/' . now()->toDateTimeString() . '.xlsx';
+        $filename = 'orders/export/orders_' . now()->toDateTimeString() . '.xlsx';
         Excel::store(new CreatedCarsOrdersExcelExport($orders), $filename, 's3', null, ['visibility' => 'public']);
         $url = \Storage::disk('s3')->url($filename);
         return response()->json(['link' => $url]);
