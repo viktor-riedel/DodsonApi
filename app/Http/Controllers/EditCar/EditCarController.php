@@ -395,13 +395,18 @@ class EditCarController extends Controller
 
     public function setPartsUser(Request $request, Car $car, User $user): JsonResponse
     {
-        $car->load('positions');
+        $car->load('positions', 'positions.card');
         if ($car->positions->count()) {
             foreach($car->positions as $position) {
+                if ($position->card->position->client && $position->card->position->client->id !== $user->id) {
+                    $this->deletePartFromOrder($car, $position->card->client->id, $position->position);
+                }
                 $position->update(['user_id' => $user->id]);
+                //sync with order if any
+                $this->addPartToOrder($car, $user->id, $position);
             }
         }
-        return response()->json([], 204);
+        return response()->json([], 202);
     }
 
     public function updateICNumber(Request $request, Car $car, CarPdrPositionCard $card): JsonResponse
@@ -491,8 +496,8 @@ class EditCarController extends Controller
 
     public function setClient(Request $request, Car $car, CarPdrPositionCard $card): JsonResponse
     {
-        if ($card->position->client) {
-            //check if we reassign a client
+        //check if we reassign a client
+        if ($card->position->client && $card->position->client->id !== (int) $request->input('client_id')) {
             $this->deletePartFromOrder($car, $card->position->client->id, $card->position);
         }
         $card->position->update([
@@ -500,7 +505,7 @@ class EditCarController extends Controller
         ]);
         //sync with order if any
         $this->addPartToOrder($car, $request->input('client_id'), $card->position);
-        return response()->json([], 204);
+        return response()->json([], 202);
     }
 
     public function linksList(Request $request, Car $car): AnonymousResourceCollection
