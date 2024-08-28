@@ -86,6 +86,10 @@ trait SyncPartWithOrderTrait
                     ->where('car_id', $car->id)
                     ->get();
                 $order = $items->first()->order;
+                if (!$order) {
+                    \Log::error('Not order found for car ' . $car->id);
+                    return;
+                }
                 //update order
                 $order->update([
                     'order_number' => $invoice['Number'],
