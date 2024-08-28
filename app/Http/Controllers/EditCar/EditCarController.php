@@ -398,8 +398,8 @@ class EditCarController extends Controller
         $car->load('positions', 'positions.card');
         if ($car->positions->count()) {
             foreach($car->positions as $position) {
-                if ($position->card->position->client && $position->card->position->client->id !== $user->id) {
-                    $this->deletePartFromOrder($car, $position->card->client->id, $position->position);
+                if ($position->client && $position->client->id !== $user->id) {
+                    $this->deletePartFromOrder($car, $position->client->id, $position);
                 }
                 $position->update(['user_id' => $user->id]);
                 //sync with order if any
