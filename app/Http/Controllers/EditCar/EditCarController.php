@@ -103,21 +103,23 @@ class EditCarController extends Controller
                 $fileName = \Str::random();
                 $originFileName = $file->getFilename();
                 $folderName = 'cars/' . $car->id . '/photos';
-                $mime = $file->getMimeType();
-                $fileExtension = '.'.$file->clientExtension();
-                $savePath = $folderName.'/'.$fileName.$fileExtension;
+                $mime = $file?->getMimeType();
+                $fileExtension = '.' . $file?->clientExtension() ?? 'jpg';
+                $savePath = $folderName . '/' . $fileName . $fileExtension;
                 $size = $file->getSize();
-                $storage->put($savePath, $file->getContent(), 'public');
-                $car->images()->create([
-                    'url' => $storage->url($savePath),
-                    'mime' => $mime,
-                    'original_file_name' => $originFileName,
-                    'folder_name' => $folderName,
-                    'extension' => $fileExtension,
-                    'file_size' => $size,
-                    'special_flag' => null,
-                    'created_by' => $request->user()->id,
-                ]);
+                if ($size) {
+                    $storage->put($savePath, $file->getContent(), 'public');
+                    $car->images()->create([
+                        'url' => $storage->url($savePath),
+                        'mime' => $mime,
+                        'original_file_name' => $originFileName,
+                        'folder_name' => $folderName,
+                        'extension' => $fileExtension,
+                        'file_size' => $size,
+                        'special_flag' => null,
+                        'created_by' => $request->user()->id,
+                    ]);
+                }
             }
         }
         return response()->json($car->images);
