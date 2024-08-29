@@ -32,17 +32,18 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         $request->session()->regenerate();
-
-        event(new LoginSuccessEvent(
-            $request->user()->id, 'Login',
-            'Login successful '.PHP_EOL.'Last login was: ' .
-            (
-                $request->user()->last_login_at ?
-                Carbon::parse($request->user()->last_login_at)->format('d/m/Y')
-                : now()->format('d/m/Y')
-            ),
-            'success')
-        );
+        if (!$user->is_api_user) {
+            event(new LoginSuccessEvent(
+                    $request->user()->id, 'Login',
+                    'Login successful '.PHP_EOL.'Last login was: ' .
+                    (
+                    $request->user()->last_login_at ?
+                        Carbon::parse($request->user()->last_login_at)->format('d/m/Y')
+                        : now()->format('d/m/Y')
+                    ),
+                    'success')
+            );
+        }
         $user->update(['last_login_at' => now()]);
         $userRole = $user->getRoleNames()->first();
         if (!$userRole) {
@@ -54,6 +55,7 @@ class AuthController extends Controller
            'email' => $user->email,
            'access_token' => $token,
            'token_type' => 'Bearer',
+            'is_api_user' => $user->is_api_user,
         ]);
     }
 
