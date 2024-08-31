@@ -56,17 +56,17 @@ trait SyncPartWithOrderTrait
         }
     }
 
-    private function deletePartFromOrder(Car $car, int $userId, CarPdrPosition $position): void
+    private function deletePartFromOrder(Car $car, CarPdrPosition $position): void
     {
         //get items
-        $item = OrderItem::with('order')
+        $items = OrderItem::with('order')
             ->where([
                 'car_id' => $car->id,
                 'item_name_eng' => $position->item_name_eng,
-                'user_id' => $userId
                 ])
-            ->first();
-        if ($item) {
+            ->get();
+
+        foreach($items as $item) {
             //get order
             $order = $item->order;
             $item->delete();

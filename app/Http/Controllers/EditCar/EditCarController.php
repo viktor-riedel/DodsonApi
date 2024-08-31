@@ -545,10 +545,7 @@ class EditCarController extends Controller
 
     public function setClient(Request $request, Car $car, CarPdrPositionCard $card): JsonResponse
     {
-        //check if we reassign a client
-        if ($card->position->client && $card->position->client->id !== (int) $request->input('client_id')) {
-            $this->deletePartFromOrder($car, $card->position->client->id, $card->position);
-        }
+        $this->deletePartFromOrder($car, $card->position);
         $card->position->update([
             'user_id' => $request->input('client_id'),
         ]);
@@ -562,16 +559,12 @@ class EditCarController extends Controller
         if (count($request->all())) {
             foreach($request->all() as $position) {
                 $card = CarPdrPositionCard::with('position')->find($position['card_id']);
-                if ($card->position->user_id !== $position['user_id']) {
-                    if ($card->position->client) {
-                        $this->deletePartFromOrder($car, $card->position->client->id, $card->position);
-                    }
+                    $this->deletePartFromOrder($car, $card->position);
                     $card->position->update([
                         'user_id' => $position['user_id'],
                     ]);
                     //sync with order if any
                     $this->addPartToOrder($car, $position['user_id'], $card->position);
-                }
             }
         }
         return response()->json([], 202);

@@ -53,13 +53,28 @@ trait DefaultSellingMapTrait
         $orderItems = OrderItem::where('car_id', $car->id)->get();
         $partsList = $this->getPricingPartsList($car);
         $parts = $partsList->pluck('name_eng')->toArray();
+        $car->load('pdrs', 'pdrs.positions', 'pdrs.positions.card.comments');
 
         foreach ($directories as $directory) {
             $directory->items = SellingMapItem::where('parent_id', $directory->id)
                 ->whereIn('item_name_eng', $parts)
-                ->get()->each(function($item) use ($orderItems, $partsList) {
-                    $item->available =
-                        $orderItems->where('item_name_eng', $item->item_name_eng)->count() === 0;
+                ->get()->each(function($item) use ($partsList, $car) {
+                    $userAssigned = false;
+                    foreach($car->pdrs as $pdr) {
+                        $position = $pdr->positions()->where('item_name_eng', $item->item_name_eng)->first();
+                        if ($position) {
+                            $userAssigned = $position->user_id && $position->user_id !== 135;
+                            if ($position->card->comments->count() > 0) {
+                                foreach($position->card->comments as $comment) {
+                                    if ($comment->user_id === auth()->user()->id) {
+                                        $userAssigned = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    $item->available = !$userAssigned;
+                        //$orderItems->where('item_name_eng', $item->item_name_eng)->count() === 0;
                     $item->price_jp = $partsList->where('name_eng', $item->item_name_eng)
                         ->first()->card->priceCard->pricing_jp_wholesale ?? 0;
                     $item->price_ru = $partsList->where('name_eng', $item->item_name_eng)
