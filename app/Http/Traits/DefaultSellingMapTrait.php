@@ -2,6 +2,7 @@
 
 namespace App\Http\Traits;
 
+use App\Helpers\Consts;
 use App\Models\Car;
 use App\Models\OrderItem;
 use App\Models\PartList;
@@ -50,7 +51,6 @@ trait DefaultSellingMapTrait
     private function getDefaultSellingMapWithOrdered(Car $car): Collection
     {
         $directories = SellingMapItem::where('parent_id', 0)->get();
-        $orderItems = OrderItem::where('car_id', $car->id)->get();
         $partsList = $this->getPricingPartsList($car);
         $parts = $partsList->pluck('name_eng')->toArray();
         $car->load('pdrs', 'pdrs.positions', 'pdrs.positions.card.comments');
@@ -63,7 +63,7 @@ trait DefaultSellingMapTrait
                     foreach($car->pdrs as $pdr) {
                         $position = $pdr->positions()->where('item_name_eng', $item->item_name_eng)->first();
                         if ($position) {
-                            $userAssigned = $position->user_id && $position->user_id !== 135;
+                            $userAssigned = $position->user_id && Consts::DODSON_PARTS_SALE_USER;
                             if ($position->card->comments->count() > 0) {
                                 foreach($position->card->comments as $comment) {
                                     if ($comment->user_id === auth()->user()->id) {
@@ -74,7 +74,6 @@ trait DefaultSellingMapTrait
                         }
                     }
                     $item->available = !$userAssigned;
-                        //$orderItems->where('item_name_eng', $item->item_name_eng)->count() === 0;
                     $item->price_jp = $partsList->where('name_eng', $item->item_name_eng)
                         ->first()->card->priceCard->pricing_jp_wholesale ?? 0;
                     $item->price_ru = $partsList->where('name_eng', $item->item_name_eng)
