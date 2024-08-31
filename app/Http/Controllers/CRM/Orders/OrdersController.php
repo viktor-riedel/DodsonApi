@@ -97,6 +97,7 @@ class OrdersController extends Controller
             $car->load('images', 'carAttributes', 'modifications');
         }
 
+        // if parts order
         if ($order->items()->count()) {
             $order->items->each(function($item) {
                 $item->pdr = CarPdrPosition::with('carPdr', 'carPdr.car')->find($item->part_id);

@@ -12,6 +12,8 @@ class OrderItemResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'make' => $this->car?->make,
+            'model' => $this->car?->model,
             'item_name_eng' => $this->item_name_eng,
             'item_name_ru' => $this->item_name_ru,
             'status_en' => $this->item_status_en,
