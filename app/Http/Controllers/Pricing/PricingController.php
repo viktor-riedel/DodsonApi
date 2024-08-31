@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Traits\CarPdrTrait;
 use App\Models\Car;
 use App\Models\CarPdrPositionCardPrice;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PricingController extends Controller
 {
     use CarPdrTrait;
 
-    public function list(Car $car): \Illuminate\Http\JsonResponse
+    public function list(Car $car): JsonResponse
     {
         $car->load('markets');
         $partsList = $this->getPricingPartsList($car);
@@ -22,7 +23,7 @@ class PricingController extends Controller
         ]);
     }
 
-    public function updateSellingPrices(Request $request, Car $car): \Illuminate\Http\JsonResponse
+    public function updateSellingPrices(Request $request, Car $car): JsonResponse
     {
         $priceCard = CarPdrPositionCardPrice::find($request->integer('id'));
         if ($priceCard) {

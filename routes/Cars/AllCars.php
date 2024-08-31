@@ -27,6 +27,7 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
         Route::post('/generate-dismantling-badges', [EditCarController::class, 'generateDismantlingBadges']);
         Route::get('/generate-dismantling-document', [EditCarController::class, 'generateDismantlingDocument']);
         Route::delete('/delete-part/{card}', [EditCarController::class, 'deletePart']);
+        Route::patch('/delete-parts', [EditCarController::class, 'deleteParts']);
         Route::post('/upload-part-photo/{card}', [EditCarController::class, 'uploadPartPhoto']);
         Route::delete('/delete-part-photo/{card}/{photo}', [EditCarController::class, 'deletePartPhoto']);
         Route::patch('/update-attributes/{card}', [EditCarController::class, 'updateAttributes']);
@@ -45,6 +46,7 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
             Route::patch('/price-currency/{card}', [EditCarController::class, 'updatePriceCurrency']);
             Route::patch('/buying-price/{card}', [EditCarController::class, 'updateBuyingPrice']);
             Route::patch('/selling-price/{card}', [EditCarController::class, 'updateSellingPrice']);
+            Route::patch('/update-prices', [EditCarController::class, 'updateSellingBuyingPrices']);
             Route::prefix('/comment')->group(function() {
                 Route::patch('/{card}', [EditCarController::class, 'updateComment']);
                 Route::delete('/{card}', [EditCarController::class, 'deleteComments']);
@@ -52,6 +54,7 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
             Route::patch('/ic-description/{card}', [EditCarController::class, 'updateIcDescription']);
             Route::patch('/set-parts-price', [EditCarController::class, 'setPartsPrice']);
             Route::patch('/set-part-client/{card}', [EditCarController::class, 'setClient']);
+            Route::patch('/set-parts-client', [EditCarController::class, 'setPartsClient']);
         });
 
         Route::prefix('/pricing')->group(function() {

@@ -14,7 +14,7 @@ class Consts
         if (Cache::has(self::DODSON_USER_KEY)) {
             return Cache::get(self::DODSON_USER_KEY);
         }
-        $id = User::whereHas("userCard", function ($q) {
+        $id = User::whereHas("userCard", static function ($q) {
             return $q->where("parts_sale_user", 1);
         })->first()?->id;
 
