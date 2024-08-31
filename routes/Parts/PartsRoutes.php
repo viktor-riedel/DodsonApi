@@ -10,6 +10,7 @@ Route::prefix('parts')->middleware('auth:sanctum')->group(function () {
     Route::prefix('/search')->group(function() {
         Route::get('/makes', [PartsController::class, 'makes']);
         Route::get('/models/{make}', [PartsController::class, 'models']);
+        Route::get('/years/{make}/{model}', [PartsController::class, 'years']);
     });
 
     Route::prefix('part/{part}')->group(function() {
