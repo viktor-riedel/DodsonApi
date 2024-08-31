@@ -76,6 +76,16 @@ trait SyncPartWithOrderTrait
                 $order->delete();
             }
         }
+
+        // re calc sums
+        $orders = Order::with('items')
+            ->whereHas('items', fn($q) => $q->where('car_id', $car->id))
+            ->get();
+        foreach($orders as $order) {
+            $order->update([
+                'order_total' => $order->items->sum('price_jpy')
+            ]);
+        }
     }
 
     private function syncOrdersWithDoneResponse(Car $car, array $invoices): void
