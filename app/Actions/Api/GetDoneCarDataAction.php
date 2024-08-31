@@ -4,6 +4,7 @@ namespace App\Actions\Api;
 
 use App\Models\Car;
 use App\Models\NomenclatureBaseItem;
+use App\Models\OrderItem;
 use App\Models\StatusUpdateLog;
 
 class GetDoneCarDataAction
@@ -108,6 +109,10 @@ class GetDoneCarDataAction
 
         foreach($car->positions as $position) {
             $result['car']['items'][] = [
+                'order_number' => OrderItem::with('order')
+                    ->where('car_id', $car->id)
+                    ->where('user_id', $position->client->id)
+                    ->first()?->order?->order_number,
                 'inner_id' => $position->card?->parent_inner_id,
                 'item_name_ru' => $position->card?->name_ru,
                 'item_name_eng' => $position->card?->name_eng,
