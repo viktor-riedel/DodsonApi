@@ -56,6 +56,26 @@ trait SyncPartWithOrderTrait
         }
     }
 
+    private function deleteUserPartFromOrder(Car $car, int $userId, CarPdrPosition $position): void
+    {
+        $item = OrderItem::with('order')
+            ->where([
+                'car_id' => $car->id,
+                'item_name_eng' => $position->item_name_eng,
+                'user_id' => $userId,
+            ])
+            ->first();
+        if ($item) {
+            $order = $item->order;
+            $item->delete();
+            $order->refresh();
+            //check if order is empty
+            if (!$order->items->count()) {
+                $order->delete();
+            }
+        }
+    }
+
     private function deletePartFromOrder(Car $car, CarPdrPosition $position): void
     {
         //get items

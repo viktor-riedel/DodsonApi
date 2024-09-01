@@ -300,9 +300,7 @@ class EditCarController extends Controller
                     $card->images()->update(['deleted_by' => $request->user()->id]);
                     $card->position()->update(['deleted_by' => $request->user()->id]);
 
-                    if ($card->position->client) {
-                        $this->deletePartFromOrder($car, $card->position);
-                    }
+                    $this->deletePartFromOrder($car, $card->position);
 
                     $carPdr = $card->position->carPdr;
                     $card->position()->delete();
@@ -430,9 +428,7 @@ class EditCarController extends Controller
         $car->load('positions', 'positions.card');
         if ($car->positions->count()) {
             foreach($car->positions as $position) {
-                if ($position->client && $position->client->id !== $user->id) {
-                    $this->deletePartFromOrder($car, $position);
-                }
+                $this->deletePartFromOrder($car, $position);
                 $position->update(['user_id' => $user->id]);
                 //sync with order if any
                 $this->addPartToOrder($car, $user->id, $position);
