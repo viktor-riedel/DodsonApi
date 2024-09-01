@@ -63,7 +63,8 @@ trait DefaultSellingMapTrait
                     foreach($car->pdrs as $pdr) {
                         $position = $pdr->positions()->where('item_name_eng', $item->item_name_eng)->first();
                         if ($position) {
-                            $userAssigned = $position->user_id && Consts::DODSON_PARTS_SALE_USER;
+                            //$userAssigned = $position->user_id && Consts::DODSON_PARTS_SALE_USER;
+                            $userAssigned = $position->user_id;
                             if ($position->card->comments->count() > 0) {
                                 foreach($position->card->comments as $comment) {
                                     if ($comment->user_id === auth()->user()->id) {
@@ -74,14 +75,20 @@ trait DefaultSellingMapTrait
                         }
                     }
                     $item->available = !$userAssigned;
-                    $item->price_jp = $partsList->where('name_eng', $item->item_name_eng)
-                        ->first()->card->priceCard->pricing_jp_wholesale ?? 0;
-                    $item->price_ru = $partsList->where('name_eng', $item->item_name_eng)
-                        ->first()->card->priceCard->pricing_ru_wholesale ?? 0;
-                    $item->price_nz = $partsList->where('name_eng', $item->item_name_eng)
-                        ->first()->card->priceCard->pricing_nz_wholesale ?? 0;
-                    $item->price_mng = $partsList->where('name_eng', $item->item_name_eng)
-                        ->first()->card->priceCard->pricing_mng_wholesale ?? 0;
+                    $price = $partsList->where('name_eng', $item->item_name_eng)
+                        ->first()->card->priceCard->buying_price ?? 0;
+                    $item->price_jp = $price;
+                    $item->price_ru = $price;
+                    $item->price_nz = $price;
+                    $item->price_mng = $price;
+//                    $item->price_jp = $partsList->where('name_eng', $item->item_name_eng)
+//                        ->first()->card->priceCard->pricing_jp_wholesale ?? 0;
+//                    $item->price_ru = $partsList->where('name_eng', $item->item_name_eng)
+//                        ->first()->card->priceCard->pricing_ru_wholesale ?? 0;
+//                    $item->price_nz = $partsList->where('name_eng', $item->item_name_eng)
+//                        ->first()->card->priceCard->pricing_nz_wholesale ?? 0;
+//                    $item->price_mng = $partsList->where('name_eng', $item->item_name_eng)
+//                        ->first()->card->priceCard->pricing_mng_wholesale ?? 0;
                 });
         }
         return $directories;

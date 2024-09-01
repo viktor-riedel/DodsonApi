@@ -15,10 +15,9 @@ class SellingMapItem extends Model
         'item_name_eng',
         'item_name_ru',
         'comment',
-        'price_jpy',
-        'price_rub',
-        'price_nzd',
-        'price_mng',
+        'price_a_jpy',
+        'price_b_jpy',
+        'price_c_jpy',
     ];
 
     public function items(): HasMany

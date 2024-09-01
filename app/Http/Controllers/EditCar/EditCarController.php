@@ -7,6 +7,7 @@ use App\Actions\CreateCar\AddMiscPartsAction;
 use App\Actions\CreateCar\AddPartsFromModificationListAction;
 use App\Actions\CreateCar\AddPartsFromSellingListAction;
 use App\Actions\CreateCar\ChangeModificationAction;
+use App\Actions\CreateCar\SetDefaultPriceCategoryAction;
 use App\Actions\CreateCar\UpdateIcNumberAction;
 use App\Exports\Excel\CreatedCarPartsExcelExport;
 use App\Http\Controllers\Controller;
@@ -180,7 +181,7 @@ class EditCarController extends Controller
             'price_without_engine_jp' => $request->integer('price_without_engine_jp'),
             'purchase_price' => $request->integer('purchase_price'),
             'car_is_for_sale' => (bool) $request->input('car_is_for_sale'),
-            'parts_for_sale' => (bool) $request->input('parts_for_sale'),
+            'parts_for_sale' => false, //(bool) $request->input('parts_for_sale'),
         ]);
 
 
@@ -493,6 +494,12 @@ class EditCarController extends Controller
             }
         }
         return response()->json([], 204);
+    }
+
+    public function setDefaultPriceCategory(Request $request, Car $car): JsonResponse
+    {
+        app()->make(SetDefaultPriceCategoryAction::class)->handle($car, $request->input('category'));
+        return response()->json([], 202);
     }
 
     public function updateComment(Request $request, Car $car, CarPdrPositionCard $card): JsonResponse

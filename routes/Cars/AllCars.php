@@ -47,6 +47,7 @@ Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
             Route::patch('/buying-price/{card}', [EditCarController::class, 'updateBuyingPrice']);
             Route::patch('/selling-price/{card}', [EditCarController::class, 'updateSellingPrice']);
             Route::patch('/update-prices', [EditCarController::class, 'updateSellingBuyingPrices']);
+            Route::patch('/set-default-price-category', [EditCarController::class, 'setDefaultPriceCategory']);
             Route::prefix('/comment')->group(function() {
                 Route::patch('/{card}', [EditCarController::class, 'updateComment']);
                 Route::delete('/{card}', [EditCarController::class, 'deleteComments']);

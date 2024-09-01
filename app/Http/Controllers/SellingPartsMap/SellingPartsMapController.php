@@ -9,6 +9,7 @@ use App\Http\Traits\DefaultSellingMapTrait;
 use App\Models\SellingMapItem;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class SellingPartsMapController extends Controller
 {
@@ -24,14 +25,14 @@ class SellingPartsMapController extends Controller
         'Other Parts',
     ];
 
-    public function list(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function list(): AnonymousResourceCollection
     {
         $this->createMainFolders(self::MAIN_DIRECTORIES);
         $map = $this->getDefaultSellingMap();
         return SellingMapItemResource::collection($map);
     }
 
-    public function partsList(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function partsList(): AnonymousResourceCollection
     {
         return DefaultItemResource::collection($this->getDefaultPartsListWithoutUsed());
     }
@@ -70,9 +71,24 @@ class SellingPartsMapController extends Controller
 
     public function updatePartPrice(Request $request, SellingMapItem $item): JsonResponse
     {
-        $item->update([
-            'price_jpy' => $request->input('price'),
-        ]);
+        switch ($request->input('category')) {
+            case 'A':
+                $item->update([
+                    'price_a_jpy' => $request->integer('price'),
+                ]);
+                break;
+            case 'B':
+                $item->update([
+                    'price_b_jpy' => $request->integer('price'),
+                ]);
+                break;
+            case 'C':
+                $item->update([
+                    'price_c_jpy' => $request->integer('price'),
+                ]);
+                break;
+            default:
+        }
         return response()->json([], 202);
     }
 

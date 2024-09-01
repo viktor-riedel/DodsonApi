@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\StockCars;
 
-use App\Events\StockCars\AddedToWishListEvent;
-use App\Events\StockCars\RemovedFromWishListEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SellingPartsMap\SellingMapItemResource;
 use App\Http\Resources\StockCars\GenerationResource;
