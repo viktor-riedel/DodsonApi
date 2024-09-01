@@ -11,8 +11,6 @@ Route::prefix('create-car')->middleware('auth:sanctum')->group(function() {
        Route::get('/{make}/{model}/generations', [CreateCarController::class, 'generations']);
        Route::get('/{make}/{model}/{generation}/modifications', [CreateCarController::class, 'modifications']);
        Route::get('/{make}/{model}/{generation}/{modification}/parts-list', [CreateCarController::class, 'partsList']);
-       Route::get('/misc-parts-list', [CreateCarController::class, 'miscPartsList']);
-       Route::get('/sliced-misc-parts-list', [CreateCarController::class, 'slicedMiscPartsList']);
        Route::get('/contr-agents', [CreateCarController::class, 'contrAgents']);
        Route::post('/upload-image', [CreateCarController::class, 'uploadPhoto']);
        Route::post('/create-new-car', [CreateCarController::class, 'createNewCar']);

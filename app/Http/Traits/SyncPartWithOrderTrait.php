@@ -56,17 +56,37 @@ trait SyncPartWithOrderTrait
         }
     }
 
-    private function deletePartFromOrder(Car $car, int $userId, CarPdrPosition $position): void
+    private function deleteUserPartFromOrder(Car $car, int $userId, CarPdrPosition $position): void
     {
-        //get items
         $item = OrderItem::with('order')
             ->where([
                 'car_id' => $car->id,
                 'item_name_eng' => $position->item_name_eng,
-                'user_id' => $userId
-                ])
+                'user_id' => $userId,
+            ])
             ->first();
         if ($item) {
+            $order = $item->order;
+            $item->delete();
+            $order->refresh();
+            //check if order is empty
+            if (!$order->items->count()) {
+                $order->delete();
+            }
+        }
+    }
+
+    private function deletePartFromOrder(Car $car, CarPdrPosition $position): void
+    {
+        //get items
+        $items = OrderItem::with('order')
+            ->where([
+                'car_id' => $car->id,
+                'item_name_eng' => $position->item_name_eng,
+                ])
+            ->get();
+
+        foreach($items as $item) {
             //get order
             $order = $item->order;
             $item->delete();
@@ -75,6 +95,16 @@ trait SyncPartWithOrderTrait
             if (!$order->items->count()) {
                 $order->delete();
             }
+        }
+
+        // re calc sums
+        $orders = Order::with('items')
+            ->whereHas('items', fn($q) => $q->where('car_id', $car->id))
+            ->get();
+        foreach($orders as $order) {
+            $order->update([
+                'order_total' => $order->items->sum('price_jpy')
+            ]);
         }
     }
 

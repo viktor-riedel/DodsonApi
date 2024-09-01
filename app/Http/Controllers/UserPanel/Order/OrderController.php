@@ -31,10 +31,14 @@ class OrderController extends Controller
                 ->where('id', $order->id)
                 ->with('items')
                 ->first();
-        $userOrder?->items->each(function ($item) use ($order) {
+        $userOrder?->items->each(function ($item) {
            if ($item->part_id) {
                $item->pdr = CarPdrPosition::with('carPdr', 'carPdr.car', 'carPdr.car.modifications')
                 ->find($item->part_id);
+           } else {
+               $car = Car::find($item->car_id);
+               $item->make = $car->make;
+               $item->model = $car->model;
            }
         });
         if (!$userOrder) {

@@ -7,6 +7,7 @@ use App\Events\Sync\Export\CarDoneEvent;
 use App\Http\ExternalApiHelpers\SendDoneCar;
 use App\Http\Traits\SyncPartWithOrderTrait;
 use App\Models\Car;
+use App\Models\Order;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -44,6 +45,14 @@ class SendDoneCarJob implements ShouldQueue
                         null,
                     'created_by' => $this->user->id,
                 ]);
+                //set status
+                $orders = Order::where('car_id', $this->car->id)->get();
+                foreach($orders as $order) {
+                    $order->update(['order_status' => Order::ORDER_STATUS_INT['COMPLETE']]);
+                    $order->refresh();
+                    $order->setItemsStatus();
+                }
+
                 $this->syncOrdersWithDoneResponse($this->car, $response['Invoices'] ?? []);
                 event(new CarDoneEvent($this->user, $this->car, false, true, $response['Date'], $response['Number']));
             }

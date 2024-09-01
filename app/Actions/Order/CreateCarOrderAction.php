@@ -9,7 +9,6 @@ use App\Http\Traits\InnerIdTrait;
 use App\Mail\UserOrderCreatedMail;
 use App\Models\Car;
 use App\Models\CarPdr;
-use App\Models\CarPdrPositionCard;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
@@ -30,7 +29,7 @@ class CreateCarOrderAction
     private array $other = [];
     private User $user;
     private Car $car;
-
+    private ?Order $order;
 
     public function handle(Request $request, Car $car): int
     {
@@ -46,14 +45,14 @@ class CreateCarOrderAction
         $this->car = $car;
 
         //check if user already has an active order for that car
-        $order = OrderItem::with('order')->where([
+        $this->order = OrderItem::with('order')->where([
             'car_id' => $car->id,
             'user_id' => $this->user->id
         ])->first()?->order;
 
-        if (!$order) {
+        if (!$this->order) {
             // create order
-            $order = Order::create([
+            $this->order = Order::create([
                 'user_id' => $this->user->id,
                 'order_number' => $orderNumber,
                 'order_status' =>  Order::ORDER_STATUS_INT[Order::ORDER_STATUS_STRING[0]],
@@ -66,87 +65,78 @@ class CreateCarOrderAction
 
         //create items
         if (count($this->engine)) {
-            $this->createOrderItems($order, $car, $this->engine);
+            $this->createOrderItems($this->order, $car, $this->engine);
         }
         if (count($this->front)) {
-            $this->createOrderItems($order, $car, $this->front);
+            $this->createOrderItems($this->order, $car, $this->front);
         }
         if (count($this->exterior)) {
-            $this->createOrderItems($order, $car, $this->exterior);
+            $this->createOrderItems($this->order, $car, $this->exterior);
         }
         if (count($this->interior)) {
-            $this->createOrderItems($order, $car, $this->interior);
+            $this->createOrderItems($this->order, $car, $this->interior);
         }
         if (count($this->frontSuspension)) {
-            $this->createOrderItems($order, $car, $this->frontSuspension);
+            $this->createOrderItems($this->order, $car, $this->frontSuspension);
         }
         if (count($this->rearSuspension)) {
-            $this->createOrderItems($order, $car, $this->rearSuspension);
+            $this->createOrderItems($this->order, $car, $this->rearSuspension);
         }
         if (count($this->other)) {
-            $this->createOrderItems($order, $car, $this->other);
+            $this->createOrderItems($this->order, $car, $this->other);
         }
 
-        $order->update(['order_total' => $this->orderTotal]);
+        $this->order->update(['order_total' => $this->orderTotal]);
 
         // add parts to parts list of the car
         $this->createPartsEntries();
 
         //fire email event
-        event(new OrderCreatedEvent($this->user, $order));
+        event(new OrderCreatedEvent($this->user, $this->order));
 
         $emails = explode(',', config('mail.info_email'));
         if (count($emails)) {
             foreach ($emails as $email) {
-                \Mail::to($email)->send(new UserOrderCreatedMail($this->user, $order));
+                \Mail::to($email)->send(new UserOrderCreatedMail($this->user, $this->order));
             }
         }
 
-        return $order->id;
+        return $this->order->id;
     }
 
     private function createOrderItems(Order $order, Car $car, array $parts = []): void
     {
         foreach ($parts as $part) {
-
-            //check part already chosen by another user
-            $item = OrderItem::where([
+           $orderItem = $order->items()->create([
                 'car_id' => $car->id,
-                'item_name_eng' =>  $part['item_name_eng']
-            ])->first();
-
-            if (!$item) {
-                $orderItem = $order->items()->create([
-                    'car_id' => $car->id,
-                    'part_id' => null,
-                    'with_engine' => false,
-                    'item_name_eng' => $part['item_name_eng'] ?? '',
-                    'item_name_ru' => $part['item_name_ru'] ?? null,
-                    'price_jpy' => $part['price_jpy'] ?? 0,
-                    'engine_price' => 0,
-                    'catalyst_price' => 0,
-                    'user_id' => $this->user->id,
-                    'currency' => 'JPY',
-                ]);
-                switch ($this->user->country_code) {
-                    case 'JP':
-                        $orderItem->update(['price_jpy' => $part['price_jp']]);
-                        break;
-                    case 'NZ':
-                        $orderItem->update(['price_jpy' => $part['price_nz']]);
-                        break;
-                    case 'RU':
-                        $orderItem->update(['price_jpy' => $part['price_ru']]);
-                        break;
-                    case 'MNG':
-                        $orderItem->update(['price_jpy' => $part['price_mng']]);
-                        break;
-                    default:
-                        break;
-                }
-                $orderItem->refresh();
-                $this->orderTotal += (int) $orderItem->price_jpy;
+                'part_id' => null,
+                'with_engine' => false,
+                'item_name_eng' => $part['item_name_eng'] ?? '',
+                'item_name_ru' => $part['item_name_ru'] ?? null,
+                'price_jpy' => $part['price_jpy'] ?? 0,
+                'engine_price' => 0,
+                'catalyst_price' => 0,
+                'user_id' => $this->user->id,
+                'currency' => 'JPY',
+            ]);
+            switch ($this->user->country_code) {
+                case 'JP':
+                    $orderItem->update(['price_jpy' => $part['price_jp']]);
+                    break;
+                case 'NZ':
+                    $orderItem->update(['price_jpy' => $part['price_nz']]);
+                    break;
+                case 'RU':
+                    $orderItem->update(['price_jpy' => $part['price_ru']]);
+                    break;
+                case 'MNG':
+                    $orderItem->update(['price_jpy' => $part['price_mng']]);
+                    break;
+                default:
+                    break;
             }
+            $orderItem->refresh();
+            $this->orderTotal += (int) $orderItem->price_jpy;
         }
     }
 
@@ -189,7 +179,11 @@ class CreateCarOrderAction
             if ($position) {
                 $position->update([
                     'barcode' => $this->generateNextBarcode(),
-                    'user_id' => $this->user->id
+                    //'user_id' => $this->user->id
+                ]);
+                $position->card->comments()->create([
+                   'comment' => 'ORDER #' . $this->order->order_number,
+                   'user_id' => $this->user->id
                 ]);
                 switch ($this->user->country_code) {
                     case 'JP':

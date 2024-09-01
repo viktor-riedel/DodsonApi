@@ -74,4 +74,11 @@ class Order extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function setItemsStatus(): void
+    {
+        foreach($this->items as $item) {
+            $item->update(['order_status' => $this->status]);
+        }
+    }
 }

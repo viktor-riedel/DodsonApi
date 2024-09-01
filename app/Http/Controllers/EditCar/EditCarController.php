@@ -7,6 +7,7 @@ use App\Actions\CreateCar\AddMiscPartsAction;
 use App\Actions\CreateCar\AddPartsFromModificationListAction;
 use App\Actions\CreateCar\AddPartsFromSellingListAction;
 use App\Actions\CreateCar\ChangeModificationAction;
+use App\Actions\CreateCar\SetDefaultPriceCategoryAction;
 use App\Actions\CreateCar\UpdateIcNumberAction;
 use App\Exports\Excel\CreatedCarPartsExcelExport;
 use App\Http\Controllers\Controller;
@@ -21,6 +22,7 @@ use App\Jobs\Sync\SendCarToBotJob;
 use App\Jobs\Sync\SendDoneCarJob;
 use App\Models\Car;
 use App\Models\CarPartsComment;
+use App\Models\CarPdrPosition;
 use App\Models\CarPdrPositionCard;
 use App\Models\CarPdrPositionCardAttribute;
 use App\Models\CarPdrPositionCardPrice;
@@ -50,7 +52,7 @@ class EditCarController extends Controller
             'latestSyncData',
             'markets',
             'carFinance');
-        $parts = []; //$this->buildPdrTreeWithoutEmpty($car, false);
+        $parts = [];
         $defaultSellingParts = $this->getDefaultSellingMap();
         $partsList = $this->getPartsList($car);
         $clients = User::withoutRole('ADMIN')
@@ -179,7 +181,7 @@ class EditCarController extends Controller
             'price_without_engine_jp' => $request->integer('price_without_engine_jp'),
             'purchase_price' => $request->integer('purchase_price'),
             'car_is_for_sale' => (bool) $request->input('car_is_for_sale'),
-            'parts_for_sale' => (bool) $request->input('parts_for_sale'),
+            'parts_for_sale' => false, //(bool) $request->input('parts_for_sale'),
         ]);
 
 
@@ -271,8 +273,9 @@ class EditCarController extends Controller
 
         //sync with order
         if ($card->position->client) {
-            $this->deletePartFromOrder($car, $card->position->client->id, $card->position);
+            $this->deletePartFromOrder($car, $card->position);
         }
+
         $carPdr = $card->position->carPdr;
         $card->position()->delete();
 
@@ -286,6 +289,32 @@ class EditCarController extends Controller
         $partsList = $this->getPartsList($car);
         $car->unsetRelation('pdrs');
         return response()->json($partsList);
+    }
+
+    public function deleteParts(Request $request, Car $car): JsonResponse
+    {
+        if (count($request->all())) {
+            foreach($request->all() as $position) {
+                $card = CarPdrPositionCard::find($position['card_id']);
+                if ($card) {
+                    $card->update(['deleted_by' => $request->user()->id]);
+                    $card->images()->update(['deleted_by' => $request->user()->id]);
+                    $card->position()->update(['deleted_by' => $request->user()->id]);
+
+                    $this->deletePartFromOrder($car, $card->position);
+
+                    $carPdr = $card->position->carPdr;
+                    $card->position()->delete();
+
+                    //delete folder is empty
+                    if (!$carPdr->positions()->count()) {
+                        $carPdr->delete();
+                    }
+                    $card->delete();
+                }
+            }
+        }
+        return response()->json([], 202);
     }
 
 
@@ -400,9 +429,7 @@ class EditCarController extends Controller
         $car->load('positions', 'positions.card');
         if ($car->positions->count()) {
             foreach($car->positions as $position) {
-                if ($position->client && $position->client->id !== $user->id) {
-                    $this->deletePartFromOrder($car, $position->client->id, $position);
-                }
+                $this->deletePartFromOrder($car, $position);
                 $position->update(['user_id' => $user->id]);
                 //sync with order if any
                 $this->addPartToOrder($car, $user->id, $position);
@@ -452,6 +479,29 @@ class EditCarController extends Controller
         return response()->json([], 204);
     }
 
+    public function updateSellingBuyingPrices(Request $request, Car $car): JsonResponse
+    {
+        if (count($request->all())) {
+            foreach ($request->all() as $position) {
+                $card = CarPdrPositionCard::with('priceCard')->find($position['card_id']);
+                if ($card) {
+                    $card->priceCard()->update([
+                        'selling_price' => $position['selling_price'] ? (int) $position['selling_price'] : null,
+                        'buying_price' => $position['buying_price'] ? (int) $position['buying_price'] : null,
+                        'price_currency' => 'JPY',
+                    ]);
+                }
+            }
+        }
+        return response()->json([], 204);
+    }
+
+    public function setDefaultPriceCategory(Request $request, Car $car): JsonResponse
+    {
+        app()->make(SetDefaultPriceCategoryAction::class)->handle($car, $request->input('category'));
+        return response()->json([], 202);
+    }
+
     public function updateComment(Request $request, Car $car, CarPdrPositionCard $card): JsonResponse
     {
         $card->comments()->create([
@@ -498,15 +548,28 @@ class EditCarController extends Controller
 
     public function setClient(Request $request, Car $car, CarPdrPositionCard $card): JsonResponse
     {
-        //check if we reassign a client
-        if ($card->position->client && $card->position->client->id !== (int) $request->input('client_id')) {
-            $this->deletePartFromOrder($car, $card->position->client->id, $card->position);
-        }
+        $this->deletePartFromOrder($car, $card->position);
         $card->position->update([
             'user_id' => $request->input('client_id'),
         ]);
         //sync with order if any
         $this->addPartToOrder($car, $request->input('client_id'), $card->position);
+        return response()->json([], 202);
+    }
+
+    public function setPartsClient(Request $request, Car $car): JsonResponse
+    {
+        if (count($request->all())) {
+            foreach($request->all() as $position) {
+                $card = CarPdrPositionCard::with('position')->find($position['card_id']);
+                    $this->deletePartFromOrder($car, $card->position);
+                    $card->position->update([
+                        'user_id' => $position['user_id'],
+                    ]);
+                    //sync with order if any
+                    $this->addPartToOrder($car, $position['user_id'], $card->position);
+            }
+        }
         return response()->json([], 202);
     }
 

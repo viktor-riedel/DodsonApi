@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Part\MakeResource;
 use App\Http\Resources\Part\ModelResource;
 use App\Http\Resources\Part\PartResource;
+use App\Http\Resources\Part\YearResource;
 use App\Models\Part;
 use DB;
 use Illuminate\Http\JsonResponse;
@@ -19,13 +20,18 @@ class PartsController extends Controller
     {
         $make = $request->get('make', '');
         $model = $request->get('model', '');
+        $years = $request->get('years', '');
         $text = $request->get('text', '');
+
         $parts = Part::with('images', 'modifications')
             ->when($make, function($query) use ($make) {
                 return $query->where('make', $make);
             })
             ->when($model, function($query) use ($model) {
                 return $query->where('model', $model);
+            })
+            ->when($years, function($query) use ($years) {
+                return $query->where('year', $years);
             })
             ->where(function($query) use ($text) {
                 return $query->when($text, function($query) use ($text) {
@@ -100,6 +106,22 @@ class PartsController extends Controller
             ->get();
 
         return ModelResource::collection($models);
+    }
+
+
+    public function years(string $make, string $model): AnonymousResourceCollection
+    {
+        $years = DB::table('parts')
+            ->selectRaw('distinct(year)')
+            ->where('make', '=', $make)
+            ->where('model', $model)
+            ->where('model', '!=', '')
+            ->whereNull('deleted_at')
+            ->whereNotNull('model')
+            ->orderBy('year')
+            ->get();
+
+        return YearResource::collection($years);
     }
 
     public function importFromPinnacle(Request $request): JsonResponse

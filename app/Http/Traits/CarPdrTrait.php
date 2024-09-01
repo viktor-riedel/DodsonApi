@@ -9,7 +9,9 @@ use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemPdrCard;
 use App\Models\PartList;
 use App\Models\User;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 trait CarPdrTrait
 {
@@ -269,17 +271,28 @@ trait CarPdrTrait
             car_pdr_position_cards.barcode,
             users.name as client_name,
             car_pdr_position_cards.comment')
-            ->join('car_pdrs', 'car_pdrs.car_id', '=', 'cars.id')
-            ->join('car_pdr_positions','car_pdr_positions.car_pdr_id', '=', 'car_pdrs.id')
-            ->join('car_pdr_position_cards', 'car_pdr_position_cards.car_pdr_position_id', '=', 'car_pdr_positions.id')
-            ->leftJoin('users', 'users.id', '=', 'car_pdr_positions.user_id')
-            ->join('car_pdr_position_card_prices', 'car_pdr_position_card_prices.car_pdr_position_card_id', '=', 'car_pdr_position_cards.id')
+            ->join('car_pdrs', function (JoinClause $join) {
+                $join->on('car_pdrs.car_id', '=', 'cars.id');
+            })
+            ->join('car_pdr_positions', function(JoinClause $join) {
+                $join->on('car_pdr_positions.car_pdr_id', '=', 'car_pdrs.id');
+            })
+            ->join('car_pdr_position_cards', function(JoinClause $join) {
+                $join->on('car_pdr_position_cards.car_pdr_position_id', '=', 'car_pdr_positions.id');
+            })
+            ->leftJoin('users', function(JoinClause $join) {
+                $join->on('users.id', '=', 'car_pdr_positions.user_id');
+            })
+            ->join('car_pdr_position_card_prices', function(JoinClause $join) {
+                $join->on('car_pdr_position_card_prices.car_pdr_position_card_id', '=', 'car_pdr_position_cards.id');
+            })
             ->when(count($printIds), function($query) use ($printIds) {
                 $query->whereIn('car_pdr_positions.id', $printIds);
             })
             ->where('cars.id', $car->id)
             ->whereNull('car_pdr_positions.deleted_at')
-            ->get()->each(function($position) {
+            ->get()
+            ->each(function($position) {
                 $card = CarPdrPositionCard::with('images', 'createdBy', 'priceCard', 'partAttributesCard', 'comments', 'comments.createdBy')
                     ->find($position->id);
                 $position->images = $card->images ?? [];
@@ -290,12 +303,15 @@ trait CarPdrTrait
                     ->first();
                 $position->client = User::find($position->user_id)?->name ?? '';
             });
-
+        Cache::put('pricing_list_' . $car->id, $parts, now()->addSeconds(10));
         return $parts;
     }
 
     private function getPricingPartsList(Car $car, array $printIds = []): Collection
     {
+        if (Cache::has('pricing_list_' . $car->id)) {
+            return Cache::get('pricing_list_' . $car->id);
+        }
         $parts = \DB::table('cars')
             ->selectRaw('car_pdr_position_cards.id, 
             car_pdrs.item_name_eng as folder,
@@ -312,12 +328,21 @@ trait CarPdrTrait
             car_pdr_position_cards.barcode,
             users.name as client_name,
             car_pdr_position_cards.comment')
-            ->join('car_pdrs', 'car_pdrs.car_id', '=', 'cars.id')
-            ->join('car_pdr_positions','car_pdr_positions.car_pdr_id', '=', 'car_pdrs.id')
-            ->join('car_pdr_position_cards', 'car_pdr_position_cards.car_pdr_position_id', '=', 'car_pdr_positions.id')
-            ->leftJoin('users', 'users.id', '=', 'car_pdr_positions.user_id')
-            ->join('car_pdr_position_card_prices', 'car_pdr_position_card_prices.car_pdr_position_card_id', '=', 'car_pdr_position_cards.id')
-            ->when(count($printIds), function($query) use ($printIds) {
+            ->join('car_pdrs', function (JoinClause $join) {
+                $join->on('car_pdrs.car_id', '=', 'cars.id');
+            })
+            ->join('car_pdr_positions', function(JoinClause $join) {
+                $join->on('car_pdr_positions.car_pdr_id', '=', 'car_pdrs.id');
+            })
+            ->join('car_pdr_position_cards', function(JoinClause $join) {
+                $join->on('car_pdr_position_cards.car_pdr_position_id', '=', 'car_pdr_positions.id');
+            })
+            ->leftJoin('users', function(JoinClause $join) {
+                $join->on('users.id', '=', 'car_pdr_positions.user_id');
+            })
+            ->join('car_pdr_position_card_prices', function(JoinClause $join) {
+                $join->on('car_pdr_position_card_prices.car_pdr_position_card_id', '=', 'car_pdr_position_cards.id');
+            })            ->when(count($printIds), function($query) use ($printIds) {
                 $query->whereIn('car_pdr_positions.id', $printIds);
             })
             ->where('cars.id', $car->id)
