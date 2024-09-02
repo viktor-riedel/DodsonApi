@@ -48,8 +48,9 @@ trait DefaultSellingMapTrait
         return $directories;
     }
 
-    private function getDefaultSellingMapWithOrdered(Car $car): Collection
+    private function getDefaultSellingMapWithOrdered(Car $car, ?int $userId = null): Collection
     {
+        ray($userId);
         $directories = SellingMapItem::where('parent_id', 0)->get();
         $partsList = $this->getPricingPartsList($car);
         $parts = $partsList->pluck('name_eng')->toArray();
@@ -58,7 +59,7 @@ trait DefaultSellingMapTrait
         foreach ($directories as $directory) {
             $directory->items = SellingMapItem::where('parent_id', $directory->id)
                 ->whereIn('item_name_eng', $parts)
-                ->get()->each(function($item) use ($partsList, $car) {
+                ->get()->each(function($item) use ($userId, $partsList, $car) {
                     $userAssigned = false;
                     foreach($car->pdrs as $pdr) {
                         $position = $pdr->positions()->where('item_name_eng', $item->item_name_eng)->first();
@@ -67,7 +68,7 @@ trait DefaultSellingMapTrait
                             $userAssigned = $position->user_id;
                             if ($position->card->comments->count() > 0) {
                                 foreach($position->card->comments as $comment) {
-                                    if ($comment->user_id === auth()->user()->id) {
+                                    if ($comment->user_id && $comment->user_id === $userId) {
                                         $userAssigned = true;
                                     }
                                 }

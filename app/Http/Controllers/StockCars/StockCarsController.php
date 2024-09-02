@@ -86,12 +86,12 @@ class StockCarsController extends Controller
         return StockCarResource::collection($cars);
     }
 
-    public function view(Car $car): JsonResponse
+    public function view(Request $request, Car $car): JsonResponse
     {
         $car->load('carFinance', 'images', 'links', 'carAttributes', 'modifications');
         return response()->json([
             'car' => new StockCarResource($car),
-            'partsList' => SellingMapItemResource::collection($this->getDefaultSellingMapWithOrdered($car))
+            'partsList' => SellingMapItemResource::collection($this->getDefaultSellingMapWithOrdered($car, $request->user()?->id))
         ]);
     }
 

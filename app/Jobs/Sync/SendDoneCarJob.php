@@ -58,7 +58,7 @@ class SendDoneCarJob implements ShouldQueue
             }
             // update db with server response
         } catch (\Exception $e) {
-            \Log::error('SYNC DONE CAR: ' . $e->getMessage());
+            \Log::error('SYNC DONE CAR: ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
         }
     }
 }

@@ -117,7 +117,7 @@ trait SyncPartWithOrderTrait
                     ->get();
                 $order = $items->first()->order;
                 if (!$order) {
-                    \Log::error('Not order found for car ' . $car->id);
+                    \Log::error('Order not found fo car: ' . $car->id);
                     return;
                 }
                 //update order

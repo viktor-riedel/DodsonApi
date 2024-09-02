@@ -103,7 +103,7 @@ class EditCarController extends Controller
             $storage = \Storage::disk('s3');
             foreach ($request->file('uploadCarPhotos') as $file) {
                 $fileName = \Str::random();
-                $originFileName = $file->getFilename();
+                $originFileName = $file?->getFilename();
                 $folderName = 'cars/' . $car->id . '/photos';
                 $mime = $file?->getMimeType();
                 $fileExtension = '.' . $file?->clientExtension() ?? 'jpg';
