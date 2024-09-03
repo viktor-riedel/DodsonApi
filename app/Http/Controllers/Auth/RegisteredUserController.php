@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\Notifications\UserRegisteredJob;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
@@ -33,6 +34,8 @@ class RegisteredUserController extends Controller
         ]);
 
         event(new Registered($user));
+
+        UserRegisteredJob::dispatch($user);
 
         Auth::login($user);
 
