@@ -55,8 +55,7 @@ class UpdateIcNumberAction
             'jp_needs' => $baseCard?->jp_needs,
             'mng_needs' => $baseCard?->mng_needs,
             'needs' => $baseCard?->needs,
-            'buying_price' => $baseCard?->price_jp_wholesale,
-            'selling_price' => null,
+            'buying_price' => $card->priceCard?->buying_price ?? $baseCard?->price_jp_wholesale,
         ]);
 
         //update pricing
