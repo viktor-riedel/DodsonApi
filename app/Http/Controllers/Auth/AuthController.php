@@ -50,12 +50,19 @@ class AuthController extends Controller
             $user->assignRole('USER');
         }
 
+        if ($user->is_api_user) {
+            return response()->json([
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+            ]);
+        }
+
         return response()->json([
            'name' => $user->name,
            'email' => $user->email,
            'access_token' => $token,
            'token_type' => 'Bearer',
-            'is_api_user' => $user->is_api_user,
+           'is_api_user' => $user->is_api_user,
         ]);
     }
 

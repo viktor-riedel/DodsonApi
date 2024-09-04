@@ -33,7 +33,7 @@ class UserOrderResource extends JsonResource
             'created' => $this->created_at->format('d/m/Y'),
             'status' => Order::ORDER_STATUS_STRING[$this->order_status],
             'total_amount' => $this->total_amount,
-            'order_number' => $this->order_number,
+            'order_number' => $this->sync_order_number ?? $this->order_number,
             'order_total_formatted' => number_format($this->items->sum('price_jpy')),
             'order_total' => $this->items->sum('price_jpy'),
             'currency' => $this->items->first()?->car?->make ? '¥' : $currency,
