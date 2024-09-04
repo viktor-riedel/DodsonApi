@@ -30,6 +30,7 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'order_number',
+        'sync_order_number',
         'order_status',
         'invoice_url',
         'order_total',

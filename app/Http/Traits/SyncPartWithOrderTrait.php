@@ -122,7 +122,7 @@ trait SyncPartWithOrderTrait
                 }
                 //update order
                 $order->update([
-                    'order_number' => $invoice['Number'],
+                    'sync_order_number' => $invoice['Number'],
                     'status_ru' => $invoice['State'],
                     'status_en' => null,
                     'order_total' => $invoice['TotalAmount'] > 0 ? $invoice['TotalAmount'] : $order->order_total,

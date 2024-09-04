@@ -28,7 +28,7 @@ class OrderResource extends JsonResource
             'order_status_id' => $this->order_status,
             'status_en' => $this->status_en,
             'status_ru' => $this->status_ru,
-            'order_number' => $this->order_number,
+            'order_number' => $this->sync_order_number ?? $this->order_number,
             'items_count' => $this->items->count(),
             'order_number_formatted' => number_format($this->order_total),
             'order_total' => $this->order_total,

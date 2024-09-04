@@ -34,7 +34,7 @@ class OrderResource extends JsonResource
             'status_en' => $this->status_en,
             'status_ru' => $this->status_ru,
             'total_amount' => $this->total_amount,
-            'order_number' => $this->order_number,
+            'order_number' => $this->sync_order_number ?? $this->order_number,
             'order_number_formatted' => number_format($this->order_total),
             'order_total' => $this->items->sum('price_jpy'),
             'currency' => $this->items->first()?->car?->make ? '¥' : $currency,
