@@ -5,7 +5,7 @@ use App\Http\Controllers\UserPanel\Dashboard\DashboardController;
 use App\Http\Controllers\UserPanel\Order\OrderController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('/user-panel')->middleware('auth:sanctum')->group(function() {
+Route::prefix('/user-panel')->middleware(['auth:sanctum', 'is_web_user'])->group(function() {
     Route::get('/dashboard', [DashboardController::class, 'list']);
     // user cart
     Route::get('/cart', [UserCartController::class, 'list']);

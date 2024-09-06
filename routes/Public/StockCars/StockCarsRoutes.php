@@ -15,7 +15,7 @@ Route::prefix('stock-cars')->group(function () {
     Route::get('/{make}/{model}/years', [StockCarsController::class, 'years']);
     Route::get('/{make}/{model}/{generation}/modifications', [StockCarsController::class, 'modifications']);
 
-    Route::middleware('auth:sanctum')->group(function() {
+    Route::middleware(['auth:sanctum', 'is_web_user'])->group(function() {
         Route::prefix('/wish-list')->group(function() {
             Route::put('/add/{car}', [WishListController::class, 'addWishList']);
             Route::get('/', [WishListController::class, 'list']);

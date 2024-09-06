@@ -3,7 +3,7 @@
 use App\Http\Controllers\SellingPartsMap\SellingPartsMapController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('selling-parts-map')->group(function() {
+Route::prefix('selling-parts-map')->middleware(['auth:sanctum', 'is_web_user'])->group(function() {
     Route::get('/list', [SellingPartsMapController::class, 'list']);
     Route::get('/parts-list', [SellingPartsMapController::class, 'partsList']);
     Route::prefix('/{item}')->group(function() {

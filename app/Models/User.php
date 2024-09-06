@@ -80,4 +80,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(WishList::class);
     }
+
+    public function balance(): HasMany
+    {
+        return $this->hasMany(UserBalance::class);
+    }
 }

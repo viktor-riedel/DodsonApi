@@ -8,7 +8,7 @@ use App\Http\Controllers\Public\Nomenclature\ModificationsController;
 use App\Http\Controllers\Public\Nomenclature\PartsController;
 use Illuminate\Support\Facades\Route;
 
-Route::namespace('Public')->middleware('auth:sanctum')->group(function() {
+Route::namespace('Public')->middleware(['auth:sanctum', 'is_web_user'])->group(function() {
     Route::prefix('nomenclature')->group(function() {
         Route::get('/defaults', [PartsController::class, 'defaults']);
         Route::get('/makes', [MakesController::class, 'list']);

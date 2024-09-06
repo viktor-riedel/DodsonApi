@@ -4,7 +4,7 @@ use App\Http\Controllers\Settings\MarketsController;
 use App\Http\Controllers\Settings\YardsController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('settings')->middleware('auth:sanctum')->group(function() {
+Route::prefix('settings')->middleware(['auth:sanctum', 'is_web_user'])->group(function() {
     //yards
     Route::prefix('yards')->group(function() {
         Route::get('/', [YardsController::class, 'index']);
