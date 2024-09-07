@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UserPanel\Balance\BalanceController;
 use App\Http\Controllers\UserPanel\Cart\UserCartController;
 use App\Http\Controllers\UserPanel\Dashboard\DashboardController;
 use App\Http\Controllers\UserPanel\Order\OrderController;
@@ -16,5 +17,9 @@ Route::prefix('/user-panel')->middleware(['auth:sanctum', 'is_web_user'])->group
        Route::get('/', [OrderController::class, 'list']);
        Route::get('/{order}', [OrderController::class, 'order']);
        Route::post('/create', [OrderController::class, 'create']);
+    });
+    //balance
+    Route::prefix('/balance')->group(function() {
+        Route::get('/', [BalanceController::class, 'list']);
     });
 });

@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Balances\UserBalancesController;
+use App\Http\Controllers\CRM\Balances\UserBalancesController;
 
 Route::prefix('/user-balances')->group(function () {
     Route::get('/', [UserBalancesController::class, 'list']);

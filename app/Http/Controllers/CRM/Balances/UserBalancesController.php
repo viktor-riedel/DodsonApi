@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Balances;
+namespace App\Http\Controllers\CRM\Balances;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CRM\Balances\BalancedUserBalanceResource;
