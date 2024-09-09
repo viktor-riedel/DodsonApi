@@ -24,7 +24,7 @@ class OrderResource extends JsonResource
             'is_parts_order' => !$this->items->first()?->car,
             'items' => OrderItemResource::collection($this->items),
             'created' => $this->created_at->format('d/m/Y'),
-            'status' => $this->status_ru ?? Order::ORDER_STATUS_STRING[$this->order_status],
+            'status' => Order::ORDER_STATUS_STRING[$this->order_status],
             'order_status_id' => $this->order_status,
             'status_en' => $this->status_en,
             'status_ru' => $this->status_ru,

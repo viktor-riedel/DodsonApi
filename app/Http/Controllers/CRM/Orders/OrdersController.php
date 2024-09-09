@@ -28,7 +28,7 @@ class OrdersController extends Controller
             })
             ->withCount('items')
             ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->paginate(30);
         
         return OrderResource::collection($orders);
     }
