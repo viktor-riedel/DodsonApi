@@ -10,7 +10,9 @@ use App\Http\Resources\Car\CarResource;
 use App\Http\Resources\Car\ContrAgentResource;
 use App\Http\Resources\Car\CreatedByResource;
 use App\Models\Car;
+use App\Models\CarFinance;
 use App\Models\CarPdrPositionCardPrice;
+use App\Models\SyncData;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -29,6 +31,20 @@ class AllCarsController extends Controller
         $text = $request->get('search');
         $dateStart = null;
         $dateStop = null;
+        $perPage = $request->get('perPage', 30);
+
+        $sortByUser = $request->get('sortByUser');
+        $sortByMvr = $request->get('sortByMvr');
+        $sortByDate = $request->get('sortByDate');
+        $sortByBuyingPrice = $request->get('sortByBuyingPrice');
+        $sortBySellingPrice = $request->get('sortBySellingPrice');
+        $sortByContrAgent = $request->get('sortByContrAgent');
+        $sortBySellingStatus = $request->get('sortBySellingStatus');
+        $sortBySync = $request->get('sortBySync');
+        $sortByMake = $request->get('sortByMake');
+        $sortByModel = $request->get('sortByModel');
+        $sortByStatus = $request->get('sortByStatus');
+
         if ($request->get('dateStart')) {
             try {
                 $dateStart = Carbon::createFromFormat('d/m/Y', $request->get('dateStart'))->format('Y-m-d');
@@ -76,15 +92,66 @@ class AllCarsController extends Controller
                     return $query->where('make', 'like', "%$text%")
                         ->orWhere('model', 'like', "%$text%")
                         ->orWhere('chassis', 'like', "%$text%")
+                        ->orWhere('contr_agent_name', 'like', "%$text%")
                         ->orWhere('car_mvr', 'like', "%$text%");
                 });
             })
             ->where('virtual', false)
-            ->orderBy('created_at', 'desc')
-            ->paginate(30);
+            ->when($sortByUser, function ($query) use ($sortByUser) {
+                return $query->orderBy('created_by', $sortByUser);
+            })
+            ->when($sortByMvr, function ($query) use ($sortByMvr) {
+                return $query->orderBy('car_mvr', $sortByMvr);
+            })
+            ->when($sortByDate, function ($query) use ($sortByDate) {
+                return $query->orderBy('created_at', $sortByDate);
+            })
+            ->when($sortByContrAgent, function ($query) use ($sortByContrAgent) {
+                return $query->orderBy('contr_agent_name', $sortByContrAgent);
+            })
+            ->when($sortBySellingStatus, function ($query) use ($sortBySellingStatus) {
+                return $query->orderBy(CarFinance::select('car_is_for_sale')
+                    ->whereColumn('car_id', 'cars.id'), $sortBySellingStatus);
+            })
+            ->when($sortByBuyingPrice, function ($query) use ($sortByBuyingPrice) {
+                return $query->orderBy(CarFinance::select('purchase_price')
+                    ->whereColumn('car_id', 'cars.id'), $sortByBuyingPrice);
+            })
+            ->when($sortBySellingPrice, function ($query) use ($sortBySellingPrice) {
+                return $query->orderBy(CarFinance::select('selling_price')
+                    ->whereColumn('car_id', 'cars.id'), $sortBySellingPrice);
+            })
+            ->when($sortBySync, function ($query) use ($sortBySync) {
+                return $query->orderBy(SyncData::select('document_number')
+                    ->whereColumn('syncable_id', 'cars.id')
+                    ->orderBy('created_at', 'desc')
+                    ->take(1), $sortBySync);
+            })
+            ->when($sortByMake, function ($query) use ($sortByMake) {
+                return $query->orderBy('make', $sortByMake);
+            })
+            ->when($sortByModel, function ($query) use ($sortByModel) {
+                return $query->orderBy('make', $sortByModel);
+            })
+            ->when($sortByStatus, function ($query) use ($sortByStatus) {
+                return $query->orderBy('car_status', $sortByStatus);
+            })
+            ->when(!$sortByUser &&
+                !$sortByMvr &&
+                !$sortByDate &&
+                !$sortByBuyingPrice &&
+                !$sortBySellingPrice &&
+                !$sortByContrAgent &&
+                !$sortBySellingStatus &&
+                !$sortBySync &&
+                !$sortByMake &&
+                !$sortByModel, function($query) {
+                return $query->orderBy('created_at', 'desc');
+            })
+            ->paginate($perPage);
 
         $cars->getCollection()->each(function ($car) {
-            $car->parts_price =  (int) $car->carFinance->purchase_price === 0 ?
+            $car->parts_price = (int) $car->carFinance->purchase_price === 0 ?
                 $car->positions->sum('card.priceCard.selling_price') :
                 $car->carFinance->purchase_price;
             $car->selling_price = $car->positions->sum('card.priceCard.buying_price');
