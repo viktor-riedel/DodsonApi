@@ -13,7 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('currency:update-currencies-rates')->daily();
-        $schedule->command('sync:user-balance')->everyThreeHours();
+        //$schedule->command('sync:user-balance')->everyThreeHours();
     }
 
     /**

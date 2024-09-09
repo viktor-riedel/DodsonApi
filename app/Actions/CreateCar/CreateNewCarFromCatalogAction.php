@@ -17,7 +17,11 @@ class CreateNewCarFromCatalogAction
 
         $mvr = $helper->loadModelMvr($request['model_id'], $request['mvr_id']);
 
-        $chassis = $request['modification.chassis'];
+        if (is_array($request['modification']['chassis'])) {
+            $chassis = implode(',', $request['modification']['chassis']);
+        } else {
+            $chassis = $request['modification.chassis'];
+        }
 
         $baseCar = NomenclatureBaseItem::where('make', strtoupper(trim($request['make'])))
             ->where('model', strtoupper(trim($request['model'])))
