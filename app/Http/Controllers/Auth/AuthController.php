@@ -77,6 +77,7 @@ class AuthController extends Controller
                 'role' => $request->user()->getRoleNames()->first(),
                 'country_code' => $request->user()->country_code,
                 'permissions' => $request->user()->getPermissionsViaRoles()->pluck('name')->toArray(),
+                'user_balance' => number_format($request->user()->balance()->sum('closing_balance')),
             ]);
         }
         return response()->json(['message' => 'invalid credentials'], 401);

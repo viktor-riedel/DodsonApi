@@ -17,7 +17,7 @@ Route::prefix('stock-parts-wholesale')->group(function () {
         Route::get('/engines/{make}/{model}/{year}', [StockPartWholesaleController::class, 'engines']);
     });
 
-    Route::prefix('/order')->middleware('auth:sanctum')->group(function () {
+    Route::prefix('/order')->middleware(['auth:sanctum', 'is_web_user'])->group(function () {
         Route::get('/cart', [PartsOrderController::class, 'cart']);
         Route::put('/add-to-cart', [PartsOrderController::class, 'addToCart']);
         Route::patch('/update-cart', [PartsOrderController::class, 'updateCart']);

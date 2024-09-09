@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Matrix\Builder;
 
 class SyncData extends Model
 {
@@ -38,6 +39,13 @@ class SyncData extends Model
     public function deletedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'deleted_by', 'id')->withTrashed();
+    }
+
+    public function scopeLatestCarsSync($query, $carId): Builder
+    {
+        return $query->where('syncable_type', 'App\\Models\\Car')
+            ->where('syncable_id', $carId)
+            ->orderBy('created_at', 'desc');
     }
 
 }

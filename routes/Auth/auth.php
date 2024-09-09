@@ -10,7 +10,7 @@ Route::prefix('auth')->group(function() {
        ->middleware('throttle:api');
    Route::post('/restore', [AuthController::class, 'restorePassword'])
         ->middleware('throttle:api');
-   Route::post('/me', [AuthController::class, 'me'])->middleware('auth:sanctum');
+   Route::post('/me', [AuthController::class, 'me'])->middleware(['auth:sanctum', 'is_web_user']);
 
    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 });

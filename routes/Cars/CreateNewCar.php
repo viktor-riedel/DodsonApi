@@ -4,7 +4,7 @@ use App\Http\Controllers\CreateCar\CreateCarController;
 use App\Http\Controllers\CreateCar\CreateCarFromCatalogController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('create-car')->middleware('auth:sanctum')->group(function() {
+Route::prefix('create-car')->middleware(['auth:sanctum', 'is_web_user'])->group(function() {
    Route::prefix('nomenclature')->group(function() {
        Route::get('makes', [CreateCarController::class, 'makes']);
        Route::get('/{make}/models', [CreateCarController::class, 'models']);

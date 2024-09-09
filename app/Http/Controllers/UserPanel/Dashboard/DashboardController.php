@@ -17,6 +17,7 @@ class DashboardController extends Controller
 
         $orders = $request->user()->orders->count();
         $favourites = $request->user()->wishListItems->count();
+        $balance = number_format($request->user()->balance->sum('closing_balance'));
         $invoices = 0;
         $cart = $request->user()->cart->cartItems->count();
         $cars = 0;
@@ -26,6 +27,7 @@ class DashboardController extends Controller
             'orders' => $orders,
             'favourites' => $favourites,
             'invoices' => $invoices,
+            'balance' => $balance,
             'cart' => $cart,
             'cars' => $cars,
             'parts' => $parts,

@@ -2,6 +2,8 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\IsApiUserMiddleware;
+use App\Http\Middleware\IsWebUserMiddleware;
 use App\Http\Middleware\SocketAuthMiddleware;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
@@ -64,6 +66,8 @@ class Kernel extends HttpKernel
         'precognitive' => \Illuminate\Foundation\Http\Middleware\HandlePrecognitiveRequests::class,
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'is_web_user' => IsWebUserMiddleware::class,
+        'is_api_user' => IsApiUserMiddleware::class,
         //'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
         //'socketAuth' =>SocketAuthMiddleware::class,
     ];

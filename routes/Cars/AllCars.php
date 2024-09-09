@@ -5,7 +5,7 @@ use App\Http\Controllers\EditCar\EditCarController;
 use App\Http\Controllers\Pricing\PricingController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('cars')->middleware('auth:sanctum')->group(function() {
+Route::prefix('cars')->middleware(['auth:sanctum', 'is_web_user'])->group(function() {
     Route::get('/list', [AllCarsController::class, 'list']);
     Route::get('/currencies-list', [AllCarsController::class, 'currencyList']);
     Route::get('/status-list', [AllCarsController::class, 'statusList']);
