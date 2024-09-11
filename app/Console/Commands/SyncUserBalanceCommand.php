@@ -14,10 +14,12 @@ class SyncUserBalanceCommand extends Command
 
     public function handle(): void
     {
-        $users = User::with('userCard')->get();
-        foreach ($users as $user) {
-            if ($user->userCard->trading_name) {
-                GetUserBalanceJob::dispatch($user);
+        if (app()->environment('production')) {
+            $users = User::with('userCard')->get();
+            foreach ($users as $user) {
+                if ($user->userCard->trading_name) {
+                    GetUserBalanceJob::dispatch($user);
+                }
             }
         }
     }
