@@ -8,6 +8,7 @@ use App\Http\ExternalApiHelpers\SendDoneCar;
 use App\Http\Traits\SyncPartWithOrderTrait;
 use App\Models\Car;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -46,8 +47,10 @@ class SendDoneCarJob implements ShouldQueue
                     'created_by' => $this->user->id,
                 ]);
                 //set status
-                $orders = Order::where('car_id', $this->car->id)->get();
-                foreach($orders as $order) {
+                $items = OrderItem::with('order')->where('car_id', $this->car->id)
+                    ->get()
+                    ->pluck('order');
+                foreach($items as $order) {
                     $order->update(['order_status' => Order::ORDER_STATUS_INT['COMPLETE']]);
                     $order->refresh();
                     $order->setItemsStatus();
