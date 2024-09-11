@@ -21,6 +21,9 @@ class SyncUserBalanceCommand extends Command
                     $user->userCard()->create([]);
                     $user->refresh();
                 }
+            }
+            $users = User::with('userCard')->get();
+            foreach ($users as $user) {
                 if ($user->userCard->trading_name) {
                     GetUserBalanceJob::dispatch($user);
                 }
