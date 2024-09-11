@@ -409,9 +409,8 @@ class EditCarController extends Controller
 
     public function exportPartsListToExcel(Car $car): JsonResponse
     {
-        $filename = 'exports/parts/'. $car->id . '/' .$car->make . '_' .
-            $car->model . '_' . $car->generation . '_' .
-            $car->created_at->toDateTimeString() . '.xlsx';
+        $filename = 'exports/parts/'. $car->id . '/' . $car->car_mvr . '_' . $car->make . '_' .
+            $car->model . '_' . $car->generation . '.xlsx';
         $partsList = $this->getPartsList($car);
         Excel::store(new CreatedCarPartsExcelExport($car, $partsList), $filename, 's3', null, ['visibility' => 'public']);
         $url = \Storage::disk('s3')->url($filename);
