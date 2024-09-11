@@ -85,9 +85,8 @@ class GetDoneCarDataAction
                   ],
                 ],
                 'finance' => [
-                    'contr_agent' => $contrAgent && $contrAgent->alias ?
-                        $contrAgent->alias :
-                        $car->contr_agent_name,
+                    'contr_agent_registration_name' => $contrAgent?->alias,
+                    'contr_agent' => $car->contr_agent_name,
                     'purchase_price' => $car->carFinance->purchase_price,
                     'selling_price' => $car->positions->sum('card.priceCard.selling_price'),
                     'parts_price' => $car->positions->sum('card.priceCard.buying_price'),
