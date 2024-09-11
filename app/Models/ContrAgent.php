@@ -11,6 +11,7 @@ class ContrAgent extends Model
 
     protected $fillable = [
         'name',
+        'alias',
         'person_name',
         'country',
         'email',

@@ -25,6 +25,7 @@ class ContrAgentsController extends Controller
     {
         $contrAgent = ContrAgent::create([
             'name' => ucfirst(trim($request->input('name'))),
+            'alias' => trim($request->input('alias')),
             'person_name' => ucfirst(trim($request->input('person_name'))),
             'country' => strtoupper(trim($request->input('country'))),
             'email' => strtolower(trim($request->input('email'))),
@@ -46,6 +47,7 @@ class ContrAgentsController extends Controller
     {
         $contrAgent->update([
             'name' => ucfirst(trim($request->input('name'))),
+            'alias' => trim($request->input('alias')),
             'person_name' => ucfirst(trim($request->input('person_name'))),
             'country' => strtoupper(trim($request->input('country'))),
             'email' => strtolower(trim($request->input('email'))),

@@ -3,6 +3,7 @@
 namespace App\Actions\Api;
 
 use App\Models\Car;
+use App\Models\ContrAgent;
 use App\Models\NomenclatureBaseItem;
 use App\Models\OrderItem;
 use App\Models\StatusUpdateLog;
@@ -35,7 +36,7 @@ class GetDoneCarDataAction
             ->first();
 
         $usedModification = $baseCar->modifications->where('inner_id', $car->modifications->inner_id)->first();
-
+        $contrAgent = ContrAgent::where('name', $car->contr_agent_name)->first();
         $result = [
             'base_car' => [
                 'inner_id' => $baseCar->inner_id,
@@ -84,7 +85,9 @@ class GetDoneCarDataAction
                   ],
                 ],
                 'finance' => [
-                    'contr_agent' => $car->contr_agent_name,
+                    'contr_agent' => $contrAgent && $contrAgent->alias ?
+                        $contrAgent->alias :
+                        $car->contr_agent_name,
                     'purchase_price' => $car->carFinance->purchase_price,
                     'selling_price' => $car->positions->sum('card.priceCard.selling_price'),
                     'parts_price' => $car->positions->sum('card.priceCard.buying_price'),
