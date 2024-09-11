@@ -12,6 +12,7 @@ class ContrAgentResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'alias' => $this->alias,
             'person_name' => $this->person_name,
             'country' => $this->country,
             'email' => $this->email,
