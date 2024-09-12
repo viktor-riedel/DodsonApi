@@ -5,13 +5,15 @@ namespace App\Http\Controllers\CRM\Orders;
 use App\Exports\Excel\CreatedCarsOrdersExcelExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Car\CarResource;
+use App\Http\Resources\CRM\Orders\MakeResource;
+use App\Http\Resources\CRM\Orders\ModelResource;
 use App\Http\Resources\CRM\Orders\OrderResource;
 use App\Http\Resources\CRM\Orders\OrderUserResource;
-use App\Http\Resources\CRM\Orders\ViewOrderResource;
 use App\Http\Resources\Order\OrderItemResource;
 use App\Models\Car;
 use App\Models\CarPdrPosition;
 use App\Models\Order;
+use DB;
 use Excel;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,9 +24,25 @@ class OrdersController extends Controller
     public function list(Request $request): AnonymousResourceCollection
     {
         $userId = $request->get('userId');
+        $make = $request->get('make');
+        $model = $request->get('model');
+
+        $carsIds = Car::where('make', $make)
+            ->when($model, function ($query, $model) {
+                return $query->where('model', $model);
+            })
+            ->get()
+            ->pluck('id')
+            ->toArray();
+
         $orders = Order::with('items', 'createdBy')
             ->when($userId, function ($query) use ($userId) {
                 return $query->where('user_id', $userId);
+            })
+            ->when(count($carsIds), function ($query) use ($carsIds) {
+                $query->whereHas('items', function ($query) use ($carsIds) {
+                    $query->whereIn('car_id', $carsIds);
+                });
             })
             ->withCount('items')
             ->orderBy('created_at', 'desc')
@@ -46,6 +64,29 @@ class OrdersController extends Controller
             });
 
         return OrderUserResource::collection($users->sortBy('name'));
+    }
+
+    public function makes(): AnonymousResourceCollection
+    {
+        $makes = DB::table('cars')
+            ->selectRaw('distinct(make)')
+            ->whereRaw('id in (select car_id from order_items)')
+            ->whereNull('cars.deleted_at')
+            ->orderBy('make')
+            ->get();
+        return MakeResource::collection($makes);
+    }
+
+    public function models(string $make): AnonymousResourceCollection
+    {
+        $models = DB::table('cars')
+            ->selectRaw('distinct(model)')
+            ->whereRaw('id in (select car_id from order_items)')
+            ->where('make', $make)
+            ->whereNull('cars.deleted_at')
+            ->orderBy('make')
+            ->get();
+        return ModelResource::collection($models);
     }
 
     public function statuses(): JsonResponse
