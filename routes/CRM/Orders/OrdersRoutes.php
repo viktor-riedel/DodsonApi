@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('/orders')->group(function () {
     Route::get('/', [OrdersController::class, 'list']);
     Route::get('/order-users', [OrdersController::class, 'users']);
+    Route::get('/order-makes', [OrdersController::class, 'makes']);
+    Route::get('/order-models/{make}', [OrdersController::class, 'models']);
     Route::get('/export-orders', [OrdersController::class, 'export']);
     Route::get('/order-statuses', [OrdersController::class, 'statuses']);
     Route::get('/{order}', [OrdersController::class, 'view']);
