@@ -84,7 +84,7 @@ class OrdersController extends Controller
             ->whereRaw('id in (select car_id from order_items)')
             ->where('make', $make)
             ->whereNull('cars.deleted_at')
-            ->orderBy('make')
+            ->orderBy('model')
             ->get();
         return ModelResource::collection($models);
     }
