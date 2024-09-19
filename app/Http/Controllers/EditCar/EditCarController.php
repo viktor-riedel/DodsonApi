@@ -370,6 +370,7 @@ class EditCarController extends Controller
 
     public function updateOriginalPriceCard(Request $request, Car $car, NomenclatureBaseItemPdrCard $card): JsonResponse
     {
+        //TO DO send 1C update request receive back needs
         $card->update($request->except('id'));
         return response()->json([], 202);
     }
