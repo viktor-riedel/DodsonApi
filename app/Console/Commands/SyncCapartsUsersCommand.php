@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Actions\Import\ImportCapartsUsersAction;
 use Illuminate\Console\Command;
 
-class SynCapartsUsersCommand extends Command
+class SyncCapartsUsersCommand extends Command
 {
     protected $signature = 'sync:caparts-users';
 
