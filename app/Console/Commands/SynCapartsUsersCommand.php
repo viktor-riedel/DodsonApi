@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 
 class SynCapartsUsersCommand extends Command
 {
-    protected $signature = 'syn:caparts-users';
+    protected $signature = 'sync:caparts-users';
 
     protected $description = 'This command syncs users from caparts to dodson';
 
