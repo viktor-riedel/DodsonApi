@@ -297,7 +297,8 @@ trait CarPdrTrait
                     ->find($position->id);
                 $position->images = $card->images ?? [];
                 $position->card = $card ?? null;
-                $position->original_card = NomenclatureBaseItemPdrCard::where('ic_number', $card?->ic_number)
+                $position->original_card = NomenclatureBaseItemPdrCard::with('nomenclatureBaseItemPdrPosition.photos')
+                    ->where('ic_number', $card?->ic_number)
                     ->where('description', $card?->description)
                     ->where('name_eng', $card?->name_eng)
                     ->first();

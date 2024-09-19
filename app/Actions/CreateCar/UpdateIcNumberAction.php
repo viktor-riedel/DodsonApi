@@ -13,7 +13,8 @@ class UpdateIcNumberAction
     public function handle(Request $request, Car $car, CarPdrPositionCard $card): array
     {
         $card->update(['ic_number' => strtoupper(trim($request->input('ic_number')))]);
-        $baseCard = NomenclatureBaseItemPdrCard::where('ic_number', strtoupper(trim($request->input('ic_number'))))
+        $baseCard = NomenclatureBaseItemPdrCard::with('nomenclatureBaseItemPdrPosition.photos')
+            ->where('ic_number', strtoupper(trim($request->input('ic_number'))))
             ->where('description', $card->description)
             ->where('name_eng', $card->name_eng)
             ->first();

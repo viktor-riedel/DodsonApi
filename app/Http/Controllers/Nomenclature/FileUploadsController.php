@@ -32,12 +32,16 @@ class FileUploadsController extends Controller
                     ]);
                 }
             }
-            return response()->json(['uploaded' => $result], 201);
+            $baseItemPdrPosition->refresh();
+            return response()->json([
+                'uploaded' => $result,
+                'photos' => $baseItemPdrPosition->photos,
+            ], 201);
         }
         return response()->json([], 401);
     }
 
-    public function deleteBaseItemPosition(NomenclatureBaseItemPdrPositionPhoto $baseItemPdrPositionPhoto)
+    public function deleteBaseItemPosition(NomenclatureBaseItemPdrPositionPhoto $baseItemPdrPositionPhoto): \Illuminate\Http\JsonResponse
     {
         $baseItemPdrPositionPhoto->delete();
         return response()->json([], 202);
