@@ -34,6 +34,7 @@ class ImportCapartsUsersAction
                         'country' => $user['user_info']['country'],
                         'wholesaler' => (bool) $user['is_whole_seller'],
                     ]);
+                    $newUser->assignRole(['USER']);
                 }
             }
         }
