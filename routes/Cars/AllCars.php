@@ -38,6 +38,7 @@ Route::prefix('cars')->middleware(['auth:sanctum', 'is_web_user'])->group(functi
         Route::put('/add-parts-from-mod-list', [EditCarController::class, 'addModListParts']);
         Route::put('/add-parts-from-selling-list', [EditCarController::class, 'addSellingListParts']);
         Route::get('/export-parts-list', [EditCarController::class, 'exportPartsListToExcel']);
+        Route::get('/export-price-list', [EditCarController::class, 'exportPriceListToExcel']);
         Route::patch('/update-modification', [EditCarController::class, 'updateModification']);
         Route::patch('/set-parts-user/{user}', [EditCarController::class, 'setPartsUser']);
 

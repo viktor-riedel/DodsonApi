@@ -10,6 +10,7 @@ use App\Actions\CreateCar\ChangeModificationAction;
 use App\Actions\CreateCar\SetDefaultPriceCategoryAction;
 use App\Actions\CreateCar\UpdateIcNumberAction;
 use App\Exports\Excel\CreatedCarPartsExcelExport;
+use App\Exports\Excel\CreatedCarPriceExcelExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CarPartsComment\CarPartsCommentResource;
 use App\Http\Resources\Cart\LinkResource;
@@ -414,6 +415,16 @@ class EditCarController extends Controller
             $car->model . '_' . $car->generation . '.xlsx';
         $partsList = $this->getPartsList($car);
         Excel::store(new CreatedCarPartsExcelExport($car, $partsList), $filename, 's3', null, ['visibility' => 'public']);
+        $url = \Storage::disk('s3')->url($filename);
+        return response()->json(['link' => $url]);
+    }
+
+    public function exportPriceListToExcel(Car $car): JsonResponse
+    {
+        $filename = 'exports/prices/'. $car->id . '/' . $car->car_mvr . '_' . $car->make . '_' .
+            $car->model . '_' . $car->generation . '-pricing.xlsx';
+        $partsList = $this->getPartsList($car);
+        Excel::store(new CreatedCarPriceExcelExport($car, $partsList), $filename, 's3', null, ['visibility' => 'public']);
         $url = \Storage::disk('s3')->url($filename);
         return response()->json(['link' => $url]);
     }
