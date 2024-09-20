@@ -11,12 +11,10 @@ class UserBalanceResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'user_id' => $this->user_id,
-            'name' => $this->user->name,
-            'entity_name' => $this->entity_name,
-            'closing_balance' => $this->closing_balance,
-            'closing_balance_formatted' => number_format($this->user->balance->sum('closing_balance')),
-            'documents' => $this->balance_items_count,
+            'name' => $this->name,
+            'closing_balance' => (int) $this->balance_sum_closing_balance,
+            'closing_balance_formatted' => number_format((int) $this->balance_sum_closing_balance),
+            'documents' => (int) $this->balance_sum_balance_items_count,
         ];
     }
 }

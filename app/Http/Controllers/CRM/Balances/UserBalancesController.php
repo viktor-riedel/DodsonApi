@@ -20,14 +20,12 @@ class UserBalancesController extends Controller
     {
         $user = $request->get('user');
 
-        $balances = UserBalance::with('user')
-            ->whereHas('user', function($query) {
-                return $query->whereHas('roles', function ($query) {
-                    $query->where('roles.name', 'USER');
-                });
-            })
+        $balances = User::with('balance', 'roles')
+            ->withSum('balance', 'closing_balance')
+            ->withSum('balance', 'balance_items_count')
+            ->withoutRole(['ADMIN'])
             ->when($user, function ($query) use ($user) {
-                return $query->where('user_id', $user);
+                return $query->where('id', $user);
             })
             ->paginate(30);
 
@@ -36,10 +34,7 @@ class UserBalancesController extends Controller
 
     public function listUsers(): AnonymousResourceCollection
     {
-        $users = User::with('balance')
-            ->whereHas('roles', function ($query) {
-                $query->where('roles.name', 'USER');
-            })
+        $users = User::withoutRole(['ADMIN'])
             ->orderBy('name')
             ->get();
 

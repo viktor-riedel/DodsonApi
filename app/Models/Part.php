@@ -30,6 +30,8 @@ class Part extends Model
         'generated_barcode',
         'price_jpy',
         'price_nzd',
+        'actual_price_nzd',
+        'standard_price_nzd',
         'price_mng',
         'comment',
     ];
