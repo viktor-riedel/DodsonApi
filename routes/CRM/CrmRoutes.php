@@ -18,4 +18,8 @@ Route::middleware(['auth:sanctum', 'is_web_user'])->group(function () {
     Route::prefix('/crm')->group(
         base_path('/routes/CRM/Balances/BalancesRoutes.php'),
     );
+
+    Route::prefix('/crm')->group(
+        base_path('/routes/CRM/TradeMe/TradeMeRoutes.php'),
+    );
 });
