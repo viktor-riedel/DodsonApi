@@ -7,7 +7,9 @@ use App\Http\ExternalApiHelpers\TradeMeApiHelper;
 use App\Http\ExternalApiHelpers\TradeMeHelper;
 use App\Http\Resources\CRM\TradeMe\TradeMeAuthResource;
 use App\Http\Resources\CRM\TradeMe\TradeMeGroupResource;
+use App\Http\Resources\CRM\TradeMe\TradeMeTemplateResource;
 use App\Models\TradeMeGroup;
+use App\Models\TradeMeTemplate;
 use App\Models\TradeMeToken;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -90,5 +92,46 @@ class TradeMeController extends Controller
         $group->delete();
         $groups = TradeMeGroup::with('user')->orderBy('group_name')->get();
         return TradeMeGroupResource::collection($groups);
+    }
+
+    public function templatesOptions(): JsonResponse
+    {
+        $duration = arrayToJsonFormat(TradeMeTemplate::DEFAULT_DURATION);
+        $shipping = arrayToJsonFormat(TradeMeTemplate::SHIPPING_METHODS);
+        $payments = arrayToJsonFormat(TradeMeTemplate::PAYMENT_METHODS);
+        $tags = TradeMeTemplate::REPLACE_TAGS;
+        $html = TradeMeTemplate::SUPPORTED_CHARACTERS;
+
+        return response()->json(
+            [
+                'duration' => $duration,
+                'shipping' => $shipping,
+                'payments' => $payments,
+                'tags' => $tags,
+                'html' => $html,
+            ]
+        );
+    }
+
+    public function templatesList(): TradeMeTemplateResource
+    {
+        $template = TradeMeTemplate::first();
+        return new TradeMeTemplateResource($template);
+    }
+
+    public function templateUpdate(Request $request): TradeMeTemplateResource
+    {
+        TradeMeTemplate::first()?->delete();
+        $template = TradeMeTemplate::create([
+            'title' => $request->input('title'),
+            'short_description' => $request->input('short_description'),
+            'description' => $request->input('description'),
+            'delivery_options' => implode(',', $request->input('delivery_options')),
+            'default_duration' => $request->input('default_duration'),
+            'payments_options' => implode(',', $request->input('payments_options')),
+            'update_prices' => (bool) $request->input('update_prices'),
+            'relist' => (bool) $request->input('relist'),
+        ]);
+        return new TradeMeTemplateResource($template);
     }
 }
