@@ -73,9 +73,8 @@ class PartsController extends Controller
             'item_name_ru' => $request->input('item_name_ru'),
             'item_name_jp' => $request->input('item_name_jp'),
             'item_name_mng' => $request->input('item_name_mng'),
-            'price_jpy' => $request->integer('price_jpy'),
-            'price_nzd' => $request->integer('price_nzd'),
-            'price_mng' => $request->integer('price_mng'),
+            'actual_price_nzd' => $request->integer('price_nzd'),
+            'standard_price_nzd' => $request->integer('standard_price_nzd'),
         ]);
         $part->refresh();
         return new PartResource($part);

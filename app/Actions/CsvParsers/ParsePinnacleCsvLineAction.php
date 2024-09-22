@@ -4,6 +4,9 @@ namespace App\Actions\CsvParsers;
 
 use App\Http\Traits\BadgeGeneratorTrait;
 use App\Http\Traits\InnerIdTrait;
+use App\Models\NomenclatureBaseItem;
+use App\Models\NomenclatureBaseItemPdrPosition;
+use App\Models\NomenclatureModification;
 use App\Models\Part;
 
 class ParsePinnacleCsvLineAction
@@ -43,6 +46,7 @@ class ParsePinnacleCsvLineAction
                 'make' => $make,
                 'model' => $model,
                 'year' => $year,
+                'color' => null,
                 'mileage' => '',
                 'amount' => '',
                 'item_name_eng' => $item_name_eng,
@@ -51,14 +55,39 @@ class ParsePinnacleCsvLineAction
                 'item_name_mng' => '',
                 'original_barcode' => $original_barcode,
                 'generated_barcode' => '',
-                'price_jpy' => $price,
+                'standard_price_nzd' => 0,
+                'actual_price_nzd' => $price,
                 'price_nzd' => 0,
-                'price_mng' => 0,
                 'comment' => $comment
             ]);
             $part->update(['inner_id' => $this->generateInnerId(
                 $part->make . $part->model . $part->ic_number . $part->year . $part->created_at)
             ]);
+
+            //find generation
+            $nomenclatureItems =
+                NomenclatureBaseItemPdrPosition::with('modifications')
+                ->where('ic_number', $ic_number)
+                ->get();
+            $ids = [];
+            foreach ($nomenclatureItems as $item) {
+                if ($item->modifications()->count()) {
+                    foreach ($item->modifications as $modification) {
+                        $ids[] = $modification->inner_id;
+                    }
+                }
+            }
+            $baseIds = NomenclatureModification::where('modificationable_type', 'App\Models\NomenclatureBaseItem')
+                ->whereIn('inner_id', $ids)
+                ->get()
+                ->pluck('modificationable_id')
+                ->toArray();
+            $baseItem = NomenclatureBaseItem::whereIn('id', $baseIds)
+                ->where('make', $make)
+                ->first();
+            if ($baseItem) {
+                $part->update(['generation' => $baseItem->generation]);
+            }
         } else {
             $part->update([
                 'stock_number' => $stock,
@@ -75,11 +104,12 @@ class ParsePinnacleCsvLineAction
                 'item_name_mng' => '',
                 'original_barcode' => $original_barcode,
                 'generated_barcode' => '',
-                'price_jpy' => $price,
+                'standard_price_nzd' => 0,
+                'actual_price_nzd' => $price,
                 'price_nzd' => 0,
-                'price_mng' => 0,
                 'comment' => $comment
             ]);
+            // if price changes fire trademe relist update
         }
     }
 }

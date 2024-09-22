@@ -20,6 +20,7 @@ class Part extends Model
         'make',
         'model',
         'year',
+        'generation',
         'mileage',
         'amount',
         'item_name_eng',
@@ -28,12 +29,11 @@ class Part extends Model
         'item_name_mng',
         'original_barcode',
         'generated_barcode',
-        'price_jpy',
         'price_nzd',
         'actual_price_nzd',
         'standard_price_nzd',
-        'price_mng',
         'comment',
+        'color',
     ];
 
     public function images(): MorphMany
