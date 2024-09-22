@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Parts;
 
 use App\Actions\Import\ImportFromPinnacleCsvAction;
+use App\Actions\TradeMe\TradeMeListingAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Part\MakeResource;
 use App\Http\Resources\Part\ModelResource;
+use App\Http\Resources\Part\PartGroupResource;
+use App\Http\Resources\Part\PartNameResource;
 use App\Http\Resources\Part\PartResource;
 use App\Http\Resources\Part\YearResource;
 use App\Models\Part;
@@ -22,6 +25,19 @@ class PartsController extends Controller
         $model = $request->get('model', '');
         $years = $request->get('years', '');
         $text = $request->get('text', '');
+        $itemNames = $request->get('part_names', '');
+        $groupNames = $request->get('part_groups', '');
+
+        $names = [];
+        $groups = [];
+
+        if ($itemNames) {
+            $names = explode(',', $itemNames);
+        }
+
+        if ($groupNames) {
+            $groups = explode(',', $groupNames);
+        }
 
         $parts = Part::with('images', 'modifications')
             ->when($make, function($query) use ($make) {
@@ -32,6 +48,12 @@ class PartsController extends Controller
             })
             ->when($years, function($query) use ($years) {
                 return $query->where('year', $years);
+            })
+            ->when(count($names), function($query) use ($names) {
+                return $query->whereIn('item_name_eng', $names);
+            })
+            ->when(count($groups), function($query) use ($groups) {
+                return $query->whereIn('part_group', $groups);
             })
             ->where(function($query) use ($text) {
                 return $query->when($text, function($query) use ($text) {
@@ -78,6 +100,24 @@ class PartsController extends Controller
         ]);
         $part->refresh();
         return new PartResource($part);
+    }
+
+    public function partNames(): AnonymousResourceCollection
+    {
+        $partNames = DB::table('parts')
+            ->selectRaw('distinct item_name_eng')
+            ->orderBy('item_name_eng')
+            ->get();
+        return PartNameResource::collection($partNames);
+    }
+
+    public function partGroups(): AnonymousResourceCollection
+    {
+        $partGroups = DB::table('parts')
+            ->selectRaw('distinct part_group')
+            ->orderBy('part_group')
+            ->get();
+        return PartGroupResource::collection($partGroups);
     }
 
     public function makes(): AnonymousResourceCollection
@@ -134,5 +174,11 @@ class PartsController extends Controller
     public function importFromOneC(Request $request): JsonResponse
     {
         return response()->json([]);
+    }
+
+    public function tradeMeListing(Part $part): JsonResponse
+    {
+        $listing = app()->make(TradeMeListingAction::class)->handle($part);
+        return response()->json($listing);
     }
 }

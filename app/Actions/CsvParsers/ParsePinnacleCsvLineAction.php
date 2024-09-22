@@ -8,6 +8,7 @@ use App\Models\NomenclatureBaseItem;
 use App\Models\NomenclatureBaseItemPdrPosition;
 use App\Models\NomenclatureModification;
 use App\Models\Part;
+use App\Models\SellingMapItem;
 
 class ParsePinnacleCsvLineAction
 {
@@ -63,7 +64,15 @@ class ParsePinnacleCsvLineAction
             $part->update(['inner_id' => $this->generateInnerId(
                 $part->make . $part->model . $part->ic_number . $part->year . $part->created_at)
             ]);
-
+            //find part group
+            $groupItem = SellingMapItem::where('item_name_eng', $item_name_eng)->first();
+            if ($groupItem) {
+                $groupName = SellingMapItem::where('id', $groupItem->parent_id)
+                    ->first()?->item_name_eng;
+                if ($groupName) {
+                    $part->update(['part_group' => $groupName]);
+                }
+            }
             //find generation
             $nomenclatureItems =
                 NomenclatureBaseItemPdrPosition::with('modifications')

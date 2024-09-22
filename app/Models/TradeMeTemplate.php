@@ -21,6 +21,7 @@ class TradeMeTemplate extends Model
     ];
 
     public const SEND_PAYMENT_INSTRUCTIONS = true;
+
     public const SHIPPING_METHODS = [
         'Undecided' => '0',
         'Pickup' => '1',

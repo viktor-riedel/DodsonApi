@@ -25,6 +25,7 @@ class PartResource extends JsonResource
             'price_nzd' => $this->actual_price_nzd,
             'standard_price_nzd' => $this->standard_price_nzd,
             'images'=> [],
+            'group_name' => $this->part_group,
             'trademe' => false,
             'generation' =>  $this->generation,
             'modification' => null,

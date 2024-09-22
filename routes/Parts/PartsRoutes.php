@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('parts')->middleware(['auth:sanctum', 'is_web_user'])->group(function () {
     Route::get('/list', [PartsController::class, 'list']);
     Route::prefix('/search')->group(function() {
+        Route::get('/part-names', [PartsController::class, 'partNames']);
+        Route::get('/part-groups', [PartsController::class, 'partGroups']);
         Route::get('/makes', [PartsController::class, 'makes']);
         Route::get('/models/{make}', [PartsController::class, 'models']);
         Route::get('/years/{make}/{model}', [PartsController::class, 'years']);
@@ -15,6 +17,7 @@ Route::prefix('parts')->middleware(['auth:sanctum', 'is_web_user'])->group(funct
 
     Route::prefix('part/{part}')->group(function() {
         Route::get('/', [PartsController::class, 'get']);
+        Route::get('/trade-me-listing', [PartsController::class, 'tradeMeListing']);
         Route::delete('/delete', [PartsController::class, 'delete']);
         Route::patch('/update', [PartsController::class, 'update']);
     });

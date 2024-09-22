@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -24,6 +25,7 @@ class Part extends Model
         'mileage',
         'amount',
         'item_name_eng',
+        'part_group',
         'item_name_ru',
         'item_name_jp',
         'item_name_mng',
@@ -44,5 +46,10 @@ class Part extends Model
     public function modifications(): MorphOne
     {
         return $this->morphOne(NomenclatureModification::class, 'modificationable');
+    }
+
+    public function tradeMeListing(): HasOne
+    {
+        return $this->hasOne(TradeMeListing::class);
     }
 }
