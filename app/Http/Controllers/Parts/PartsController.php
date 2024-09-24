@@ -16,6 +16,7 @@ use DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Storage;
 
 class PartsController extends Controller
 {
@@ -39,7 +40,7 @@ class PartsController extends Controller
             $groups = explode(',', $groupNames);
         }
 
-        $parts = Part::with('images', 'modifications')
+        $parts = Part::with('images', 'modifications', 'tradeMeListing')
             ->when($make, function($query) use ($make) {
                 return $query->where('make', $make);
             })
@@ -72,6 +73,7 @@ class PartsController extends Controller
 
     public function delete(Part $part): JsonResponse
     {
+        $part->tradeMeListing?->delete();
         $part->delete();
         return response()->json(null, 204);
     }
@@ -101,6 +103,46 @@ class PartsController extends Controller
         $part->refresh();
         return new PartResource($part);
     }
+
+    public function uploadPhoto(Request $request, Part $part): JsonResponse
+    {
+        if ($request->file('uploadPartPhotos')) {
+            $storage = Storage::disk('s3');
+            foreach ($request->file('uploadPartPhotos') as $file) {
+                $fileName = \Str::random();
+                $originFileName = $file->getFilename();
+                $folderName = 'parts/' . $part->id . '/parts/' . $part->id;
+                $mime = $file?->getMimeType();
+                $fileExtension = '.' . $file?->clientExtension();
+                $savePath = $folderName . '/' . $fileName.$fileExtension;
+                $size = $file->getSize();
+                $storage->put($savePath, $file->getContent(), 'public');
+                $part->images()->create([
+                    'url' => $storage->url($savePath),
+                    'mime' => $mime,
+                    'original_file_name' => $originFileName,
+                    'folder_name' => $folderName,
+                    'extension' => $fileExtension,
+                    'file_size' => $size,
+                    'special_flag' => null,
+                    'created_by' => $request->user()->id,
+                ]);
+            }
+        }
+        return response()->json($part->images);
+    }
+
+    public function deletePhoto(Request $request, Part $part, int $photo): JsonResponse
+    {
+        $photo = $part->images()->where('id', $photo)->first();
+        if ($photo) {
+            $photo->update(['deleted_by' => $request->user()->id]);
+            $photo->delete();
+        }
+        return response()->json($part->images);
+
+    }
+
 
     public function partNames(): AnonymousResourceCollection
     {
@@ -180,5 +222,63 @@ class PartsController extends Controller
     {
         $listing = app()->make(TradeMeListingAction::class)->handle($part);
         return response()->json($listing);
+    }
+
+    public function createTradeMeListing(Request $request, Part $part): JsonResponse
+    {
+        $listing = $part->tradeMeListing()->create([
+            'listed_by' => $request->user()->id,
+            'listing_id' => 0,
+            'title' => $request->input('title'),
+            'category' => $request->input('category'),
+            'short_description' => $request->input('short_description'),
+            'description' => $request->input('description'),
+            'delivery_options' => implode(',', $request->input('delivery_options')),
+            'default_duration' => $request->input('default_duration'),
+            'payments_options' => implode(',', $request->input('payments_options')),
+            'update_prices' => (bool) $request->input('update_prices'),
+            'relist' => (bool) $request->input('relist'),
+        ]);
+        if ($request->input('listing_photos') && is_array($request->input('listing_photos'))) {
+            foreach ($request->input('listing_photos') as $photo) {
+                $listing->tradeMePhotos()->create([
+                   'image_url' => $photo['url'],
+                ]);
+            }
+        }
+        //fire list event
+        return response()->json(['success' => true]);
+    }
+
+    public function updateTradeMeListing(Request $request, Part $part): JsonResponse
+    {
+        $part->tradeMeListing()->update([
+            'title' => $request->input('title'),
+            'short_description' => $request->input('short_description'),
+            'description' => $request->input('description'),
+            'delivery_options' => implode(',', $request->input('delivery_options')),
+            'default_duration' => $request->input('default_duration'),
+            'payments_options' => implode(',', $request->input('payments_options')),
+            'update_prices' => (bool) $request->input('update_prices'),
+            'relist' => (bool) $request->input('relist'),
+        ]);
+        if ($request->input('listing_photos') && is_array($request->input('listing_photos'))) {
+            $part->tradeMeListing->tradeMePhotos()->each(function ($photo) {
+                $photo->delete();
+            });
+            foreach ($request->input('listing_photos') as $photo) {
+                $part->tradeMeListing->tradeMePhotos()->create([
+                    'image_url' => $photo['url'],
+                ]);
+            }
+        }
+        // fire update listing event
+        return response()->json(['success' => true]);
+    }
+
+    public function deleteTradeMeListing(Part $part): JsonResponse
+    {
+        $part->tradeMeListing()->delete();
+        return response()->json(['success' => true]);
     }
 }

@@ -24,11 +24,12 @@ class PartResource extends JsonResource
             'item_name_mng' => $this->item_name_mng,
             'price_nzd' => $this->actual_price_nzd,
             'standard_price_nzd' => $this->standard_price_nzd,
-            'images'=> [],
+            'images'=> PartPhotoResource::collection($this->images),
             'group_name' => $this->part_group,
-            'trademe' => false,
+            'trademe' => $this->tradeMeListing !== null,
             'generation' =>  $this->generation,
             'modification' => null,
+            'image' => $this->images->count() ? $this->images->first()->url : null,
         ];
     }
 }

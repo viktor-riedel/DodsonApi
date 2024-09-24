@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TradeMeListing extends Model
@@ -27,6 +28,13 @@ class TradeMeListing extends Model
         'update_date',
     ];
 
+    protected $casts = [
+        'update_prices' => 'boolean',
+        'relist' => 'boolean',
+        'relist_date' => 'datetime',
+        'update_date' => 'datetime',
+    ];
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'listed_by');
@@ -35,5 +43,28 @@ class TradeMeListing extends Model
     public function part(): BelongsTo
     {
         return $this->belongsTo(Part::class, 'part_id');
+    }
+
+    public function getDeliveryOptionsArrayAttribute(): array
+    {
+        if ($this->delivery_options) {
+            return explode(',', $this->delivery_options);
+        }
+
+        return [];
+    }
+
+    public function getPaymentOptionsArrayAttribute(): array
+    {
+        if ($this->payments_options) {
+            return explode(',', $this->payments_options);
+        }
+
+        return [];
+    }
+
+    public function tradeMePhotos(): HasMany
+    {
+        return $this->hasMany(TradeMeListingPhotos::class);
     }
 }

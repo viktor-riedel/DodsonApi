@@ -15,11 +15,19 @@ Route::prefix('parts')->middleware(['auth:sanctum', 'is_web_user'])->group(funct
         Route::get('/years/{make}/{model}', [PartsController::class, 'years']);
     });
 
-    Route::prefix('part/{part}')->group(function() {
+    Route::prefix('/part/{part}')->group(function() {
         Route::get('/', [PartsController::class, 'get']);
-        Route::get('/trade-me-listing', [PartsController::class, 'tradeMeListing']);
         Route::delete('/delete', [PartsController::class, 'delete']);
         Route::patch('/update', [PartsController::class, 'update']);
+        Route::post('/upload-photo', [PartsController::class, 'uploadPhoto']);
+        Route::delete('/delete-photo/{photo}', [PartsController::class, 'deletePhoto']);
+    });
+
+    Route::prefix('/trade-me/{part}')->group(function() {
+        Route::get('/listing', [PartsController::class, 'tradeMeListing']);
+        Route::post('/create', [PartsController::class, 'createTradeMeListing']);
+        Route::patch('/update', [PartsController::class, 'updateTradeMeListing']);
+        Route::delete('/delete', [PartsController::class, 'deleteTradeMeListing']);
     });
 
     Route::prefix('import')->group(function() {

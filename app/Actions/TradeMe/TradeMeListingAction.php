@@ -2,6 +2,8 @@
 
 namespace App\Actions\TradeMe;
 
+use App\Http\Resources\Part\PartPhotoResource;
+use App\Http\Resources\Part\TradeMeListingResource;
 use App\Models\Part;
 use App\Models\TradeMeGroup;
 use App\Models\TradeMeTemplate;
@@ -16,15 +18,19 @@ class TradeMeListingAction
     {
         $this->part = $part;
         $part->load('tradeMeListing');
-        $listing = $part->tradeMeListing;
+        $listing = null;
+        if ($part->tradeMeListing) {
+            $listing = new TradeMeListingResource($part->tradeMeListing);
+        }
         $categories = TradeMeGroup::all();
         $duration = arrayToJsonFormat(TradeMeTemplate::DEFAULT_DURATION);
         $shipping = arrayToJsonFormat(TradeMeTemplate::SHIPPING_METHODS);
         $payments = arrayToJsonFormat(TradeMeTemplate::PAYMENT_METHODS);
+        $photos = PartPhotoResource::collection($part->images);
         $tags = TradeMeTemplate::REPLACE_TAGS;
         $html = TradeMeTemplate::SUPPORTED_CHARACTERS;
 
-        if (!$part->tradeMeListing) {
+        if (!$listing) {
             $listing = $this->buildTemplate();
         }
 
@@ -36,6 +42,7 @@ class TradeMeListingAction
             'payments' => $payments,
             'tags' => $tags,
             'html' => $html,
+            'photos' => $photos,
         ];
     }
 
@@ -88,6 +95,7 @@ class TradeMeListingAction
         $source = Str::replace('{engine_code}', $this->part->engine_code, $source);
         $source = Str::replace('{description}', $this->part->ic_decsription, $source);
         $source = Str::replace('{price}', $this->part->actual_price_nzd, $source);
+        $source = Str::replace('(NZ ONLY)', '', $source);
         return $source;
     }
 }
