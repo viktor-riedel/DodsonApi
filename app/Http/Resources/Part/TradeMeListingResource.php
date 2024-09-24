@@ -23,6 +23,7 @@ class TradeMeListingResource extends JsonResource
             'user' => $this->user->name ?? null,
             'listed' => $this->update_date?->format('d/m/Y H:i'),
             'relisted' => $this->relist_date?->format('d/m/Y H:i'),
+            'photos' => $this->tradeMePhotos->count() ? $this->tradeMePhotos : [],
         ];
     }
 }

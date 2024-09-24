@@ -15,6 +15,8 @@ class TradeMeListingPhotos extends Model
         'image_url',
     ];
 
+    protected $hidden = ['created_at', 'updated_at', 'trade_me_listing_id'];
+
     public function tradeMeListing(): BelongsTo
     {
         return $this->belongsTo(TradeMeListing::class);
