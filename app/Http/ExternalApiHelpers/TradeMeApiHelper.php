@@ -121,8 +121,7 @@ class TradeMeApiHelper
                 [
                     'Authorization' => $header,
                 ]
-            )->post($url . '/' . $path, $data)
-                ->json();
+            )->post($url . '/' . $path, $data)->json();
         }
         return [];
     }

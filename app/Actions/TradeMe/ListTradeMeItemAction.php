@@ -24,6 +24,8 @@ class ListTradeMeItemAction
                 'listing_id' => $data['ListingId'],
                 'update_date' => now(),
             ]);
+        } else {
+            \Log::error("Failed to create listing item. " . json_encode($data));
         }
     }
 }
