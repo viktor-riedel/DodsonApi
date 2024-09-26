@@ -18,8 +18,17 @@ class OrderController extends Controller
 {
     public function list(Request $request): AnonymousResourceCollection
     {
+        $search = $request->query('search');
         $orders = $request->user()->orders()
             ->with('items')
+            ->when($search, function ($query, $search) {
+                return $query->where('order_number', 'like', '%'.$search.'%')
+                    ->orwhereHas('items.car', function ($query) use ($search) {
+                   return $query->where('car_mvr', 'like', '%' . $search . '%')
+                       ->orWhere('make', 'like', '%' . $search . '%')
+                       ->orWhere('model', 'like', '%' . $search . '%');
+                });
+            })
             ->orderBy('created_at', 'desc')
             ->paginate(20);
         return OrderResource::collection($orders);
