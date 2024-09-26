@@ -17,6 +17,7 @@ class TradeMeListing extends Model
         'listed_by',
         'title',
         'category',
+        'category_name',
         'short_description',
         'description',
         'delivery_options',

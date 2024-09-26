@@ -231,6 +231,7 @@ class PartsController extends Controller
             'listing_id' => 0,
             'title' => $request->input('title'),
             'category' => $request->input('category'),
+            'category_name' => $request->input('category_name'),
             'short_description' => $request->input('short_description'),
             'description' => $request->input('description'),
             'delivery_options' => implode(',', $request->input('delivery_options')),

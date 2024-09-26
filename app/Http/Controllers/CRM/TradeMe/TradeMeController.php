@@ -79,6 +79,7 @@ class TradeMeController extends Controller
         TradeMeGroup::create([
             'group_name' => $request->input('group_name'),
             'trade_me_path' => $request->input('group_path'),
+            'number_path' => $request->input('number_path'),
             'note' => $request->input('note'),
             'created_by' => $request->user()->id,
         ]);

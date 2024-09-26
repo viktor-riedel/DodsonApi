@@ -12,6 +12,7 @@ class TradeMeListingResource extends JsonResource
         return [
             'id' => $this->id ?? null,
             'category' =>  $this->category ?? null,
+            'category_name' =>  $this->category_name ?? null,
             'title' => $this->title ?? null,
             'short_description' => $this->short_description ?? null,
             'description' => $this->description ?? null,

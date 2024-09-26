@@ -87,6 +87,21 @@ class SellingPartsMapController extends Controller
                     'price_c_jpy' => $request->integer('price'),
                 ]);
                 break;
+            case 'D':
+                $item->update([
+                    'price_d_jpy' => $request->integer('price'),
+                ]);
+                break;
+            case 'E':
+                $item->update([
+                    'price_e_jpy' => $request->integer('price'),
+                ]);
+                break;
+            case 'F':
+                $item->update([
+                    'price_f_jpy' => $request->integer('price'),
+                ]);
+                break;
             default:
         }
         return response()->json([], 202);

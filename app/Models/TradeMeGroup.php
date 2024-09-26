@@ -13,6 +13,7 @@ class TradeMeGroup extends Model
     protected $fillable = [
         'group_name',
         'trade_me_path',
+        'number_path',
         'note',
         'created_by',
     ];
