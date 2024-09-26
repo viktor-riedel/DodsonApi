@@ -50,7 +50,7 @@ class StockPartsRetailController extends Controller
                 return $query->orderBy('year', $sortByYear);
             })
             ->when($sortByPrice, function ($query, $sortByPrice) {
-                return $query->orderBy('price_jpy', $sortByPrice);
+                return $query->orderBy('actual_price_nzd', $sortByPrice);
             })
             ->where(function($query) use ($searchText) {
                 return $query->when($searchText, function($query) use ($searchText) {
@@ -60,7 +60,7 @@ class StockPartsRetailController extends Controller
                         ->orWhere('item_name_eng', 'REGEXP', $searchText)
                         ->orWhere('ic_number', 'REGEXP', $searchText);
                 });
-            })->where('price_jpy', '>', 0)
+            })->where('actual_price_nzd', '>', 0)
             ->orderBy('stock_number')
             ->orderBy('make')
             ->orderBy('model')
