@@ -7,7 +7,6 @@ use App\Http\Resources\Part\TradeMeListingResource;
 use App\Models\Part;
 use App\Models\TradeMeGroup;
 use App\Models\TradeMeTemplate;
-use Illuminate\Support\Collection;
 use Str;
 
 class TradeMeListingAction

@@ -34,6 +34,7 @@ class TradeMeListing extends Model
         'relist' => 'boolean',
         'relist_date' => 'datetime',
         'update_date' => 'datetime',
+        'created_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

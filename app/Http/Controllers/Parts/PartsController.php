@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Parts;
 
 use App\Actions\Import\ImportFromPinnacleCsvAction;
 use App\Actions\TradeMe\TradeMeListingAction;
+use App\Events\TradeMe\CreateListingEvent;
+use App\Events\TradeMe\UpdateTradeMeListingEvent;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Part\MakeResource;
 use App\Http\Resources\Part\ModelResource;
@@ -12,6 +14,7 @@ use App\Http\Resources\Part\PartNameResource;
 use App\Http\Resources\Part\PartResource;
 use App\Http\Resources\Part\YearResource;
 use App\Models\Part;
+use App\Models\TradeMeListing;
 use DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -73,7 +76,7 @@ class PartsController extends Controller
 
     public function delete(Part $part): JsonResponse
     {
-        $part->tradeMeListing?->delete();
+        $part->tradeMeListing()?->delete();
         $part->delete();
         return response()->json(null, 204);
     }
@@ -85,6 +88,9 @@ class PartsController extends Controller
 
     public function update(Request $request, Part $part): PartResource
     {
+        $fireUpdateTradeMeEvent = $request->integer('price_nzd') !== $part->actual_price_nzd ||
+            $request->integer('standard_price_nzd') !==  $part->standard_price_nzd;
+
         $part->update([
             'stock_number' => $request->input('stock_number'),
             'ic_number' => $request->input('ic_number'),
@@ -101,6 +107,9 @@ class PartsController extends Controller
             'standard_price_nzd' => $request->integer('standard_price_nzd'),
         ]);
         $part->refresh();
+        if ($fireUpdateTradeMeEvent && $part->tradeMeListing) {
+            event(new UpdateTradeMeListingEvent($part->tradeMeListing));
+        }
         return new PartResource($part);
     }
 
@@ -247,7 +256,9 @@ class PartsController extends Controller
                 ]);
             }
         }
-        //fire list event
+
+        event(new CreateListingEvent($listing));
+
         return response()->json(['success' => true]);
     }
 
@@ -273,7 +284,9 @@ class PartsController extends Controller
                 ]);
             }
         }
-        // fire update listing event
+
+        event (new UpdateTradeMeListingEvent($part->tradeMeListing));
+
         return response()->json(['success' => true]);
     }
 

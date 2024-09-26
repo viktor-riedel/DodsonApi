@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('currency:update-currencies-rates')->daily();
         $schedule->command('sync:user-balance')->everyThreeHours();
         $schedule->command('sync:caparts-users')->everySixHours();
+        $schedule->command('trademe-listing:relist')->dailyAt('09:00');
     }
 
     /**
