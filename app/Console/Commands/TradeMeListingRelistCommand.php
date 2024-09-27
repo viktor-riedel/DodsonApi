@@ -14,8 +14,8 @@ class TradeMeListingRelistCommand extends Command
 
     public function handle(): void
     {
-        if (config('app.env') === 'production') {
-            $parts = Part::whereHas('tradeMeListing', function ($query) {
+        if (config('app.env') === 'production' || config('app.env') === 'local') {
+            $parts = Part::whereHas('tradeMeListing', static function ($query) {
                 return $query->where('listing_id', '>', 0)
                     ->where('relist', true);
             })->get();
