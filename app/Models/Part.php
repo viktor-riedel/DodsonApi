@@ -15,8 +15,10 @@ class Part extends Model
 
     protected $fillable = [
         'inner_id',
+        'hash_id',
         'stock_number',
         'ic_number',
+        'oem_number',
         'ic_description',
         'make',
         'model',

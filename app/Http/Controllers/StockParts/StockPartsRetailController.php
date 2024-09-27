@@ -61,7 +61,7 @@ class StockPartsRetailController extends Controller
                         ->orWhere('ic_number', 'REGEXP', $searchText);
                 });
             })->where('actual_price_nzd', '>', 0)
-            ->orderBy('stock_number')
+            ->orderBy('original_barcode')
             ->orderBy('make')
             ->orderBy('model')
             ->paginate(50);

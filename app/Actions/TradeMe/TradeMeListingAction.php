@@ -52,6 +52,7 @@ class TradeMeListingAction
             'id' => null,
             'title' => $this->parseTitle($defaultTemplate->title),
             'category' => null,
+            'tag' => $this->original_barcode,
             'short_description' => $this->parseShortDescription($defaultTemplate->short_description),
             'description' => $this->parseDescription($defaultTemplate->description),
             'delivery_options' => $defaultTemplate->delivery_options_array,
@@ -85,7 +86,10 @@ class TradeMeListingAction
         $source = Str::replace('{make}', $this->part->make, $source);
         $source = Str::replace('{model}', $this->part->model, $source);
         $source = Str::replace('{year}', $this->part->year, $source);
-        $source = Str::replace('{tag}', $this->part->stock_number, $source);
+        $source = Str::replace('{stock}', $this->part->stock_number, $source);
+        $source = Str::replace('{ic_number}', $this->part->ic_number, $source);
+        $source = Str::replace('{oem_number}', $this->part->oem_number, $source);
+        $source = Str::replace('{tag}', $this->part->original_barcode, $source);
         $source = Str::replace('{color}', $this->part->color, $source);
         $source = Str::replace('{body_style}', $this->part->body_style, $source);
         $source = Str::replace('{vehicle}', $this->part->vehicle, $source);

@@ -26,6 +26,7 @@ class ParsePinnacleCsvLineAction
         $price = (int) $csv_string[9];
         $comment = $csv_string[5];
         $stock = $csv_string[0];
+        $oem = $csv_string[26];
 
         $ic_number = $ic_description[0] ?? null;
         $ic_description = $ic_description[1] ?? null;
@@ -43,6 +44,7 @@ class ParsePinnacleCsvLineAction
                 'inner_id' => '',
                 'stock_number' => $stock,
                 'ic_number' => $ic_number,
+                'oem_number' => $oem,
                 'ic_description' => $ic_description,
                 'make' => $make,
                 'model' => $model,

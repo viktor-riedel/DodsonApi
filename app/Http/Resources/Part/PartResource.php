@@ -4,6 +4,7 @@ namespace App\Http\Resources\Part;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Str;
 
 class PartResource extends JsonResource
 {
@@ -11,9 +12,10 @@ class PartResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'stock_number' => $this->stock_number,
+            'stock_number' => $this->original_barcode,
             'ic_number' => $this->ic_number,
-            'ic_description' => $this->ic_description,
+            'oem_number' => $this->oem_number,
+            'ic_description' => Str::replace('(NZ ONLY)', '', $this->ic_description),
             'make' => $this->make,
             'model' => $this->model,
             'year' => $this->year,
