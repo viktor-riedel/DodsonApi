@@ -23,7 +23,6 @@ class PartResource extends JsonResource
             'item_name_jp' => $this->item_name_jp,
             'item_name_mng' => $this->item_name_mng,
             'price_nzd' => $this->actual_price_nzd,
-            'standard_price_nzd' => $this->standard_price_nzd,
             'images'=> PartPhotoResource::collection($this->images),
             'group_name' => $this->part_group,
             'trademe' => $this->tradeMeListing !== null,
