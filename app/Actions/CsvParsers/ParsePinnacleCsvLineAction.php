@@ -2,6 +2,7 @@
 
 namespace App\Actions\CsvParsers;
 
+use App\Events\TradeMe\UpdateTradeMeListingEvent;
 use App\Http\Traits\BadgeGeneratorTrait;
 use App\Http\Traits\InnerIdTrait;
 use App\Models\NomenclatureBaseItem;
@@ -31,17 +32,13 @@ class ParsePinnacleCsvLineAction
         $ic_number = $ic_description[0] ?? null;
         $ic_description = $ic_description[1] ?? null;
 
-        $part = Part::where('ic_number')
-            ->where('make', $make)
-            ->where('model', $model)
-            ->where('item_name_eng', $item_name_eng)
-            ->when(isset($ic_description), function ($query) use ($ic_description) {
-                return $query->where('ic_description', $ic_description);
-            })
-            ->first();
+        $hash = md5($make . $model . $ic_number . $original_barcode);
+
+        $part = Part::where('hash_id', $hash)->first();
         if (!$part) {
             $part = Part::create([
                 'inner_id' => '',
+                'hash_id' => $hash,
                 'stock_number' => $stock,
                 'ic_number' => $ic_number,
                 'oem_number' => $oem,
@@ -100,6 +97,13 @@ class ParsePinnacleCsvLineAction
                 $part->update(['generation' => $baseItem->generation]);
             }
         } else {
+            // if price changes fire trademe relist update
+            if ($part->actual_price_nzd !== $price) {
+                $part->load('tradeMeListing');
+                if ($part->tradeMeListing) {
+                    event (new UpdateTradeMeListingEvent($part->tradeMeListing));
+                }
+            }
             $part->update([
                 'stock_number' => $stock,
                 'ic_number' => $ic_number,
@@ -120,7 +124,6 @@ class ParsePinnacleCsvLineAction
                 'price_nzd' => 0,
                 'comment' => $comment
             ]);
-            // if price changes fire trademe relist update
         }
     }
 }
