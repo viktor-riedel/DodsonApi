@@ -52,7 +52,6 @@ class TradeMeListingAction
             'id' => null,
             'title' => $this->parseTitle($defaultTemplate->title),
             'category' => null,
-            'tag' => $this->original_barcode,
             'short_description' => $this->parseShortDescription($defaultTemplate->short_description),
             'description' => $this->parseDescription($defaultTemplate->description),
             'delivery_options' => $defaultTemplate->delivery_options_array,
