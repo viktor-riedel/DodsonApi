@@ -7,6 +7,7 @@ use App\Actions\TradeMe\TradeMeListingAction;
 use App\Events\TradeMe\CreateListingEvent;
 use App\Events\TradeMe\UpdateTradeMeListingEvent;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Part\EditPartResource;
 use App\Http\Resources\Part\MakeResource;
 use App\Http\Resources\Part\ModelResource;
 use App\Http\Resources\Part\PartGroupResource;
@@ -81,9 +82,9 @@ class PartsController extends Controller
         return response()->json(null, 204);
     }
 
-    public function get(Part $part): PartResource
+    public function get(Part $part): EditPartResource
     {
-        return new PartResource($part);
+        return new EditPartResource($part);
     }
 
     public function update(Request $request, Part $part): PartResource

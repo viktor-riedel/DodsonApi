@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\StockParts;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Part\EditPartResource;
 use App\Http\Resources\Part\MakeResource;
 use App\Http\Resources\Part\ModelResource;
 use App\Http\Resources\Part\PartResource;
