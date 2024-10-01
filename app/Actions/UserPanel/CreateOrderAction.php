@@ -2,9 +2,7 @@
 
 namespace App\Actions\UserPanel;
 
-use App\Events\Order\OrderCreatedEvent;
 use App\Http\Traits\SyncWishedCarsTrait;
-use App\Mail\UserOrderCreatedMail;
 use App\Models\Car;
 use App\Models\Order;
 use Illuminate\Http\Request;

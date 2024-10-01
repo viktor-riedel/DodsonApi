@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\StockParts\StockPartWholesaleController;
-use App\Http\Controllers\UserPanel\Order\PartsOrderController;
+use App\Http\Controllers\UserPanel\Order\WholesalePartsOrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('stock-parts-wholesale')->group(function () {
@@ -18,9 +18,9 @@ Route::prefix('stock-parts-wholesale')->group(function () {
     });
 
     Route::prefix('/order')->middleware(['auth:sanctum', 'is_web_user'])->group(function () {
-        Route::get('/cart', [PartsOrderController::class, 'cart']);
-        Route::put('/add-to-cart', [PartsOrderController::class, 'addToCart']);
-        Route::patch('/update-cart', [PartsOrderController::class, 'updateCart']);
-        Route::post('/make-parts-order', [PartsOrderController::class, 'makePartsOrder']);
+        Route::get('/cart', [WholesalePartsOrderController::class, 'cart']);
+        Route::put('/add-to-cart', [WholesalePartsOrderController::class, 'addToCart']);
+        Route::patch('/update-cart', [WholesalePartsOrderController::class, 'updateCart']);
+        Route::post('/make-parts-order', [WholesalePartsOrderController::class, 'makePartsOrder']);
     });
 });

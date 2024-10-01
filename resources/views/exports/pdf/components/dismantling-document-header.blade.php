@@ -27,10 +27,10 @@
 <p style="text-indent: 0pt;text-align: left;"><br/></p>
 <p style="padding-left: 10pt;text-indent: 0pt;text-align: left;">
     Разборщик:
-    <span class="s3">{{auth()->user()?->name}}</span>
+    <span class="s3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
     Дата:
     <span class="s3">{{now()->format('d/m/Y')}}</span>
-    Приемщик :<span class="s2"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+    Приемщик :<span class="s2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
     <span class="s3"> </span>
-    Дата<span class="s2"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></p>
+    Дата<span class="s2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></p>
 <p style="text-indent: 0pt;text-align: left;"><br/></p>

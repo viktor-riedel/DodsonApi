@@ -12,14 +12,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
-class PartsOrderController extends Controller
+class WholesalePartsOrderController extends Controller
 {
-    public function addToCart(Request $request): AnonymousResourceCollection
-    {
-        $parts = app()->make(AddPartsToOrderAction::class)->handle($request);
-        return WholesalePartResource::collection($parts);
-    }
-
     public function cart(Request $request): AnonymousResourceCollection
     {
         $parts = CarPdrPosition::with('carPdr', 'carPdr.car',
@@ -27,6 +21,12 @@ class PartsOrderController extends Controller
             'card', 'card.priceCard')
             ->whereIn('id', $request->user()->cart->partItems->pluck('part_id')->toArray())
             ->get();
+        return WholesalePartResource::collection($parts);
+    }
+
+    public function addToCart(Request $request): AnonymousResourceCollection
+    {
+        $parts = app()->make(AddPartsToOrderAction::class)->handle($request);
         return WholesalePartResource::collection($parts);
     }
 
