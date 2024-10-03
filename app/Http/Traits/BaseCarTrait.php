@@ -119,7 +119,7 @@ trait BaseCarTrait
     }
 
     public function partsList(
-        ?Request $request,
+        Request $request,
         ?string $make,
         ?string $model,
         ?string $generation,
@@ -127,7 +127,7 @@ trait BaseCarTrait
     ): JsonResponse
     {
         $modifications = [];
-        if ($modification === 'null') {
+        if ($modification === 'null' && (int) $generation > 0) {
             $modifications = NomenclatureBaseItem::with('modifications')
                 ->where('make', $make)
                 ->where('model', $model)

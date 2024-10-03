@@ -48,6 +48,7 @@ class ListWholesalePartsController extends Controller
                 $query->where('cars.car_mvr', 'LIKE', "%$search%");
             })
             ->where('cars.virtual', true)
+            ->where('cars.virtual_retail', false)
             ->orderBy('created_at', 'desc')
             ->groupBy('cars.car_mvr')
             ->groupBy('cars.created_by')
@@ -163,6 +164,7 @@ class ListWholesalePartsController extends Controller
             })
             ->whereNull('cars.deleted_at')
             ->where('virtual', true)
+            ->where('cars.virtual_retail', false)
             ->orderBy('cars.make')
             ->get();
 
@@ -183,6 +185,7 @@ class ListWholesalePartsController extends Controller
             })
             ->whereNull('cars.deleted_at')
             ->where('virtual', true)
+            ->where('virtual_retail', false)
             ->where('cars.make', $make)
             ->orderBy('cars.model')
             ->get();
@@ -207,6 +210,7 @@ class ListWholesalePartsController extends Controller
             })
             ->whereNull('cars.deleted_at')
             ->where('virtual', true)
+            ->where('virtual_retail', false)
             ->where('cars.make', $make)
             ->whereNotNull('car_attributes.year')
             ->orderBy('car_attributes.year')
@@ -232,6 +236,7 @@ class ListWholesalePartsController extends Controller
             })
             ->whereNull('cars.deleted_at')
             ->where('virtual', true)
+            ->where('virtual_retail', false)
             ->where('cars.make', $make)
             ->where('cars.model', $model)
             ->where('car_attributes.year', $year)

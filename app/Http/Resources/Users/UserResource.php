@@ -25,6 +25,7 @@ class UserResource extends JsonResource
             'country_code' => $this->country_code,
             'is_api_user' => (bool) $this->is_api_user,
             'parts_sale' => $this->userCard?->parts_sale_user,
+            'wholesale' => $this->userCard?->wholesaler ?? false,
         ];
     }
 }

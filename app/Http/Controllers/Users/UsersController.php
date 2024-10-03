@@ -8,12 +8,14 @@ use App\Http\Resources\Users\UserResource;
 use App\Models\User;
 use App\Models\UserCard;
 use Cache;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
 {
-    public function list(Request $request): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function list(Request $request): AnonymousResourceCollection
     {
         $search = $request->get('search');
         $users = User::withTrashed()
@@ -39,20 +41,21 @@ class UsersController extends Controller
         return new UserResource($user);
     }
 
-    public function countriesList(): \Illuminate\Http\JsonResponse
+    public function countriesList(): JsonResponse
     {
         return response()->json(getCountriesForJson());
     }
 
-    public function blockUser(int $user): \Illuminate\Http\JsonResponse
+    public function blockUser(int $user): JsonResponse
     {
         $user = User::withTrashed()->find($user);
-        if ($user->trashed()) {
-            $user->restore();
-        } else {
-            $user->delete();
+        if (!$user->system_account) {
+            if ($user->trashed()) {
+                $user->restore();
+            } else {
+                $user->delete();
+            }
         }
-
         return response()->json([], 202);
     }
 
