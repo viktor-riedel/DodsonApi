@@ -9,6 +9,7 @@ class RetailPartResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $notFound = config('app.env') === 'local' ? '/public/part_not_found.jpg' : '/part_not_found.jpg';
         return [
             'id' => $this->id,
             'ic_number' => $this->ic_number,
@@ -24,7 +25,7 @@ class RetailPartResource extends JsonResource
             'generation' => $this->carPdr->car->generation,
             'mileage' => number_format($this->carPdr->car->carAttributes->mileage),
             'price_nzd' => $this->card->priceCard->selling_price,
-            'image' => $this->images->count() ? $this->images->first()->url : '/public/part_not_found.jpg',
+            'image' => $this->images->count() ? $this->images->first()->url : $notFound,
         ];
     }
 }

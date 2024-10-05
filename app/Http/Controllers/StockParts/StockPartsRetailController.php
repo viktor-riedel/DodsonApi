@@ -179,7 +179,6 @@ class StockPartsRetailController extends Controller
                                 ->whereNotNull('car_attributes.year');
                         }), 'asc');
             })
-            ->where('user_id', Consts::getPartsSaleUserId())
             ->paginate(60);
 
         return RetailPartResource::collection($parts);
