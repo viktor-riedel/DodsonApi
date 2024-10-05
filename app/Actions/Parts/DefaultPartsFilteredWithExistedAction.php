@@ -23,11 +23,13 @@ class DefaultPartsFilteredWithExistedAction
         if ($country === 'MNG' && Cache::has('wholesale_parts_mng')) {
             return Cache::get('wholesale_selling_parts_mng');
         }
-        if (!$country && Cache::has('wholesale_parts_all')) {
+        if (!$country) {
             if ($retail && Cache::has('retail_parts_all')) {
                 return Cache::get('retail_parts_all');
             }
-            return Cache::get('wholesale_parts_all');
+            if (Cache::has('wholesale_parts_all')) {
+                return Cache::get('wholesale_parts_all');
+            }
         }
 
 
