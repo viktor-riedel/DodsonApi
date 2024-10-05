@@ -25,8 +25,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('trademe-listing:relist')->dailyAt('18:00');
         $schedule->command('trademe-listing:relist')->dailyAt('21:00');
         //live stock
-        $schedule->command('import:live-stock')->dailyAt('06:00');
-        $schedule->command('import:live-stock')->dailyAt('18:00');
+        //$schedule->command('import:live-stock')->dailyAt('06:00');
+        //$schedule->command('import:live-stock')->dailyAt('18:00');
     }
 
     /**

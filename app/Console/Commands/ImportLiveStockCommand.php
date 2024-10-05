@@ -9,11 +9,11 @@ class ImportLiveStockCommand extends Command
 {
     protected $signature = 'import:live-stock';
 
-    protected $description = 'Command description';
+    protected $description = 'This command imports live parts stock';
 
     public function handle(): void
     {
-        if (config('app.env') === 'production') {
+        if (config('app.env') === 'staging') {
             app()->make(LiveStockAction::class)->handle();
         }
     }
