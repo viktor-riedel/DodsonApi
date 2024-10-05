@@ -72,7 +72,7 @@ class AllCarsController extends Controller
             ->when($generation, function ($query) use ($generation) {
                 return $query->where('generation', $generation);
             })
-            ->when($car_status, function ($query) use ($car_status) {
+            ->when($car_status !== null && $car_status >= 0, function ($query) use ($car_status) {
                 return $query->where('car_status', $car_status);
             })
             ->when($agent, function($query) use ($agent) {
