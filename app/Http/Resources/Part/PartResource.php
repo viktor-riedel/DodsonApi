@@ -12,20 +12,21 @@ class PartResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'stock_number' => $this->original_barcode,
+            'mvr_number' => $this->car_mvr,
+            'stock_number' => $this->barcode,
             'ic_number' => $this->ic_number,
             'oem_number' => $this->oem_number,
-            'ic_description' => Str::replace('(NZ ONLY)', '', $this->ic_description),
+            'ic_description' => Str::replace('(NZ ONLY)', '', $this->description),
             'make' => $this->make,
             'model' => $this->model,
             'year' => $this->year,
             'mileage' => $this->mileage,
-            'item_name_eng' => $this->item_name_eng,
-            'item_name_ru' => $this->item_name_ru,
-            'item_name_jp' => $this->item_name_jp,
-            'item_name_mng' => $this->item_name_mng,
-            'price_nzd' => $this->actual_price_nzd,
-            'images'=> $this->images->count() ?
+            'item_name_eng' => $this->name_eng,
+            'item_name_ru' => $this->name_ru,
+            'item_name_jp' => '',
+            'item_name_mng' => '',
+            'price_nzd' => $this->selling_price,
+            'images'=> $this->images ?
                 PartPhotoResource::collection($this->images) :
                 [
                     [
@@ -33,11 +34,11 @@ class PartResource extends JsonResource
                         'url' => '/public/part_not_found.jpg'
                     ],
                 ],
-            'group_name' => $this->part_group,
+            'group_name' => $this->item_name_eng,
             'trademe' => $this->tradeMeListing !== null,
             'generation' =>  $this->generation,
             'modification' => null,
-            'image' => $this->images->count() ? $this->images->first()->url : '/public/part_not_found.jpg',
+            'image' => $this->images ? $this->images->first()->url : '/public/part_not_found.jpg',
         ];
     }
 }

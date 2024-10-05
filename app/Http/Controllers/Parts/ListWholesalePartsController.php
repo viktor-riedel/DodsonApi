@@ -68,7 +68,6 @@ class ListWholesalePartsController extends Controller
                     return $q->where('car_mvr', $mvr);
                 });
             })->get();
-        //return response()->json($parts);
         return PartsDocumentResource::collection($parts);
     }
 

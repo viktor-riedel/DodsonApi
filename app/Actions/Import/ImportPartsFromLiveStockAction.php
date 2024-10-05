@@ -144,6 +144,7 @@ class ImportPartsFromLiveStockAction
             ]);
 
             $car->carAttributes()->create([
+                'year' => $year,
                 'color' => null,
                 'mileage' => (int) $mileage,
                 'chassis' => ($modification?->chassis).'-',

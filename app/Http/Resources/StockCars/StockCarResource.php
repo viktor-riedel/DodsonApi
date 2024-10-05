@@ -18,6 +18,7 @@ class StockCarResource extends JsonResource
             'generation' => $this->generation,
             'year' => $this->carAttributes->year &&  $this->carAttributes->year > 0 ? $this->carAttributes->year : '',
             'chassis' => $this->carAttributes->chassis,
+            'car_mvr' => $this->car_mvr,
             'color' => $this->carAttributes->color,
             'engine' => $this->carAttributes->engine,
             'mileage' => number_format($this->carAttributes->mileage),

@@ -14,9 +14,11 @@ use App\Http\Resources\Part\PartGroupResource;
 use App\Http\Resources\Part\PartNameResource;
 use App\Http\Resources\Part\PartResource;
 use App\Http\Resources\Part\YearResource;
+use App\Models\CarPdrPosition;
 use App\Models\Part;
 use App\Models\TradeMeListing;
 use DB;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -29,12 +31,17 @@ class PartsController extends Controller
         $make = $request->get('make', '');
         $model = $request->get('model', '');
         $years = $request->get('years', '');
-        $text = $request->get('text', '');
+        $text = $request->get('search', '');
         $itemNames = $request->get('part_names', '');
         $groupNames = $request->get('part_groups', '');
 
         $names = [];
         $groups = [];
+        $carYears = [];
+
+        if ($years) {
+            $carYears = explode(',', $years);
+        }
 
         if ($itemNames) {
             $names = explode(',', $itemNames);
@@ -44,34 +51,73 @@ class PartsController extends Controller
             $groups = explode(',', $groupNames);
         }
 
-        $parts = Part::with('images', 'modifications', 'tradeMeListing')
-            ->when($make, function($query) use ($make) {
-                return $query->where('make', $make);
+        $parts = DB::table('car_pdr_positions')
+            ->select(
+                'car_pdr_positions.id',
+                'car_pdr_position_cards.barcode',
+                'car_pdr_position_cards.oem_number',
+                'car_pdr_position_cards.ic_number',
+                'car_pdr_position_cards.description',
+                'cars.car_mvr',
+                'cars.make',
+                'cars.model',
+                'car_attributes.year',
+                'car_attributes.mileage',
+                'car_pdr_position_cards.name_eng',
+                'car_pdr_position_cards.name_ru',
+                'car_pdrs.item_name_eng',
+                'car_pdr_position_card_prices.selling_price',
+                'cars.generation',
+            )
+            ->selectRaw('null as images, null as tradeMeListing')
+            ->join('car_pdr_position_cards', function(JoinClause $join)  {
+                $join->on('car_pdr_position_cards.car_pdr_position_id', '=', 'car_pdr_positions.id');
             })
-            ->when($model, function($query) use ($model) {
-                return $query->where('model', $model);
+            ->join('car_pdr_position_card_prices', function(JoinClause $join) {
+                $join->on('car_pdr_position_card_prices.car_pdr_position_card_id', '=', 'car_pdr_position_cards.id');
             })
-            ->when($years, function($query) use ($years) {
-                return $query->where('year', $years);
-            })
-            ->when(count($names), function($query) use ($names) {
-                return $query->whereIn('item_name_eng', $names);
-            })
-            ->when(count($groups), function($query) use ($groups) {
-                return $query->whereIn('part_group', $groups);
-            })
-            ->where(function($query) use ($text) {
-                return $query->when($text, function($query) use ($text) {
-                return $query->where('stock_number', 'like', "%$text%")
-                    ->orWhere('item_name_eng', 'like', "%$text%")
-                    ->orWhere('ic_number', 'like', "%$text%")
-                    ->orWhere('ic_description', 'like', "%$text%");
+            ->join('car_pdrs', function (JoinClause $join) use ($groups) {
+                $join->on('car_pdrs.id', '=', 'car_pdr_positions.car_pdr_id')
+                ->when(count($groups), function ($query) use ($groups) {
+                    return $query->whereIn('car_pdrs.item_name_eng', $groups);
                 });
             })
-            ->orderBy('stock_number')
-            ->orderBy('make')
-            ->orderBy('model')
+            ->join('cars', function (JoinClause $join) use ($make, $model, $text) {
+                $join->on('cars.id', '=', 'car_pdrs.car_id')
+                ->where('cars.virtual_retail', true)
+                ->when($make, function ($query, $make) {
+                    return $query->where('cars.make', $make);
+                })
+                ->when($model, function ($query, $model) {
+                    return $query->where('cars.model', $model);
+                });
+            })
+            ->join('car_attributes', function (JoinClause $join) use ($carYears) {
+                $join->on('car_attributes.car_id', '=', 'cars.id')
+                ->when(count($carYears), function ($query) use ($carYears) {
+                    return $query->whereIn('car_attributes.year', $carYears);
+                });
+            })
+            ->when($text, function ($query) use ($text) {
+                return $query->where('car_pdr_positions.item_name_eng', 'like', "%$text%")
+                    ->orWhere('car_pdr_positions.ic_number', 'like', "%$text%")
+                    ->orWhere('car_pdr_positions.ic_description', 'like', "%$text%")
+                    ->orWhere('car_pdr_position_cards.barcode', 'like', "%$text%")
+                    ->orWhere('cars.make', 'like', "%$text%")
+                    ->orWhere('cars.model', 'like', "%$text%")
+                    ->orWhere('cars.car_mvr', 'like', "%$text%");
+            })
+            ->when(count($names), function ($query) use ($names) {
+                return $query->whereIn('car_pdr_positions.item_name_eng', $names);
+            })
+            ->orderBy('cars.car_mvr')
+            ->orderBy('car_pdr_positions.item_name_eng')
             ->paginate(50);
+
+//        $parts = Part::with('images', 'modifications', 'tradeMeListing')
+//            ->when($make, function($query) use ($make) {
+//                return $query->where('make', $make);
+//            })
         return PartResource::collection($parts);
     }
 
@@ -82,36 +128,54 @@ class PartsController extends Controller
         return response()->json(null, 204);
     }
 
-    public function get(Part $part): EditPartResource
+    public function get(CarPdrPosition $part): EditPartResource
     {
+        $part->load('card', 'card.priceCard', 'carPdr', 'carPdr.car');
         return new EditPartResource($part);
     }
 
-    public function update(Request $request, Part $part): PartResource
+    public function update(Request $request, CarPdrPosition $part): EditPartResource
     {
-        $fireUpdateTradeMeEvent = $request->integer('price_nzd') !== $part->actual_price_nzd ||
-            $request->integer('standard_price_nzd') !==  $part->standard_price_nzd;
+        $fireUpdateTradeMeEvent = $request->integer('price_nzd') !== $part->card->priceCard->selling_price ||
+            $request->integer('standard_price_nzd') !==  $part->card->priceCard->selling_price;
 
         $part->update([
-            'stock_number' => $request->input('stock_number'),
             'ic_number' => $request->input('ic_number'),
-            'ic_description' => $request->input('ic_description'),
-            'make' => $request->input('make'),
-            'model' => $request->input('model'),
-            'year' => $request->input('year'),
-            'mileage' => $request->integer('mileage'),
+            'oem_number' => $request->input('oem_number'),
             'item_name_eng' => $request->input('item_name_eng'),
             'item_name_ru' => $request->input('item_name_ru'),
-            'item_name_jp' => $request->input('item_name_jp'),
-            'item_name_mng' => $request->input('item_name_mng'),
-            'actual_price_nzd' => $request->integer('price_nzd'),
-            'standard_price_nzd' => $request->integer('standard_price_nzd'),
+            'ic_description' => $request->input('ic_description'),
+        ]);
+        $part->card()->update([
+            'barcode' => $request->input('stock_number'),
+            'ic_number' => $request->input('ic_number'),
+            'oem_number' => $request->input('oem_number'),
+            'description' => $request->input('ic_description'),
+            'name_eng' => $request->input('item_name_eng'),
+            'name_ru' => $request->input('item_name_ru'),
+        ]);
+        $part->carPdr()->update([
+            'item_name_eng' => $request->input('item_name_eng'),
+            'item_name_ru' => $request->input('item_name_ru'),
+        ]);
+        $part->card->priceCard()->update([
+            'selling_price' => $request->input('price_nzd'),
+            'standard_price' => $request->input('standard_price_nzd'),
+        ]);
+        $part->carPdr->car()->update([
+            'make' => $request->input('make'),
+            'model' => $request->input('model'),
+            'generation' => $request->input('generation'),
+        ]);
+        $part->carPdr->car->carAttributes()->update([
+            'year' => $request->input('year'),
+            'mileage' => $request->integer('mileage'),
         ]);
         $part->refresh();
         if ($fireUpdateTradeMeEvent && $part->tradeMeListing) {
-            event(new UpdateTradeMeListingEvent($part->tradeMeListing));
+            //event(new UpdateTradeMeListingEvent($part->tradeMeListing));
         }
-        return new PartResource($part);
+        return new EditPartResource($part);
     }
 
     public function uploadPhoto(Request $request, Part $part): JsonResponse
@@ -153,46 +217,61 @@ class PartsController extends Controller
 
     }
 
-
     public function partNames(): AnonymousResourceCollection
     {
-        $partNames = DB::table('parts')
-            ->selectRaw('distinct item_name_eng')
-            ->orderBy('item_name_eng')
+        $partNames = DB::table('car_pdr_positions')
+            ->selectRaw('distinct car_pdr_positions.item_name_eng')
+            ->join('car_pdrs', function(JoinClause $join) {
+                $join->on('car_pdrs.id', '=', 'car_pdr_positions.car_pdr_id');
+            })
+            ->join('cars', function(JoinClause $join) {
+                $join->on('cars.id', '=', 'car_pdrs.car_id')
+                    ->where('cars.virtual_retail', true);
+            })
+            ->whereRaw('car_pdr_positions.item_name_eng != ""')
+            ->orderBy('car_pdr_positions.item_name_eng')
             ->get();
         return PartNameResource::collection($partNames);
     }
 
     public function partGroups(): AnonymousResourceCollection
     {
-        $partGroups = DB::table('parts')
-            ->selectRaw('distinct part_group')
-            ->orderBy('part_group')
+        $partGroups = DB::table('car_pdrs')
+            ->selectRaw('distinct item_name_eng')
+            ->join('cars', function(JoinClause $join) {
+                $join->on('cars.id', '=', 'car_pdrs.car_id')
+                    ->where('cars.virtual_retail', true);
+            })
+            ->where('car_pdrs.is_folder', 1)
+            ->orderBy('item_name_eng')
             ->get();
         return PartGroupResource::collection($partGroups);
     }
 
     public function makes(): AnonymousResourceCollection
     {
-        $makes = DB::table('parts')
+        $makes = DB::table('cars')
             ->selectRaw('distinct(make)')
             ->where('make', '!=', '')
             ->whereNull('deleted_at')
             ->whereNotNull('make')
+            ->where('virtual_retail', true)
             ->orderBy('make')
             ->get();
 
         return MakeResource::collection($makes);
     }
 
-    public function models(string $make): AnonymousResourceCollection
+    public function models(Request $request): AnonymousResourceCollection
     {
-        $models = DB::table('parts')
+        $make = $request->get('make');
+        $models = DB::table('cars')
             ->selectRaw('distinct(model)')
             ->where('make', '=', $make)
             ->where('model', '!=', '')
             ->whereNull('deleted_at')
             ->whereNotNull('model')
+            ->where('virtual_retail', true)
             ->orderBy('model')
             ->get();
 
@@ -200,16 +279,19 @@ class PartsController extends Controller
     }
 
 
-    public function years(string $make, string $model): AnonymousResourceCollection
+    public function years(Request $request): AnonymousResourceCollection
     {
-        $years = DB::table('parts')
-            ->selectRaw('distinct(year)')
-            ->where('make', '=', $make)
-            ->where('model', $model)
-            ->where('model', '!=', '')
-            ->whereNull('deleted_at')
-            ->whereNotNull('model')
-            ->orderBy('year')
+        $make = $request->get('make');
+        $model = $request->get('model');
+        $years = DB::table('cars')
+            ->selectRaw('distinct(car_attributes.year)')
+            ->join('car_attributes', 'cars.id', '=', 'car_attributes.car_id')
+            ->where('cars.make', '=', $make)
+            ->where('cars.model', $model)
+            ->whereNull('cars.deleted_at')
+            ->whereNotNull('cars.model')
+            ->where('cars.virtual_retail', true)
+            ->orderBy('car_attributes.year')
             ->get();
 
         return YearResource::collection($years);

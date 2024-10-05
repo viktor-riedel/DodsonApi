@@ -11,8 +11,8 @@ Route::prefix('parts')->middleware(['auth:sanctum', 'is_web_user'])->group(funct
         Route::get('/part-names', [PartsController::class, 'partNames']);
         Route::get('/part-groups', [PartsController::class, 'partGroups']);
         Route::get('/makes', [PartsController::class, 'makes']);
-        Route::get('/models/{make}', [PartsController::class, 'models']);
-        Route::get('/years/{make}/{model}', [PartsController::class, 'years']);
+        Route::get('/models', [PartsController::class, 'models']);
+        Route::get('/years', [PartsController::class, 'years']);
     });
 
     Route::prefix('/part/{part}')->group(function() {

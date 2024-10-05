@@ -10,7 +10,7 @@ class PartGroupResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'group_name' => $this->part_group,
+            'group_name' => $this->item_name_eng,
         ];
     }
 }
