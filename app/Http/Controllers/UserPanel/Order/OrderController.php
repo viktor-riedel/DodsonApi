@@ -42,7 +42,7 @@ class OrderController extends Controller
                 ->first();
         $userOrder?->items->each(function ($item) {
            if ($item->part_id) {
-               $item->pdr = CarPdrPosition::with('carPdr', 'carPdr.car', 'carPdr.car.modifications')
+               $item->pdr = CarPdrPosition::with('card', 'carPdr', 'carPdr.car', 'carPdr.car.modifications')
                 ->find($item->part_id);
            } else {
                $car = Car::find($item->car_id);
