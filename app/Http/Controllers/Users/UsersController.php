@@ -20,6 +20,7 @@ class UsersController extends Controller
         $search = $request->get('search');
         $users = User::withTrashed()
                 ->with('userCard')
+                ->withSum('balance', 'closing_balance')
                 ->orderBy('name')
                 ->when($search, function($q) use ($search) {
                     return $q->where('name', 'like', '%' . $search . '%')
@@ -27,7 +28,6 @@ class UsersController extends Controller
                 })
                 ->orderBy('created_at', 'desc')
                 ->paginate(20);
-
         return UserResource::collection($users);
     }
 

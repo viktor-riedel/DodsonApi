@@ -17,6 +17,7 @@ class UserResource extends JsonResource
             'last_name' => $this->last_name,
             'email' => $this->email,
             'roles' => $this->getRoleNames()->first(),
+            'balance' => number_format($this->balance_sum_closing_balance),
             'last_login' => $this->last_login_at ? $this->last_login_at->format('d/m/Y H:i') : null,
             'inactive' => $this->trashed(),
             'card' => $this->whenLoaded('userCard', new UserCardResource($this->userCard), null),
