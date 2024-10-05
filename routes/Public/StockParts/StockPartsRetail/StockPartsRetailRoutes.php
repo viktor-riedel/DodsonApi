@@ -10,9 +10,12 @@ Route::prefix('stock-parts-retail')->group(function () {
     Route::get('/similar/{part}', [StockPartsRetailController::class, 'similar']);
 
     Route::prefix('search')->group(function () {
+        Route::get('/default-parts', [StockPartsRetailController::class, 'defaultPartsList']);
         Route::get('/makes', [StockPartsRetailController::class, 'makes']);
-        Route::get('/models/{make}', [StockPartsRetailController::class, 'models']);
-        Route::get('/years/{make}/{model}', [StockPartsRetailController::class, 'years']);
+        Route::get('/models', [StockPartsRetailController::class, 'models']);
+        Route::get('/years', [StockPartsRetailController::class, 'years']);
+        Route::get('/generations/{make}/{model}', [StockPartsRetailController::class, 'generations']);
+        Route::get('/engines/{make}/{model}/{year}', [StockPartsRetailController::class, 'engines']);
     });
 
     Route::prefix('/order')->middleware(['auth:sanctum', 'is_web_user'])->group(function () {

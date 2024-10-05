@@ -74,7 +74,10 @@ trait TradeMeItemsTrait
         $photosIds = [];
         if ($listing->tradeMePhotos->count()) {
             foreach($listing->tradeMePhotos as $photo) {
-                $photosIds[] = $helper->uploadPhoto($photo->image_url);
+                $id = $helper->uploadPhoto($photo->image_url);
+                if ($id) {
+                    $photosIds[] = $id;
+                }
             }
         }
         return $photosIds;

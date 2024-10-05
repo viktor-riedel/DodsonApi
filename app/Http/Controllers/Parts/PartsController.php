@@ -15,9 +15,6 @@ use App\Http\Resources\Part\PartNameResource;
 use App\Http\Resources\Part\PartResource;
 use App\Http\Resources\Part\YearResource;
 use App\Models\CarPdrPosition;
-use App\Models\NomenclatureBaseItem;
-use App\Models\Part;
-use App\Models\TradeMeListing;
 use DB;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\JsonResponse;
@@ -125,7 +122,7 @@ class PartsController extends Controller
         return PartResource::collection($parts);
     }
 
-    public function delete(Part $part): JsonResponse
+    public function delete(CarPdrPosition $part): JsonResponse
     {
         $part->tradeMeListing()?->delete();
         $part->delete();
@@ -158,10 +155,6 @@ class PartsController extends Controller
             'name_eng' => $request->input('item_name_eng'),
             'name_ru' => $request->input('item_name_ru'),
         ]);
-        $part->carPdr()->update([
-            'item_name_eng' => $request->input('item_name_eng'),
-            'item_name_ru' => $request->input('item_name_ru'),
-        ]);
         $part->card->priceCard()->update([
             'selling_price' => $request->input('price_nzd'),
             'standard_price' => $request->input('standard_price_nzd'),
@@ -189,7 +182,7 @@ class PartsController extends Controller
             foreach ($request->file('uploadPartPhotos') as $file) {
                 $fileName = \Str::random();
                 $originFileName = $file->getFilename();
-                $folderName = 'parts/' . $part->id . '/parts/' . $part->id;
+                $folderName = 'parts/' . $part->id;
                 $mime = $file?->getMimeType();
                 $fileExtension = '.' . $file?->clientExtension();
                 $savePath = $folderName . '/' . $fileName.$fileExtension;

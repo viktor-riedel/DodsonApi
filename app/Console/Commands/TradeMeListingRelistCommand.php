@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Events\TradeMe\RelistTradeMeListingEvent;
-use App\Models\Part;
+use App\Models\CarPdrPosition;
 use Illuminate\Console\Command;
 
 class TradeMeListingRelistCommand extends Command
@@ -15,7 +15,7 @@ class TradeMeListingRelistCommand extends Command
     public function handle(): void
     {
         if (config('app.env') === 'production' || config('app.env') === 'local') {
-            $parts = Part::whereHas('tradeMeListing', static function ($query) {
+            $parts = CarPdrPosition::whereHas('tradeMeListing', static function ($query) {
                 return $query->where('listing_id', '>', 0)
                     ->where('relist', true);
             })->get();
