@@ -217,7 +217,7 @@ class StockPartsRetailController extends Controller
 
     public function defaultPartsList(): AnonymousResourceCollection
     {
-        $parts = app()->make(DefaultPartsFilteredWithExistedAction::class)->handle('');
+        $parts = app()->make(DefaultPartsFilteredWithExistedAction::class)->handle('', true);
         return SellingMapItemResource::collection($parts);
     }
 

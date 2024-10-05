@@ -12,7 +12,7 @@ class DefaultPartsFilteredWithExistedAction
 {
     use DefaultSellingMapTrait;
 
-    public function handle(?string $country): Collection
+    public function handle(?string $country, $retail = false): Collection
     {
         if ($country === 'RU' && Cache::has('wholesale_parts_ru')) {
             return Cache::get('wholesale_selling_parts_ru');
@@ -24,15 +24,16 @@ class DefaultPartsFilteredWithExistedAction
             return Cache::get('wholesale_selling_parts_mng');
         }
         if (!$country && Cache::has('wholesale_parts_all')) {
+            if ($retail) {
+                return Cache::get('retail_parts_all');
+            }
             return Cache::get('wholesale_parts_all');
         }
 
 
         $parts = $this->getDefaultSellingMap();
-        $availableParts = CarPdrPosition::with('carPdr', 'carPdr.car',)
-            ->where(function($query) use (
-                $country
-            ) {
+        $availableParts = CarPdrPosition::with('carPdr', 'carPdr.car')
+            ->where(function($query) use ($country) {
                 $query->whereHas('carPdr', function ($query) {
                     return $query->whereHas('car', function ($query) {
                         return $query->whereHas('carFinance', function($query) {
@@ -81,7 +82,11 @@ class DefaultPartsFilteredWithExistedAction
             Cache::put('wholesale_selling_parts_mng', $parts, now()->addMinutes(15));
         }
         if (!$country) {
-            Cache::put('wholesale_parts_all', $parts, now()->addMinutes(15));
+            if ($retail) {
+                Cache::put('retail_parts_all', $parts, now()->addMinutes(15));
+            } else {
+                Cache::put('wholesale_parts_all', $parts, now()->addMinutes(15));
+            }
         }
 
         return $parts;
