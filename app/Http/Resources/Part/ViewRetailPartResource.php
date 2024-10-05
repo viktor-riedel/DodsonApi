@@ -9,6 +9,7 @@ class ViewRetailPartResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $notFound = config('app.env') === 'local' ? '/public/part_not_found.jpg' : '/part_not_found.jpg';
         return [
             'id' => $this->id,
             'ic_number' => $this->ic_number,
@@ -29,7 +30,7 @@ class ViewRetailPartResource extends JsonResource
                 [
                     [
                         'id' => 0,
-                        'url' => '/public/part_not_found.jpg'
+                        'url' => $notFound,
                     ],
                 ],
         ];
