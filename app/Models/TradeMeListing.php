@@ -12,7 +12,7 @@ class TradeMeListing extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'part_id',
+        'car_pdr_position_id',
         'listing_id',
         'listed_by',
         'title',
@@ -44,7 +44,7 @@ class TradeMeListing extends Model
 
     public function part(): BelongsTo
     {
-        return $this->belongsTo(Part::class, 'part_id');
+        return $this->belongsTo(CarPdrPosition::class, 'car_pdr_position_id');
     }
 
     public function getDeliveryOptionsArrayAttribute(): array

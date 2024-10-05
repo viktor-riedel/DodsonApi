@@ -4,16 +4,16 @@ namespace App\Actions\TradeMe;
 
 use App\Http\Resources\Part\PartPhotoResource;
 use App\Http\Resources\Part\TradeMeListingResource;
-use App\Models\Part;
+use App\Models\CarPdrPosition;
 use App\Models\TradeMeGroup;
 use App\Models\TradeMeTemplate;
 use Str;
 
 class TradeMeListingAction
 {
-    private Part $part;
+    private CarPdrPosition $part;
 
-    public function handle(Part $part): array
+    public function handle(CarPdrPosition $part): array
     {
         $this->part = $part;
         $part->load('tradeMeListing');
@@ -82,21 +82,21 @@ class TradeMeListingAction
     private function replaceTags(string $source): string
     {
         $source = Str::replace('{part_name}', $this->part->item_name_eng, $source);
-        $source = Str::replace('{make}', $this->part->make, $source);
-        $source = Str::replace('{model}', $this->part->model, $source);
-        $source = Str::replace('{year}', $this->part->year, $source);
-        $source = Str::replace('{stock}', $this->part->stock_number, $source);
+        $source = Str::replace('{make}', $this->part->carPdr->car->make, $source);
+        $source = Str::replace('{model}', $this->part->carPdr->car->model, $source);
+        $source = Str::replace('{year}', $this->part->carPdr->car->carAttributes->year, $source);
+        $source = Str::replace('{stock}', $this->part->carPdr->car->car_mvr, $source);
         $source = Str::replace('{ic_number}', $this->part->ic_number, $source);
         $source = Str::replace('{oem_number}', $this->part->oem_number, $source);
-        $source = Str::replace('{tag}', $this->part->original_barcode, $source);
-        $source = Str::replace('{color}', $this->part->color, $source);
-        $source = Str::replace('{body_style}', $this->part->body_style, $source);
-        $source = Str::replace('{vehicle}', $this->part->vehicle, $source);
-        $source = Str::replace('{transmission}', $this->part->transmission, $source);
-        $source = Str::replace('{engine_size}', $this->part->engine_size, $source);
-        $source = Str::replace('{engine_code}', $this->part->engine_code, $source);
+        $source = Str::replace('{tag}', $this->part->card->barcode, $source);
+        $source = Str::replace('{color}', $this->part->card->partAttributesCard->color, $source);
+        $source = Str::replace('{body_style}', $this->part->carPdr->car->modification?->body_type, $source);
+        $source = Str::replace('{vehicle}', $this->part->carPdr->car->chassis, $source);
+        $source = Str::replace('{transmission}', $this->part->carPdr->car->modification?->transmission, $source);
+        $source = Str::replace('{engine_size}', $this->part->carPdr->car->modification?->engine_size, $source);
+        $source = Str::replace('{engine_code}', '', $source);
         $source = Str::replace('{description}', $this->part->ic_decsription, $source);
-        $source = Str::replace('{price}', $this->part->actual_price_nzd, $source);
+        $source = Str::replace('{price}', $this->part->card->priceCard->selling_price, $source);
         $source = Str::replace('(NZ ONLY)', '', $source);
         return $source;
     }

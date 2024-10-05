@@ -15,6 +15,7 @@ use App\Http\Resources\Part\PartNameResource;
 use App\Http\Resources\Part\PartResource;
 use App\Http\Resources\Part\YearResource;
 use App\Models\CarPdrPosition;
+use App\Models\NomenclatureBaseItem;
 use App\Models\Part;
 use App\Models\TradeMeListing;
 use DB;
@@ -114,10 +115,13 @@ class PartsController extends Controller
             ->orderBy('car_pdr_positions.item_name_eng')
             ->paginate(50);
 
-//        $parts = Part::with('images', 'modifications', 'tradeMeListing')
-//            ->when($make, function($query) use ($make) {
-//                return $query->where('make', $make);
-//            })
+        $parts->getCollection()->each(function($part) {
+           $position = CarPdrPosition::with('images' ,'tradeMeListing')
+               ->find($part->id);
+           $part->images = $position?->images;
+           $part->tradeMeListing = $position->tradeMeListing;
+        });
+
         return PartResource::collection($parts);
     }
 
@@ -130,7 +134,7 @@ class PartsController extends Controller
 
     public function get(CarPdrPosition $part): EditPartResource
     {
-        $part->load('card', 'card.priceCard', 'carPdr', 'carPdr.car');
+        $part->load('card', 'card.priceCard', 'carPdr', 'carPdr.car', 'images');
         return new EditPartResource($part);
     }
 
@@ -173,12 +177,12 @@ class PartsController extends Controller
         ]);
         $part->refresh();
         if ($fireUpdateTradeMeEvent && $part->tradeMeListing) {
-            //event(new UpdateTradeMeListingEvent($part->tradeMeListing));
+            event(new UpdateTradeMeListingEvent($part->tradeMeListing));
         }
         return new EditPartResource($part);
     }
 
-    public function uploadPhoto(Request $request, Part $part): JsonResponse
+    public function uploadPhoto(Request $request, CarPdrPosition $part): JsonResponse
     {
         if ($request->file('uploadPartPhotos')) {
             $storage = Storage::disk('s3');
@@ -206,7 +210,7 @@ class PartsController extends Controller
         return response()->json($part->images);
     }
 
-    public function deletePhoto(Request $request, Part $part, int $photo): JsonResponse
+    public function deletePhoto(Request $request, CarPdrPosition $part, int $photo): JsonResponse
     {
         $photo = $part->images()->where('id', $photo)->first();
         if ($photo) {
@@ -310,13 +314,13 @@ class PartsController extends Controller
         return response()->json([]);
     }
 
-    public function tradeMeListing(Part $part): JsonResponse
+    public function tradeMeListing(CarPdrPosition $part): JsonResponse
     {
         $listing = app()->make(TradeMeListingAction::class)->handle($part);
         return response()->json($listing);
     }
 
-    public function createTradeMeListing(Request $request, Part $part): JsonResponse
+    public function createTradeMeListing(Request $request, CarPdrPosition $part): JsonResponse
     {
         $listing = $part->tradeMeListing()->create([
             'listed_by' => $request->user()->id,
@@ -345,7 +349,7 @@ class PartsController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function updateTradeMeListing(Request $request, Part $part): JsonResponse
+    public function updateTradeMeListing(Request $request, CarPdrPosition $part): JsonResponse
     {
         $part->tradeMeListing()->update([
             'title' => $request->input('title'),
@@ -373,7 +377,7 @@ class PartsController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function deleteTradeMeListing(Part $part): JsonResponse
+    public function deleteTradeMeListing(CarPdrPosition $part): JsonResponse
     {
         $part->tradeMeListing()->delete();
         return response()->json(['success' => true]);

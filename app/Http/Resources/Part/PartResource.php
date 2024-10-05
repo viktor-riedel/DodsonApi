@@ -26,7 +26,7 @@ class PartResource extends JsonResource
             'item_name_jp' => '',
             'item_name_mng' => '',
             'price_nzd' => $this->selling_price,
-            'images'=> $this->images ?
+            'images'=> $this->images->count() ?
                 PartPhotoResource::collection($this->images) :
                 [
                     [
@@ -38,7 +38,7 @@ class PartResource extends JsonResource
             'trademe' => $this->tradeMeListing !== null,
             'generation' =>  $this->generation,
             'modification' => null,
-            'image' => $this->images ? $this->images->first()->url : '/public/part_not_found.jpg',
+            'image' => $this->images->count() ? $this->images->first()->url : '/public/part_not_found.jpg',
         ];
     }
 }

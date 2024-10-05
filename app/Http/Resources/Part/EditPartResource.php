@@ -27,7 +27,7 @@ class EditPartResource extends JsonResource
             'item_name_mng' => '',
             'standard_price_nzd' => $this->card->priceCard->standard_price,
             'price_nzd' => $this->card->priceCard->selling_price,
-            'images'=> [], //PartPhotoResource::collection($this->images),
+            'images'=> PartPhotoResource::collection($this->images),
             'group_name' => $this->carPdr->item_name_eng,
             'trademe' => false,
             'modification' => null,

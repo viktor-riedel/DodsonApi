@@ -57,4 +57,9 @@ class CarPdrPosition extends Model
     {
         return $this->belongsTo(OrderItem::class, 'part_id', 'id');
     }
+
+    public function tradeMeListing(): HasOne
+    {
+        return $this->hasOne(TradeMeListing::class);
+    }
 }
