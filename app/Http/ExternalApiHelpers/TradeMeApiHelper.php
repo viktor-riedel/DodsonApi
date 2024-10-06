@@ -55,7 +55,6 @@ class TradeMeApiHelper
             'FileName' => $fileName ?: Str::random(),
             'FileType' => $extension,
         ];
-        ray($data);
         $response = $this->performPostRequest(self::API_UPLOAD_PHOTOS, $data);
         return $response['PhotoId'] ?? '';
     }
