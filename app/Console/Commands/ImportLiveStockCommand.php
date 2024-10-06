@@ -13,7 +13,7 @@ class ImportLiveStockCommand extends Command
 
     public function handle(): void
     {
-        if (config('app.env') === 'staging') {
+        if (in_array(config('app.env'), ['staging', 'production'])) {
             app()->make(LiveStockAction::class)->handle();
         }
     }
