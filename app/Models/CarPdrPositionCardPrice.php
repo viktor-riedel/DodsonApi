@@ -39,6 +39,7 @@ class CarPdrPositionCardPrice extends Model
         'price_currency',
         'buying_price', //'approximate_price',
         'selling_price', //'real_price',
+        'standard_price',
         'price_mng_wholesale',
         'price_mng_retail',
         'price_jp_retail',

@@ -17,6 +17,7 @@ class UserResource extends JsonResource
             'last_name' => $this->last_name,
             'email' => $this->email,
             'roles' => $this->getRoleNames()->first(),
+            'balance' => number_format($this->balance_sum_closing_balance),
             'last_login' => $this->last_login_at ? $this->last_login_at->format('d/m/Y H:i') : null,
             'inactive' => $this->trashed(),
             'card' => $this->whenLoaded('userCard', new UserCardResource($this->userCard), null),
@@ -25,6 +26,7 @@ class UserResource extends JsonResource
             'country_code' => $this->country_code,
             'is_api_user' => (bool) $this->is_api_user,
             'parts_sale' => $this->userCard?->parts_sale_user,
+            'wholesale' => $this->userCard?->wholesaler ?? false,
         ];
     }
 }

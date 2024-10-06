@@ -26,6 +26,7 @@ class OrdersController extends Controller
         $userId = $request->get('userId');
         $make = $request->get('make');
         $model = $request->get('model');
+        $search = $request->get('search');
 
         $carsIds = Car::where('make', $make)
             ->when($model, function ($query, $model) {
@@ -38,6 +39,17 @@ class OrdersController extends Controller
         $orders = Order::with('items', 'createdBy')
             ->when($userId, function ($query) use ($userId) {
                 return $query->where('user_id', $userId);
+            })
+            ->when($search, function ($query, $search) {
+                return $query->where('order_number', 'like', '%' . $search . '%')
+                    ->orWhereHas('items', function ($query) use ($search) {
+                       return $query->whereHas('car', function ($query) use ($search) {
+                           return $query->where('car_mvr', 'like', '%' . $search . '%')
+                               ->orWhere('make', 'like', '%' . $search . '%')
+                               ->orWhere('model', 'like', '%' . $search . '%')
+                               ->orWhere('chassis', 'like', '%' . $search . '%');
+                       });
+                    });
             })
             ->when(count($carsIds), function ($query) use ($carsIds) {
                 $query->whereHas('items', function ($query) use ($carsIds) {

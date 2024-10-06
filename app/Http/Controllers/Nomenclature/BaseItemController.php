@@ -48,8 +48,8 @@ class BaseItemController extends Controller
 
     public function models(string $make): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $models = NomenclatureBaseItem::orderBy('model')
-            ->where(['make' => $make])
+        $models = NomenclatureBaseItem::where(['make' => $make])
+            ->orderBy('model')
             ->get();
         $filtered = collect(array_unique($models->pluck('model')->toArray()))
             ->transform(function($model) use ($models) {

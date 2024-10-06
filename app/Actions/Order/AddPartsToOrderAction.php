@@ -12,6 +12,9 @@ class AddPartsToOrderAction
     public function handle(Request $request): Collection
     {
         $cart = $request->user()->cart;
+        if (!$cart) {
+            $cart = $request->user()->cart()->create([]);
+        }
         $parts = collect($request->input('parts', []));
 
         //check parts which might be added to the cart by other users

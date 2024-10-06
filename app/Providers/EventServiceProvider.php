@@ -5,13 +5,18 @@ namespace App\Providers;
 use App\Events\Bot\SendBotMessageEvent;
 use App\Events\ModelsEvent\NomenclatureCreateEvent;
 use App\Events\Sync\Export\SendToBotEvent;
+use App\Events\TradeMe\CreateListingEvent;
+use App\Events\TradeMe\RelistTradeMeListingEvent;
+use App\Events\TradeMe\UpdateTradeMeListingEvent;
 use App\Listeners\Bot\SendBotMessageListener;
 use App\Listeners\NomenclatureCreatedListener;
 use App\Listeners\SendCarToBotListener;
+use App\Listeners\TradeMe\CreateTradeMeListingListener;
+use App\Listeners\TradeMe\RelistTradeMeListingListener;
+use App\Listeners\TradeMe\UpdateTradeMeListingListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -33,6 +38,15 @@ class EventServiceProvider extends ServiceProvider
         SendBotMessageEvent::class => [
             SendBotMessageListener::class,
         ],
+        CreateListingEvent::class => [
+            CreateTradeMeListingListener::class,
+        ],
+        UpdateTradeMeListingEvent::class => [
+            UpdateTradeMeListingListener::class,
+        ],
+        RelistTradeMeListingEvent::class => [
+            RelistTradeMeListingListener::class,
+        ]
     ];
 
     /**

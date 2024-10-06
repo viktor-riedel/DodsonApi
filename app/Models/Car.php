@@ -41,6 +41,7 @@ class Car extends Model
         'deleted_by',
         'contr_agent_name',
         'virtual',
+        'virtual_retail',
         'ignore_modification',
     ];
 

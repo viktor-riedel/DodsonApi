@@ -26,6 +26,7 @@ class UserOrderResource extends JsonResource
                 'chassis' => $this->items->first()?->car?->chassis,
                 'car_mvr' => $this->items->first()?->car?->car_mvr,
                 'modification' => $this->items->first()?->car?->modifications,
+                'generation' => $this->items->first()?->car?->generation,
                 'photos' => $this->items->first()?->car?->images()->pluck('url')->toArray(),
             ],
             'is_parts_order' => $this->items->first()?->car === null,

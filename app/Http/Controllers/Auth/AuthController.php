@@ -11,13 +11,14 @@ use App\Http\Traits\CartTrait;
 use App\Jobs\Auth\ResetPasswordJob;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
     use CartTrait;
 
-    public function login(AuthRequest $request): \Illuminate\Http\JsonResponse
+    public function login(AuthRequest $request): JsonResponse
     {
         $email = $request->validated('email');
         $password = $request->validated('password');
@@ -66,7 +67,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function me(Request $request): \Illuminate\Http\JsonResponse
+    public function me(Request $request): JsonResponse
     {
         if ($request->user()) {
             return response()->json([
@@ -77,13 +78,14 @@ class AuthController extends Controller
                 'role' => $request->user()->getRoleNames()->first(),
                 'country_code' => $request->user()->country_code,
                 'permissions' => $request->user()->getPermissionsViaRoles()->pluck('name')->toArray(),
+                'wholesaler' => $request->user()->userCard?->wholesaler,
                 'user_balance' => number_format($request->user()->balance()->sum('closing_balance')),
             ]);
         }
         return response()->json(['message' => 'invalid credentials'], 401);
     }
 
-    public function forgetPassword(ForgotPasswordRequest $request): \Illuminate\Http\JsonResponse
+    public function forgetPassword(ForgotPasswordRequest $request): JsonResponse
     {
         $email = $request->validated('email');
         $resetCode = \Str::uuid()->toString();
@@ -95,7 +97,7 @@ class AuthController extends Controller
         return response()->json($email);
     }
 
-    public function restorePassword(RestorePasswordRequest $request): \Illuminate\Http\JsonResponse
+    public function restorePassword(RestorePasswordRequest $request): JsonResponse
     {
         $uuid = $request->validated('guid');
         $newPassword = bcrypt($request->validated('new_password'));
@@ -107,7 +109,7 @@ class AuthController extends Controller
         return response()->json([], 203);
     }
 
-    public function logout(Request $request): \Illuminate\Http\JsonResponse
+    public function logout(Request $request): JsonResponse
     {
         $request->user()->tokens()->delete();
         auth()->guard('web')->logout();

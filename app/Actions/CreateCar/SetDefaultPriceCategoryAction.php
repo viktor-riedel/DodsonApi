@@ -18,6 +18,9 @@ class SetDefaultPriceCategoryAction
             'A' => 'price_a_jpy',
             'B' => 'price_b_jpy',
             'C' => 'price_c_jpy',
+            'D' => 'price_d_jpy',
+            'E' => 'price_e_jpy',
+            'F' => 'price_f_jpy',
             default => 'price_a_jpy',
         };
         foreach ($carParts as $part) {

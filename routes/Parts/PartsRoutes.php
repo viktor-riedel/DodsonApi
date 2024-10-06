@@ -8,15 +8,26 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('parts')->middleware(['auth:sanctum', 'is_web_user'])->group(function () {
     Route::get('/list', [PartsController::class, 'list']);
     Route::prefix('/search')->group(function() {
+        Route::get('/part-names', [PartsController::class, 'partNames']);
+        Route::get('/part-groups', [PartsController::class, 'partGroups']);
         Route::get('/makes', [PartsController::class, 'makes']);
-        Route::get('/models/{make}', [PartsController::class, 'models']);
-        Route::get('/years/{make}/{model}', [PartsController::class, 'years']);
+        Route::get('/models', [PartsController::class, 'models']);
+        Route::get('/years', [PartsController::class, 'years']);
     });
 
-    Route::prefix('part/{part}')->group(function() {
+    Route::prefix('/part/{part}')->group(function() {
         Route::get('/', [PartsController::class, 'get']);
         Route::delete('/delete', [PartsController::class, 'delete']);
         Route::patch('/update', [PartsController::class, 'update']);
+        Route::post('/upload-photo', [PartsController::class, 'uploadPhoto']);
+        Route::delete('/delete-photo/{photo}', [PartsController::class, 'deletePhoto']);
+    });
+
+    Route::prefix('/trade-me/{part}')->group(function() {
+        Route::get('/listing', [PartsController::class, 'tradeMeListing']);
+        Route::post('/create', [PartsController::class, 'createTradeMeListing']);
+        Route::patch('/update', [PartsController::class, 'updateTradeMeListing']);
+        Route::delete('/delete', [PartsController::class, 'deleteTradeMeListing']);
     });
 
     Route::prefix('import')->group(function() {

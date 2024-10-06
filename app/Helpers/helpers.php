@@ -185,3 +185,17 @@ if (!function_exists('getCountriesForJson')) {
         return $countries;
     }
 }
+
+if (! function_exists('arrayToJsonFormat')) {
+    function arrayToJsonFormat(array $array): array
+    {
+        $jsonFormatted = [];
+        foreach($array as $key => $value) {
+            $jsonFormatted[] = [
+              'name' => $key,
+              'value' => $value,
+            ];
+        }
+        return $jsonFormatted;
+    }
+}

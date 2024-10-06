@@ -29,6 +29,9 @@ class CreatePartsOrderAction
             ]);
             foreach ($parts as $part) {
                 $position = CarPdrPosition::find($part['id']);
+                //delete trademe if any
+                $position->tradeMeListing()?->delete();
+
                 if ($position->user_id === Consts::getPartsSaleUserId()) {
                     $position->update([
                         'user_id' => $user->id,
@@ -39,9 +42,11 @@ class CreatePartsOrderAction
                         'with_engine' => false,
                         'item_name_eng' => $part['item_name_eng'],
                         'item_name_ru' => $part['item_name_ru'],
-                        'price_jpy' => (int) $part['price_jpy'],
+                        'price_jpy' => (int) $part['price_jpy'] === 0 ?
+                                (int) $part['price_nzd'] :
+                                0,
                         'user_id' => $user->id,
-                        'currency' => $user->country_code,
+                        'currency' => (int) $part['price_nzd'] > 0 ? 'NZD' : $user->country_code,
                     ]);
                 }
             }

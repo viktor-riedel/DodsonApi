@@ -101,15 +101,15 @@ trait CarPdrTrait
     private function buildDefaultPdrTreeByCar(Car $car): array
     {
         $baseCar = NomenclatureBaseItem::where('inner_id', $car->parent_inner_id)->first();
-        $pdr = $baseCar->baseItemPDR;
-        $pdr = $this->buildDefaultPdrTree($pdr);
-        if (count($pdr)) {
-            return $pdr;
-        } else {
-            $list = PartList::all();
-            $pdr = $this->loadDefaultList($list->toArray());
+        if ($baseCar) {
+            $pdr = $baseCar->baseItemPDR;
+            $pdr = $this->buildDefaultPdrTree($pdr);
+            if (count($pdr)) {
+                return $pdr;
+            }
         }
-        return $pdr;
+        $list = PartList::all();
+        return $this->loadDefaultList($list->toArray());
     }
 
     private function loadDefaultList(array $elements, $parentId = 0): array
