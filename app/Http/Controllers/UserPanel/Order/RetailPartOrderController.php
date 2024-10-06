@@ -4,6 +4,7 @@ namespace App\Http\Controllers\UserPanel\Order;
 
 use App\Actions\Order\AddPartsToOrderAction;
 use App\Actions\Order\CreatePartsOrderAction;
+use App\Actions\Order\DeletePartFromOrderAction;
 use App\Actions\Order\DeletePartsFromOrderAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Part\WholesalePartResource;
@@ -27,6 +28,17 @@ class RetailPartOrderController extends Controller
     public function addToCart(Request $request): AnonymousResourceCollection
     {
         $parts = app()->make(AddPartsToOrderAction::class)->handle($request);
+        return WholesalePartResource::collection($parts);
+    }
+
+    public function removeFromCart(Request $request, CarPdrPosition $part): AnonymousResourceCollection
+    {
+        app()->make(DeletePartFromOrderAction::class)->handle($request->user(), $part);
+        $parts = CarPdrPosition::with('carPdr', 'carPdr.car',
+            'carPdr.car.carAttributes', 'carPdr.car.modifications',
+            'card', 'card.priceCard')
+            ->whereIn('id', $request->user()->cart->partItems->pluck('part_id')->toArray())
+            ->get();
         return WholesalePartResource::collection($parts);
     }
 

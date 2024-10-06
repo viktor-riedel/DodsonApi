@@ -161,13 +161,13 @@ class StockPartsRetailController extends Controller
             })
             ->when($sortByPrice, function ($query, $sortByPrice) {
                 return $query->orderBy(
-                    CarPdrPositionCard::select(['car_pdr_position_card_prices.buying_price'])
+                    CarPdrPositionCard::select(['car_pdr_position_card_prices.selling_price'])
                         ->whereColumn('car_pdr_position_cards.car_pdr_position_id',
                             '=', 'car_pdr_positions.id')
                         ->join('car_pdr_position_card_prices', function (JoinClause $join) {
                             $join->on('car_pdr_position_card_prices.car_pdr_position_card_id', '=',
                                 'car_pdr_position_cards.id')
-                                ->whereNotNull('car_pdr_position_card_prices.buying_price');
+                                ->whereNotNull('car_pdr_position_card_prices.selling_price');
                         }), $sortByPrice);
             })
             ->when(!$sortByMake && !$sortByModel && !$sortByYear && !$sortByPrice, function ($query) {

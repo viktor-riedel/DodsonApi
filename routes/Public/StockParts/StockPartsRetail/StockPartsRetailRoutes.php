@@ -21,6 +21,7 @@ Route::prefix('stock-parts-retail')->group(function () {
     Route::prefix('/order')->middleware(['auth:sanctum', 'is_web_user'])->group(function () {
         Route::get('/cart', [RetailPartOrderController::class, 'cart']);
         Route::put('/add-to-cart', [RetailPartOrderController::class, 'addToCart']);
+        Route::delete('/remove-from-cart/{part}', [RetailPartOrderController::class, 'removeFromCart']);
         Route::patch('/update-cart', [RetailPartOrderController::class, 'updateCart']);
         Route::post('/make-parts-order', [RetailPartOrderController::class, 'makePartsOrder']);
     });
