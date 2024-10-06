@@ -47,14 +47,15 @@ class TradeMeApiHelper
         return $categories;
     }
 
-    public function uploadPhoto(string $path): string
+    public function uploadPhoto(string $path, string $fileName = ''): string
     {
         $extension = pathinfo($path, PATHINFO_EXTENSION);
         $data = [
             'PhotoData' => base64_encode(file_get_contents($path)),
-            'FileName' => Str::random(10) . '.' . $extension,
+            'FileName' => $fileName ?: Str::random(),
             'FileType' => $extension,
         ];
+        ray($data);
         $response = $this->performPostRequest(self::API_UPLOAD_PHOTOS, $data);
         return $response['PhotoId'] ?? '';
     }

@@ -73,8 +73,11 @@ trait TradeMeItemsTrait
     {
         $photosIds = [];
         if ($listing->tradeMePhotos->count()) {
-            foreach($listing->tradeMePhotos as $photo) {
-                $id = $helper->uploadPhoto($photo->image_url);
+            foreach($listing->tradeMePhotos as $number => $photo) {
+                $fileName = Str::replace(' ', '_', $listing->title) . '_' . ($number + 1);
+                $fileName = Str::replace('/', '_', $fileName);
+                $fileName = Str::replace('\/', '_', $fileName);
+                $id = $helper->uploadPhoto($photo->image_url, $fileName);
                 if ($id) {
                     $photosIds[] = $id;
                 }

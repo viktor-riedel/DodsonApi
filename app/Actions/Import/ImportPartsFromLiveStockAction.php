@@ -2,6 +2,7 @@
 
 namespace App\Actions\Import;
 
+use App\Events\TradeMe\UpdateTradeMeListingEvent;
 use App\Helpers\Consts;
 use App\Http\Traits\BadgeGeneratorTrait;
 use App\Http\Traits\InnerIdTrait;
@@ -234,9 +235,15 @@ class ImportPartsFromLiveStockAction
                 'description' => $partIsDescription,
                 'ic_number' => $partIcNumber,
             ]);
-            $part->card->priceCard()->update([
-                'selling_price' => $partPrice,
-            ]);
+            if ($part->card->priceCard !== $partPrice) {
+                $part->card->priceCard()->update([
+                    'selling_price' => $partPrice,
+                ]);
+                if ($part->tradeMeListing) {
+                    // update trademe if price changed
+                    event (new UpdateTradeMeListingEvent($part->tradeMeListing));
+                }
+            }
         }
     }
 
