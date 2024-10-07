@@ -80,7 +80,7 @@ class PartsController extends Controller
                     return $query->whereIn('car_pdrs.item_name_eng', $groups);
                 });
             })
-            ->join('cars', function (JoinClause $join) use ($make, $model, $text) {
+            ->join('cars', function (JoinClause $join) use ($make, $model) {
                 $join->on('cars.id', '=', 'car_pdrs.car_id')
                 ->where('cars.virtual_retail', true)
                 ->when($make, function ($query, $make) {
@@ -131,7 +131,7 @@ class PartsController extends Controller
 
     public function get(CarPdrPosition $part): EditPartResource
     {
-        $part->load('card', 'card.priceCard', 'carPdr', 'carPdr.car', 'images');
+        $part->load('card', 'card.priceCard', 'carPdr', 'carPdr.car', 'images', 'tradeMeListing');
         return new EditPartResource($part);
     }
 

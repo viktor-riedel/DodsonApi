@@ -7,7 +7,6 @@ use App\Helpers\Consts;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Part\MakeResource;
 use App\Http\Resources\Part\ModelResource;
-use App\Http\Resources\Part\PartResource;
 use App\Http\Resources\Part\RetailPartResource;
 use App\Http\Resources\Part\ViewRetailPartResource;
 use App\Http\Resources\Part\YearResource;
@@ -17,7 +16,6 @@ use App\Models\CarPdr;
 use App\Models\CarPdrPosition;
 use App\Models\CarPdrPositionCard;
 use App\Models\NomenclatureBaseItem;
-use App\Models\Part;
 use App\Models\SellingMapItem;
 use DB;
 use Illuminate\Database\Query\JoinClause;
@@ -46,6 +44,8 @@ class StockPartsRetailController extends Controller
         if ($request->get('generation')) {
             $generations = explode(',', $request->get('generation'));
         }
+
+        $search = $request->get('search');
         $sellingParts = $request->get('parts');
         $engine = $request->get('engine');
         $sortByMake = $request->get('sortByMake');
@@ -69,7 +69,8 @@ class StockPartsRetailController extends Controller
                 $years,
                 $engine,
                 $sellingPartNames,
-                $generations
+                $generations,
+                $search
             ) {
                 $query->whereHas('carPdr', function ($query) {
                     return $query->whereHas('car', function ($query) {
@@ -118,6 +119,11 @@ class StockPartsRetailController extends Controller
                         });
                     });
                 });
+
+                $query->when($search, function ($query) use ($search) {
+                    return $query->where('item_name_eng', 'REGEXP' , $search);
+                });
+
                 $query->when($sellingPartNames, function ($query) use ($sellingPartNames) {
                     return $query->whereIn('item_name_eng', $sellingPartNames);
                 });
