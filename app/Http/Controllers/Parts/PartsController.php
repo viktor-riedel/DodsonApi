@@ -131,7 +131,7 @@ class PartsController extends Controller
 
     public function get(CarPdrPosition $part): EditPartResource
     {
-        $part->load('card', 'card.priceCard', 'carPdr', 'carPdr.car', 'images');
+        $part->load('card', 'card.priceCard', 'carPdr', 'carPdr.car', 'images', 'tradeMeListing');
         return new EditPartResource($part);
     }
 

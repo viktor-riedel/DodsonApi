@@ -29,7 +29,7 @@ class EditPartResource extends JsonResource
             'price_nzd' => $this->card->priceCard->selling_price,
             'images'=> PartPhotoResource::collection($this->images),
             'group_name' => $this->carPdr->item_name_eng,
-            'trademe' => false,
+            'trademe' => $this->tradeMeListing !== null,
             'modification' => null,
             'image' => $this->images->count() ? $this->images->first()->url : '/public/part_not_found.jpg',
         ];
