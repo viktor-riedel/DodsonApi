@@ -262,7 +262,7 @@ class ImportPartsFromLiveStockAction
             'item_name_ru' => '',
             'item_name_eng' => $partName,
             'ic_number' => $partIcNumber,
-            'oem_number' => $partOemNumber,
+            'oem_number' => $originalCard && $originalCard->oem_number ? $originalCard->oem_number : $partOemNumber,
             'ic_description' => $partIsDescription,
             'is_virtual' => false,
             'created_by' => $this->getSystemAccount()->id,
@@ -279,7 +279,7 @@ class ImportPartsFromLiveStockAction
             'comment' => null,
             'description' => $partIsDescription,
             'ic_number' => $partIcNumber,
-            'oem_number' => null,
+            'oem_number' => $originalCard && $originalCard->oem_number ? $originalCard->oem_number : $partOemNumber,
             'created_by' => $this->getSystemAccount()->id,
             'barcode' => $barcode,
         ]);
