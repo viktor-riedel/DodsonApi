@@ -6,6 +6,7 @@ use App\Actions\Import\ImportFromPinnacleCsvAction;
 use App\Actions\TradeMe\TradeMeListingAction;
 use App\Events\TradeMe\CreateListingEvent;
 use App\Events\TradeMe\UpdateTradeMeListingEvent;
+use App\Helpers\Consts;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Part\EditPartResource;
 use App\Http\Resources\Part\MakeResource;
@@ -15,6 +16,8 @@ use App\Http\Resources\Part\PartNameResource;
 use App\Http\Resources\Part\PartResource;
 use App\Http\Resources\Part\YearResource;
 use App\Models\CarPdrPosition;
+use App\Models\Order;
+use App\Models\OrderItem;
 use DB;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\JsonResponse;
@@ -66,8 +69,10 @@ class PartsController extends Controller
                 'car_pdrs.item_name_eng',
                 'car_pdr_position_card_prices.selling_price',
                 'cars.generation',
+                'order_items.order_id'
             )
             ->selectRaw('null as images, null as tradeMeListing')
+            ->selectRaw('users.name as buyer')
             ->join('car_pdr_position_cards', function(JoinClause $join)  {
                 $join->on('car_pdr_position_cards.car_pdr_position_id', '=', 'car_pdr_positions.id');
             })
@@ -96,6 +101,12 @@ class PartsController extends Controller
                     return $query->whereIn('car_attributes.year', $carYears);
                 });
             })
+            ->leftJoin('users', function(JoinClause $join) {
+                $join->on('car_pdr_positions.user_id', '=', 'users.id');
+            })
+            ->leftJoin('order_items', function(JoinClause $join) {
+                $join->on('order_items.part_id', '=', 'car_pdr_positions.id');
+            })
             ->when($text, function ($query) use ($text) {
                 return $query->where('car_pdr_positions.item_name_eng', 'like', "%$text%")
                     ->orWhere('car_pdr_positions.ic_number', 'like', "%$text%")
@@ -117,6 +128,7 @@ class PartsController extends Controller
                ->find($part->id);
            $part->images = $position?->images;
            $part->tradeMeListing = $position->tradeMeListing;
+           $part->order = $part->order_id ? Order::find($part->order_id) : null;
         });
 
         return PartResource::collection($parts);
@@ -132,6 +144,8 @@ class PartsController extends Controller
     public function get(CarPdrPosition $part): EditPartResource
     {
         $part->load('card', 'card.priceCard', 'carPdr', 'carPdr.car', 'images', 'tradeMeListing');
+        $orderItem = OrderItem::where('part_id', $part->id)->first();
+        $part->order = $orderItem?->order;
         return new EditPartResource($part);
     }
 

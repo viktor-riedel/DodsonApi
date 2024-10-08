@@ -32,6 +32,7 @@ class EditPartResource extends JsonResource
             'trademe' => $this->tradeMeListing !== null,
             'modification' => null,
             'image' => $this->images->count() ? $this->images->first()->url : '/public/part_not_found.jpg',
+            'order_id' => $this->order?->id,
         ];
     }
 }

@@ -39,6 +39,9 @@ class PartResource extends JsonResource
             'generation' =>  $this->generation,
             'modification' => null,
             'image' => $this->images->count() ? $this->images->first()->url : '/public/part_not_found.jpg',
+            'user' => $this->buyer,
+            'order' => $this->order?->order_number,
+            'order_id' => $this->order?->id,
         ];
     }
 }
