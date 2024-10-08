@@ -71,7 +71,10 @@ class SyncOrderAction
             $syncData = $syncHelper->sendPreOrderData($data);
 
             if (isset($syncData['ResultData']) && $syncData['Res']) {
-                // update order sync data
+                $order->syncOrderData()->create([
+                    'document_number' => $syncData['ResultData']['Number'],
+                    'date' => $syncData['ResultData']['Date'],
+                ]);
             }
         } else {
             $order->load('items', 'createdBy');
@@ -130,7 +133,10 @@ class SyncOrderAction
                 ];
                 $syncData = $syncHelper->sendPreOrderData($data);
                 if (isset($syncData['ResultData']) && $syncData['Res']) {
-                    // update order sync data
+                    $order->syncOrderData()->create([
+                        'document_number' => $syncData['ResultData']['Number'],
+                        'date' => $syncData['ResultData']['Date'],
+                    ]);
                 }
             }
         }

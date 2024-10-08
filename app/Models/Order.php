@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
@@ -84,8 +86,13 @@ class Order extends Model
         }
     }
 
-    public function syncOrderData(): HasOne
+    public function syncOrderData(): MorphMany
     {
-        return $this->hasOne(SyncData::class, 'syncable')->latest();
+        return $this->MorphMany(SyncData::class, 'syncable');
+    }
+
+    public function latestSync(): MorphOne
+    {
+        return $this->MorphOne(SyncData::class, 'syncable');
     }
 }

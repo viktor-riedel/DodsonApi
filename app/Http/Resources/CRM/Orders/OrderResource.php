@@ -36,6 +36,7 @@ class OrderResource extends JsonResource
             'created_by' => $this->createdBy->name,
             'user' => $this->createdBy->name,
             'disabled' => $this->order_status === 3,
+            'sync' => $this->latestSync?->document_number,
         ];
     }
 }

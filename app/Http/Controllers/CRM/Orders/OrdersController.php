@@ -151,7 +151,7 @@ class OrdersController extends Controller
     private function getFullOrderData(Order $order): array
     {
         $order->refresh();
-        $order->load('items', 'createdBy');
+        $order->load('items', 'createdBy', 'latestSync');
         $car = $order->items->first()->car;
         if ($car) {
             $car->load('images', 'carAttributes', 'modifications');
