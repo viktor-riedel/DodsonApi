@@ -121,7 +121,9 @@ class StockPartsRetailController extends Controller
                 });
 
                 $query->when($search, function ($query) use ($search) {
-                    return $query->where('item_name_eng', 'REGEXP' , $search);
+                    return $query->where('item_name_eng', 'REGEXP' , $search)
+                        ->orWhere('ic_number', 'REGEXP' , $search)
+                        ->orWhere('oem_number', 'REGEXP' , $search);
                 });
 
                 $query->when($sellingPartNames, function ($query) use ($sellingPartNames) {

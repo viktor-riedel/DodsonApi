@@ -4,12 +4,14 @@ namespace App\Providers;
 
 use App\Events\Bot\SendBotMessageEvent;
 use App\Events\ModelsEvent\NomenclatureCreateEvent;
+use App\Events\Order\SyncCompleteOrderEvent;
 use App\Events\Sync\Export\SendToBotEvent;
 use App\Events\TradeMe\CreateListingEvent;
 use App\Events\TradeMe\RelistTradeMeListingEvent;
 use App\Events\TradeMe\UpdateTradeMeListingEvent;
 use App\Listeners\Bot\SendBotMessageListener;
 use App\Listeners\NomenclatureCreatedListener;
+use App\Listeners\Order\SyncOrderListener;
 use App\Listeners\SendCarToBotListener;
 use App\Listeners\TradeMe\CreateTradeMeListingListener;
 use App\Listeners\TradeMe\RelistTradeMeListingListener;
@@ -46,6 +48,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         RelistTradeMeListingEvent::class => [
             RelistTradeMeListingListener::class,
+        ],
+        SyncCompleteOrderEvent::class => [
+            SyncOrderListener::class,
         ]
     ];
 
