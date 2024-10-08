@@ -11,6 +11,7 @@ use App\Http\Resources\Part\RetailPartResource;
 use App\Http\Resources\Part\ViewRetailPartResource;
 use App\Http\Resources\Part\YearResource;
 use App\Http\Resources\SellingPartsMap\SellingMapItemResource;
+use App\Http\Traits\SystemAccountTrait;
 use App\Models\Car;
 use App\Models\CarPdr;
 use App\Models\CarPdrPosition;
@@ -25,6 +26,9 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class StockPartsRetailController extends Controller
 {
+
+    use SystemAccountTrait;
+
     public function list(Request $request): AnonymousResourceCollection
     {
         $makes = [];
@@ -187,6 +191,8 @@ class StockPartsRetailController extends Controller
                                 ->whereNotNull('car_attributes.year');
                         }), 'asc');
             })
+            ->whereNull('user_id')
+            ->orWhere('user_id', Consts::getPartsSaleUserId())
             ->paginate(60);
 
         return RetailPartResource::collection($parts);
