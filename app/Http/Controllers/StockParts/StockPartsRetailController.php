@@ -280,10 +280,6 @@ class StockPartsRetailController extends Controller
     {
         $ids = DB::table('cars')
             ->selectRaw('distinct nomenclature_base_items.id')
-            ->join('car_finances', function (JoinClause $join) {
-                $join->on('cars.id', '=', 'car_finances.car_id')
-                    ->where('car_finances.parts_for_sale', 1);
-            })
             ->join('nomenclature_base_items', function (JoinClause $join) {
                 $join->on('nomenclature_base_items.inner_id', '=', 'cars.parent_inner_id');
             })
@@ -299,10 +295,9 @@ class StockPartsRetailController extends Controller
                     ->whereNull('car_pdr_positions.deleted_at');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', Consts::getPartsSaleUserId())
+            ->where('cars.virtual_retail', true)
             ->where('cars.make', $make)
             ->where('cars.model', $model)
-            ->where('cars.virtual_retail', true)
             ->orderBy('nomenclature_base_items.id')
             ->get()
             ->pluck('id')
