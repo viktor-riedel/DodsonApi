@@ -55,13 +55,13 @@ class SyncOrderAction
                     ],
                     'generation' => $car->generation,
                     'engine' => $car->carAttributes->engine,
+                    'images' => $car->images->map(function ($image) {
+                        return $image->url;
+                    })->flatten()->toArray(),
                 ],
                 'finance' => [
                     'total' => $order->items->sum('price_jpy'),
                 ],
-                'images' => $car->images->map(function ($image) {
-                    return $image->url;
-                })->flatten()->toArray(),
                 'client' => [
                     'name' => $order->createdBy->name,
                     'registered_name' => $order->createdBy->userCard->trading_name,
@@ -115,13 +115,13 @@ class SyncOrderAction
                         ],
                         'generation' => $car->generation,
                         'engine' => $car->carAttributes->engine,
+                        'images' => $car->images->map(function ($image) {
+                            return $image->url;
+                        })->flatten()->toArray(),
                     ],
                     'finance' => [
                         'total' => $order->items->sum('price_jpy'),
                     ],
-                    'images' => $car->images->map(function ($image) {
-                        return $image->url;
-                    })->flatten()->toArray(),
                     'client' => [
                         'name' => $order->createdBy->name,
                         'registered_name' => $order->createdBy->userCard->trading_name,
