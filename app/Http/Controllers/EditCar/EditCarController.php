@@ -18,12 +18,12 @@ use App\Http\Resources\SellingPartsMap\SellingMapItemResource;
 use App\Http\Traits\BadgeGeneratorTrait;
 use App\Http\Traits\CarPdrTrait;
 use App\Http\Traits\DefaultSellingMapTrait;
+use App\Http\Traits\SyncPartsPricesTrait;
 use App\Http\Traits\SyncPartWithOrderTrait;
 use App\Jobs\Sync\SendCarToBotJob;
 use App\Jobs\Sync\SendDoneCarJob;
 use App\Models\Car;
 use App\Models\CarPartsComment;
-use App\Models\CarPdrPosition;
 use App\Models\CarPdrPositionCard;
 use App\Models\CarPdrPositionCardAttribute;
 use App\Models\CarPdrPositionCardPrice;
@@ -40,7 +40,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class EditCarController extends Controller
 {
-    use CarPdrTrait, SyncPartWithOrderTrait, DefaultSellingMapTrait, BadgeGeneratorTrait;
+    use CarPdrTrait, SyncPartWithOrderTrait, DefaultSellingMapTrait, BadgeGeneratorTrait, SyncPartsPricesTrait;
 
     public function edit(Car $car): JsonResponse
     {
@@ -496,11 +496,15 @@ class EditCarController extends Controller
             foreach ($request->all() as $position) {
                 $card = CarPdrPositionCard::with('priceCard')->find($position['card_id']);
                 if ($card) {
+                    $sellingPrice = $position['selling_price'] ? (int) $position['selling_price'] : null;
                     $card->priceCard()->update([
-                        'selling_price' => $position['selling_price'] ? (int) $position['selling_price'] : null,
+                        'selling_price' => $sellingPrice,
                         'buying_price' => $position['buying_price'] ? (int) $position['buying_price'] : null,
                         'price_currency' => 'JPY',
                     ]);
+                    if ($position['user_id']) {
+                        $this->syncPartPrice($card, $sellingPrice ?? 0, $position['user_id']);
+                    }
                 }
             }
         }
