@@ -54,6 +54,7 @@ class SyncOrderAction
                         'mvr' => $car->car_mvr,
                     ],
                     'generation' => $car->generation,
+                    'engine' => $car->carAttributes->engine,
                 ],
                 'finance' => [
                     'total' => $order->items->sum('price_jpy'),
@@ -113,6 +114,7 @@ class SyncOrderAction
                             'mvr' => $car->car_mvr,
                         ],
                         'generation' => $car->generation,
+                        'engine' => $car->carAttributes->engine,
                     ],
                     'finance' => [
                         'total' => $order->items->sum('price_jpy'),
