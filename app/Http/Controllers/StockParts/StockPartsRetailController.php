@@ -11,6 +11,7 @@ use App\Http\Resources\Part\RetailPartResource;
 use App\Http\Resources\Part\ViewRetailPartResource;
 use App\Http\Resources\Part\YearResource;
 use App\Http\Resources\SellingPartsMap\SellingMapItemResource;
+use App\Http\Traits\SystemAccountTrait;
 use App\Models\Car;
 use App\Models\CarPdr;
 use App\Models\CarPdrPosition;
@@ -25,6 +26,9 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class StockPartsRetailController extends Controller
 {
+
+    use SystemAccountTrait;
+
     public function list(Request $request): AnonymousResourceCollection
     {
         $makes = [];
@@ -121,7 +125,9 @@ class StockPartsRetailController extends Controller
                 });
 
                 $query->when($search, function ($query) use ($search) {
-                    return $query->where('item_name_eng', 'REGEXP' , $search);
+                    return $query->where('item_name_eng', 'REGEXP' , $search)
+                        ->orWhere('ic_number', 'REGEXP' , $search)
+                        ->orWhere('oem_number', 'REGEXP' , $search);
                 });
 
                 $query->when($sellingPartNames, function ($query) use ($sellingPartNames) {
@@ -185,6 +191,8 @@ class StockPartsRetailController extends Controller
                                 ->whereNotNull('car_attributes.year');
                         }), 'asc');
             })
+            ->whereNull('user_id')
+            ->orWhere('user_id', Consts::getPartsSaleUserId())
             ->paginate(60);
 
         return RetailPartResource::collection($parts);
@@ -278,10 +286,6 @@ class StockPartsRetailController extends Controller
     {
         $ids = DB::table('cars')
             ->selectRaw('distinct nomenclature_base_items.id')
-            ->join('car_finances', function (JoinClause $join) {
-                $join->on('cars.id', '=', 'car_finances.car_id')
-                    ->where('car_finances.parts_for_sale', 1);
-            })
             ->join('nomenclature_base_items', function (JoinClause $join) {
                 $join->on('nomenclature_base_items.inner_id', '=', 'cars.parent_inner_id');
             })
@@ -297,10 +301,9 @@ class StockPartsRetailController extends Controller
                     ->whereNull('car_pdr_positions.deleted_at');
             })
             ->whereNull('cars.deleted_at')
-            ->where('car_pdr_positions.user_id', Consts::getPartsSaleUserId())
+            ->where('cars.virtual_retail', true)
             ->where('cars.make', $make)
             ->where('cars.model', $model)
-            ->where('cars.virtual_retail', true)
             ->orderBy('nomenclature_base_items.id')
             ->get()
             ->pluck('id')

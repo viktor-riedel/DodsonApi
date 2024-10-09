@@ -2,6 +2,7 @@
 
 namespace App\Actions\Order;
 
+use App\Http\Traits\SystemAccountTrait;
 use App\Mail\UserPartsOrderCreatedMail;
 use App\Models\CarPdrPosition;
 use App\Models\Order;
@@ -10,6 +11,8 @@ use App\Helpers\Consts;
 
 class CreatePartsOrderAction
 {
+    use SystemAccountTrait;
+
     public function handle(Request $request): bool
     {
         $user = $request->user();
@@ -32,7 +35,7 @@ class CreatePartsOrderAction
                 //delete trademe if any
                 $position->tradeMeListing()?->delete();
 
-                if ($position->user_id === Consts::getPartsSaleUserId()) {
+                if ($position->user_id === Consts::getPartsSaleUserId() || $this->getSystemAccount()->id) {
                     $position->update([
                         'user_id' => $user->id,
                     ]);

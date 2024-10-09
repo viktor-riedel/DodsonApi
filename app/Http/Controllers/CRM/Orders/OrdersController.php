@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\CRM\Orders;
 
+use App\Events\Order\SyncCompleteOrderEvent;
 use App\Exports\Excel\CreatedCarsOrdersExcelExport;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Car\CarResource;
@@ -121,7 +122,15 @@ class OrdersController extends Controller
 
     public function update(Request $request, Order $order): JsonResponse
     {
-        $order->update(['order_status' => (int) $request->input('status')]);
+        $order->update([
+            'order_status' => (int) $request->input('status')
+        ]);
+        $order->refresh();
+        if ($order->order_status === Order::ORDER_STATUS_INT['CONFIRMED']) {
+            if (config('app.env') !== 'production') {
+                event(new SyncCompleteOrderEvent($order));
+            }
+        }
         return response()->json($this->getFullOrderData($order));
     }
 
@@ -144,7 +153,7 @@ class OrdersController extends Controller
     private function getFullOrderData(Order $order): array
     {
         $order->refresh();
-        $order->load('items', 'createdBy');
+        $order->load('items', 'createdBy', 'latestSync');
         $car = $order->items->first()->car;
         if ($car) {
             $car->load('images', 'carAttributes', 'modifications');

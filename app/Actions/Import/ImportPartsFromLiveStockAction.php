@@ -304,9 +304,9 @@ class ImportPartsFromLiveStockAction
             'minimum_threshold_jp_wholesale' => $originalCard?->minimum_threshold_jp_wholesale ?? 0,
             'minimum_threshold_mng_retail' => $originalCard?->minimum_threshold_mng_retail ?? 0,
             'minimum_threshold_mng_wholesale' => $originalCard?->minimum_threshold_mng_wholesale ?? 0,
-            'selling_price' => $partPrice,
+            'selling_price' => null,
             'standard_price' => $originalCard?->price_nz_retail ?? $partPrice,
-            'buying_price' => null,
+            'buying_price' => $partPrice,
         ]);
         $card->partAttributesCard()->create([
             'color' => null,
