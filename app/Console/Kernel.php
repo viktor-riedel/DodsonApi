@@ -13,11 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         //get rates
-        if (app()->environment() === 'production') {
-            $schedule->command('currency:update-currencies-rates')->everyThreeHours();
-        } else {
-            $schedule->command('currency:update-currencies-rates')->daily();
-        }
+        $schedule->command('currency:update-currencies-rates')->everySixHours();
         //sync !c balance
         $schedule->command('sync:user-balance')->everyThreeHours();
         //sync new users
