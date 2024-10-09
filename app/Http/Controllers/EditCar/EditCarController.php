@@ -497,13 +497,14 @@ class EditCarController extends Controller
                 $card = CarPdrPositionCard::with('priceCard')->find($position['card_id']);
                 if ($card) {
                     $sellingPrice = $position['selling_price'] ? (int) $position['selling_price'] : null;
+                    $buyingPrice = $position['buying_price'] ? (int) $position['buying_price'] : null;
                     $card->priceCard()->update([
                         'selling_price' => $sellingPrice,
-                        'buying_price' => $position['buying_price'] ? (int) $position['buying_price'] : null,
+                        'buying_price' => $buyingPrice,
                         'price_currency' => 'JPY',
                     ]);
                     if ($position['user_id']) {
-                        $this->syncPartPrice($card, $sellingPrice ?? 0, $position['user_id']);
+                        $this->syncPartPrice($card, $buyingPrice ?? 0, $position['user_id']);
                     }
                 }
             }
