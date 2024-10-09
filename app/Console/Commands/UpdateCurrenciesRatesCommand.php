@@ -28,35 +28,39 @@ class UpdateCurrenciesRatesCommand extends Command
         $fromUsdToYen = $this->getConvertedApiUrl('USD', 'JPY');
         $fromMntToYen = $this->getConvertedApiUrl('MNT', 'JPY');
 
-        CurrencyRate::all()->each(fn($rate) => $rate->delete());
+        if ($fromYenToRub && $fromYenToNzd) {
+            CurrencyRate::all()->each(fn($rate) => $rate->delete());
 
-        CurrencyRate::create([
-            'currency_code' => CurrencyRate::CURRENCIES['RUB'],
-            'rate_from_jpy' => $this->getRate($fromYenToRub),
-            'rate_to_jpy' => $this->getRate($fromRubToYen),
-        ]);
-        CurrencyRate::create([
-            'currency_code' => CurrencyRate::CURRENCIES['NZD'],
-            'rate_from_jpy' => $this->getRate($fromYenToNzd),
-            'rate_to_jpy' => $this->getRate($fromNzdToYen),
-        ]);
-        CurrencyRate::create([
-            'currency_code' => CurrencyRate::CURRENCIES['EUR'],
-            'rate_from_jpy' => $this->getRate($fromYenToEur),
-            'rate_to_jpy' => $this->getRate($fromUerToYen),
-        ]);
-        CurrencyRate::create([
-            'currency_code' => CurrencyRate::CURRENCIES['USD'],
-            'rate_from_jpy' => $this->getRate($fromYenToUsd),
-            'rate_to_jpy' => $this->getRate($fromUsdToYen),
-        ]);
-        CurrencyRate::create([
-            'currency_code' => CurrencyRate::CURRENCIES['MNT'],
-            'rate_from_jpy' => $this->getRate($fromYenToMnt),
-            'rate_to_jpy' => $this->getRate($fromMntToYen),
-        ]);
+            CurrencyRate::create([
+                'currency_code' => CurrencyRate::CURRENCIES['RUB'],
+                'rate_from_jpy' => $this->getRate($fromYenToRub),
+                'rate_to_jpy' => $this->getRate($fromRubToYen),
+            ]);
+            CurrencyRate::create([
+                'currency_code' => CurrencyRate::CURRENCIES['NZD'],
+                'rate_from_jpy' => $this->getRate($fromYenToNzd),
+                'rate_to_jpy' => $this->getRate($fromNzdToYen),
+            ]);
+            CurrencyRate::create([
+                'currency_code' => CurrencyRate::CURRENCIES['EUR'],
+                'rate_from_jpy' => $this->getRate($fromYenToEur),
+                'rate_to_jpy' => $this->getRate($fromUerToYen),
+            ]);
+            CurrencyRate::create([
+                'currency_code' => CurrencyRate::CURRENCIES['USD'],
+                'rate_from_jpy' => $this->getRate($fromYenToUsd),
+                'rate_to_jpy' => $this->getRate($fromUsdToYen),
+            ]);
+            CurrencyRate::create([
+                'currency_code' => CurrencyRate::CURRENCIES['MNT'],
+                'rate_from_jpy' => $this->getRate($fromYenToMnt),
+                'rate_to_jpy' => $this->getRate($fromMntToYen),
+            ]);
 
-        $this->info('rates updated');
+            $this->info('rates updated');
+        } else {
+            \Log::error('CANNOT UOPDATE CURRENCIES RATE');
+        }
     }
 
     private function getConvertedApiUrl(string $from, string $to): string
