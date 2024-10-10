@@ -14,7 +14,7 @@ class SyncUserBalanceCommand extends Command
 
     public function handle(): void
     {
-        if (app()->environment('production') || app()->environment('staging')) {
+        if (app()->environment('production')) {
             $users = User::with('userCard')->get();
             foreach ($users as $user) {
                 if (!$user->userCard) {
