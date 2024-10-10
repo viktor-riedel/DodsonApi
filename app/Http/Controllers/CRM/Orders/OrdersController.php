@@ -28,6 +28,7 @@ class OrdersController extends Controller
         $make = $request->get('make');
         $model = $request->get('model');
         $search = $request->get('search');
+        $status = $request->get('status');
 
         $carsIds = Car::where('make', $make)
             ->when($model, function ($query, $model) {
@@ -51,6 +52,9 @@ class OrdersController extends Controller
                                ->orWhere('chassis', 'like', '%' . $search . '%');
                        });
                     });
+            })
+            ->when($status, function ($query) use ($status) {
+                return $query->where('order_status', $status);
             })
             ->when(count($carsIds), function ($query) use ($carsIds) {
                 $query->whereHas('items', function ($query) use ($carsIds) {
