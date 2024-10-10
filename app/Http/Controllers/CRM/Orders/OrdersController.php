@@ -127,9 +127,7 @@ class OrdersController extends Controller
         ]);
         $order->refresh();
         if ($order->order_status === Order::ORDER_STATUS_INT['CONFIRMED']) {
-            if (config('app.env') !== 'production') {
-                event(new SyncCompleteOrderEvent($order));
-            }
+            event(new SyncCompleteOrderEvent($order));
         }
         return response()->json($this->getFullOrderData($order));
     }
