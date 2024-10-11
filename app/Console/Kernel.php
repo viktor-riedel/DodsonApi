@@ -15,7 +15,7 @@ class Kernel extends ConsoleKernel
         //get rates
         $schedule->command('currency:update-currencies-rates')->everySixHours();
         //sync !c balance
-        $schedule->command('sync:user-balance')->everyThreeHours();
+        $schedule->command('sync:user-balance')->hourly();
         //sync new users
         $schedule->command('sync:caparts-users')->everySixHours();
         //relist trademe
