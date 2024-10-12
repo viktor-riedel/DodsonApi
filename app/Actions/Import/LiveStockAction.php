@@ -20,6 +20,9 @@ class LiveStockAction
                     ImportRetailStockPartsJob::dispatch($parts);
                     $parts = [];
                 }
+                if (count($parts) === count($data['ResultData'])) {
+                    ImportRetailStockPartsJob::dispatch($parts);
+                }
             }
         }
     }

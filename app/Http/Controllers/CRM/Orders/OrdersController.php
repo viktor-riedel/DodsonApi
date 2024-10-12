@@ -38,7 +38,7 @@ class OrdersController extends Controller
             ->pluck('id')
             ->toArray();
 
-        $orders = Order::with('items', 'createdBy')
+        $orders = Order::with('items', 'createdBy', 'latestSync')
             ->when($userId, function ($query) use ($userId) {
                 return $query->where('user_id', $userId);
             })
