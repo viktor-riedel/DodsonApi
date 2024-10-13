@@ -164,7 +164,7 @@ class StockPartsRetailController extends Controller
             })
             ->when($sortByYear, function ($query, $sortByYear) {
                 return $query->orderBy(
-                    CarPdr::select(['car_attributes.year'])
+                    CarPdr::selectRaw('distinct car_attributes.year')
                         ->whereColumn('car_pdrs.id', '=', 'car_pdr_positions.car_pdr_id')
                         ->join('car_attributes', function (JoinClause $join){
                             $join->on('car_attributes.car_id', '=', 'car_pdrs.car_id')
@@ -183,8 +183,7 @@ class StockPartsRetailController extends Controller
                         }), $sortByPrice);
             })
             ->when(!$sortByMake && !$sortByModel && !$sortByYear && !$sortByPrice, function ($query) {
-                return $query->orderBy(
-                    CarPdr::select(['car_attributes.year'])
+                return $query->orderBy(CarPdr::selectRaw('distinct car_attributes.year')
                         ->whereColumn('car_pdrs.id', '=', 'car_pdr_positions.car_pdr_id')
                         ->join('car_attributes', function (JoinClause $join){
                             $join->on('car_attributes.car_id', '=', 'car_pdrs.car_id')
