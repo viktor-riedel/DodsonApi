@@ -32,6 +32,10 @@ use App\Models\MediaFile;
 use App\Models\NomenclatureBaseItemPdrCard;
 use App\Models\OrderItem;
 use App\Models\User;
+use Cloudinary\Tag\VideoTag;
+use Cloudinary\Transformation\Delivery;
+use Cloudinary\Transformation\Format;
+use Cloudinary\Transformation\Resize;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -44,7 +48,9 @@ class EditCarController extends Controller
 
     public function edit(Car $car): JsonResponse
     {
-        $car->load('images',
+        $car->load(
+            'images',
+            'videos',
             'links',
             'carAttributes',
             'modification',
@@ -67,6 +73,7 @@ class EditCarController extends Controller
                 ];
             });
         $car->unsetRelation('pdrs');
+        $car->uploaded_videos = $car->format_videos;
 
         if ($car->markets->count()) {
             $car->markets->transform(function($market) {
@@ -128,6 +135,39 @@ class EditCarController extends Controller
         return response()->json($car->images);
     }
 
+    public function uploadCarVideo(Request $request, Car $car): JsonResponse
+    {
+        if ($request->file('uploadCarVideos')) {
+            foreach ($request->file('uploadCarVideos') as $file) {
+                try {
+                    $filename = $car->make . '_' . $car->model . '_' . \Str::random();
+                    $folderName = 'cars/' . $car->id . '/videos';
+                    $fileExtension = '.' . $file?->clientExtension() ?? 'mp4';
+                    $url = cloudinary()->upload($file->getRealPath(), [
+                        'folder' => $folderName,
+                        'resource_type' => 'video',
+                        'public_id' => $filename,
+                        'chunk_size' => 6000000]
+                    )->getSecurePath();
+
+                    $car->videos()->create([
+                        'url' => $url,
+                        'mime' => 'video/mp4',
+                        'original_file_name' => $filename,
+                        'folder_name' => $folderName,
+                        'extension' => $fileExtension,
+                        'file_size' => $file->getSize(),
+                        'special_flag' => null,
+                        'created_by' => $request->user()->id,
+                    ]);
+                } catch (\Exception $e) {
+                    \Log::error('ERROR UPLOADING VIDEO: ' . $e->getMessage());
+                }
+            }
+        }
+        return response()->json($car->format_videos);
+    }
+
     public function deleteCarPhoto(Request $request, Car $car, MediaFile $photo): JsonResponse
     {
         $photo = $car->images()->where('id', $photo->id)->first();
@@ -136,6 +176,16 @@ class EditCarController extends Controller
             $photo->delete();
         }
         return response()->json($car->images);
+    }
+
+    public function deleteCarVideo(Request $request, Car $car, MediaFile $video): JsonResponse
+    {
+        $carVideo = $car->videos()->where('id', $video->id)->first();
+        if ($carVideo) {
+            $carVideo->update(['deleted_by' => $request->user()->id]);
+            $carVideo->delete();
+        }
+        return response()->json($car->format_videos);
     }
 
     public function updateCar(Request $request, Car $car): JsonResponse

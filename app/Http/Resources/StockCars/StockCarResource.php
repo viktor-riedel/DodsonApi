@@ -42,6 +42,7 @@ class StockCarResource extends JsonResource
             'modification' => $this->whenLoaded('modifications',
                     new ModificationResource($this->modifications),
                 null),
+            'videos' => $this->format_videos,
         ];
     }
 }

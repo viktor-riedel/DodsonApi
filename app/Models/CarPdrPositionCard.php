@@ -55,7 +55,8 @@ class CarPdrPositionCard extends Model
 
     public function images(): MorphMany
     {
-        return $this->morphMany(MediaFile::class, 'mediable');
+        return $this->morphMany(MediaFile::class, 'mediable')
+            ->where('mime', '!=', 'video/mp4');
     }
 
     public function modification(): MorphOne

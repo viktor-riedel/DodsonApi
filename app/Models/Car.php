@@ -3,6 +3,10 @@
 namespace App\Models;
 
 use App\Http\Traits\DefaultSellingMapTrait;
+use Cloudinary\Tag\VideoTag;
+use Cloudinary\Transformation\Delivery;
+use Cloudinary\Transformation\Format;
+use Cloudinary\Transformation\Resize;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
 class Car extends Model
 {
@@ -67,7 +72,28 @@ class Car extends Model
 
     public function images(): MorphMany
     {
-        return $this->morphMany(MediaFile::class, 'mediable');
+        return $this->morphMany(MediaFile::class, 'mediable')
+            ->where('mime', '!=', 'video/mp4');
+    }
+
+    public function videos(): MorphMany
+    {
+        return $this->morphMany(MediaFile::class, 'mediable')
+            ->where('mime', '=', 'video/mp4');
+    }
+
+    public function getFormatVideosAttribute(): Collection
+    {
+        $videos = collect();
+        $this->videos->each(function (MediaFile $file) use ($videos) {
+            $videos->push(
+                (new VideoTag($file->folder_name . '/' . $file->original_file_name))
+                    ->resize(Resize::pad(480, 360))
+                    ->delivery(Delivery::format(Format::auto()))
+                    ->setAttributes(['controls'])
+                    ->toTag());
+        });
+        return $videos;
     }
 
     public function links(): MorphMany
