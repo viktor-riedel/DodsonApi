@@ -20,7 +20,9 @@ Route::prefix('cars')->middleware(['auth:sanctum', 'is_web_user'])->group(functi
         Route::get('/edit', [EditCarController::class, 'edit']);
         Route::delete('/delete', [EditCarController::class, 'delete']);
         Route::post('/upload-car-photo', [EditCarController::class, 'uploadCarPhoto']);
+        Route::post('/upload-car-video', [EditCarController::class, 'uploadCarVideo']);
         Route::delete('/delete-car-photo/{photo}', [EditCarController::class, 'deleteCarPhoto']);
+        Route::delete('/delete-car-video/{video}', [EditCarController::class, 'deleteCarVideo']);
         Route::patch('/update-car', [EditCarController::class, 'updateCar']);
         Route::patch('/update-car-status', [EditCarController::class, 'updateCarStatus']);
         Route::get('/sync-car', [EditCarController::class, 'syncCar']);

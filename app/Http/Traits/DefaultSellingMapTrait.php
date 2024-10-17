@@ -50,7 +50,6 @@ trait DefaultSellingMapTrait
 
     private function getDefaultSellingMapWithOrdered(Car $car, ?int $userId = null): Collection
     {
-        ray($userId);
         $directories = SellingMapItem::where('parent_id', 0)->get();
         $partsList = $this->getPricingPartsList($car);
         $parts = $partsList->pluck('name_eng')->toArray();
