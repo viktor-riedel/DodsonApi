@@ -50,7 +50,6 @@ class EditCarController extends Controller
     {
         $car->load(
             'images',
-            'videos',
             'links',
             'carAttributes',
             'modification',

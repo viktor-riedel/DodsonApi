@@ -87,11 +87,14 @@ class Car extends Model
         $videos = collect();
         $this->videos->each(function (MediaFile $file) use ($videos) {
             $videos->push(
-                (new VideoTag($file->folder_name . '/' . $file->original_file_name))
-                    ->resize(Resize::pad(480, 360))
-                    ->delivery(Delivery::format(Format::auto()))
-                    ->setAttributes(['controls'])
-                    ->toTag());
+                [
+                    'id' => $file->id,
+                    'tag' => (new VideoTag($file->folder_name . '/' . $file->original_file_name))
+                        ->resize(Resize::pad(480, 360))
+                        ->delivery(Delivery::format(Format::auto()))
+                        ->setAttributes(['controls'])
+                        ->toTag(),
+                ]);
         });
         return $videos;
     }
