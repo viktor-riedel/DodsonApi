@@ -90,7 +90,7 @@ class Car extends Model
                 [
                     'id' => $file->id,
                     'tag' => (new VideoTag($file->folder_name . '/' . $file->original_file_name))
-                        ->resize(Resize::pad(480, 360))
+                        ->resize(Resize::scale()->height(260))
                         ->delivery(Delivery::format(Format::auto()))
                         ->setAttributes(['controls'])
                         ->toTag(),
